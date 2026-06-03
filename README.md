@@ -1,2 +1,3 @@
-# knowledge-graph-swarm
-My end of year dissertation project for my MSc in Computer Science
+# An Emergent Knowledge Graph Using Swarm Intelligence
+
+This is an emergent knowledge graph that uses swarm intelligence to organise itself.
