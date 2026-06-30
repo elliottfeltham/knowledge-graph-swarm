@@ -2,37 +2,17 @@ import argparse
 import json
 from pathlib import Path
 
-import faiss
 import numpy as np
+
+from src.common import build_faiss_index, load_embeddings as load_shared_embeddings
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_embeddings.npy"
-IDS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_ids.json"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "static_graph_edges.jsonl"
 
 
-def load_embeddings() -> tuple[np.ndarray, list[str]]:
-    embeddings = np.load(EMBEDDINGS_PATH).astype("float32")
-
-    with open(IDS_PATH, "r", encoding="utf-8") as file:
-        document_ids = json.load(file)
-
-    if len(document_ids) != embeddings.shape[0]:
-        raise ValueError(
-            f"Document ID count ({len(document_ids)}) does not match "
-            f"embedding count ({embeddings.shape[0]})"
-        )
-
-    return embeddings, document_ids
-
-
 def build_static_graph(embeddings: np.ndarray, document_ids: list[str], neighbours_per_doc: int) -> list[dict]:
-    embedding_dimensions = embeddings.shape[1]
-
-    index = faiss.IndexFlatIP(embedding_dimensions)
-    index.add(embeddings)
+    index = build_faiss_index(embeddings)
 
     # Searches for closest match other than itself.
     scores, indices = index.search(embeddings, neighbours_per_doc + 1)
@@ -88,7 +68,7 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    embeddings, document_ids = load_embeddings()
+    embeddings, document_ids = load_shared_embeddings()
 
     print(f"Loaded embeddings: {embeddings.shape}")
     print(f"Loaded document IDs: {len(document_ids)}")

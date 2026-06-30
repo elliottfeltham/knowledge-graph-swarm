@@ -5,163 +5,27 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
-import faiss
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
+from src.common import (
+    MODEL_NAME,
+    PROJECT_ROOT,
+    average,
+    build_faiss_index,
+    encode_query,
+    faiss_retrieve,
+    load_embeddings,
+    load_qrels,
+    load_queries,
+    load_static_graph,
+    mean_reciprocal_rank,
+    recall_at_k,
+    static_graph_retrieve,
+)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-QUERIES_PATH = PROJECT_ROOT / "data" / "processed" / "queries.jsonl"
-QRELS_PATH = PROJECT_ROOT / "data" / "processed" / "qrels.jsonl"
-EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_embeddings.npy"
-IDS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_ids.json"
-STATIC_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "static_graph_edges.jsonl"
 
 RESULTS_CSV_PATH = PROJECT_ROOT / "results" / "baseline_results.csv"
 SUMMARY_JSON_PATH = PROJECT_ROOT / "results" / "baseline_summary.json"
-
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-
-
-def read_jsonl(path: Path) -> list[dict]:
-    rows = []
-
-    with open(path, "r", encoding="utf-8") as file:
-        for line in file:
-            if line.strip():
-                rows.append(json.loads(line))
-
-    return rows
-
-
-def load_queries() -> list[dict]:
-    return read_jsonl(QUERIES_PATH)
-
-
-def load_qrels() -> dict[str, set[str]]:
-    qrels = defaultdict(set)
-
-    rows = read_jsonl(QRELS_PATH)
-
-    for row in rows:
-        query_id = row["query_id"]
-        doc_id = row["doc_id"]
-        qrels[query_id].add(doc_id)
-
-    return qrels
-
-
-def load_embeddings() -> tuple[np.ndarray, list[str]]:
-    embeddings = np.load(EMBEDDINGS_PATH).astype("float32")
-
-    with open(IDS_PATH, "r", encoding="utf-8") as file:
-        document_ids = json.load(file)
-
-    if len(document_ids) != embeddings.shape[0]:
-        raise ValueError(
-            f"Document ID count ({len(document_ids)}) does not match "
-            f"embedding count ({embeddings.shape[0]})"
-        )
-
-    return embeddings, document_ids
-
-
-def build_faiss_index(embeddings: np.ndarray) -> faiss.Index:
-    embedding_dimensions = embeddings.shape[1]
-
-    index = faiss.IndexFlatIP(embedding_dimensions)
-    index.add(embeddings)
-
-    return index
-
-
-def load_static_graph() -> dict[str, dict[str, float]]:
-    graph = defaultdict(dict)
-
-    rows = read_jsonl(STATIC_GRAPH_PATH)
-
-    for row in rows:
-        source = row["source"]
-        target = row["target"]
-        weight = float(row["weight"])
-
-        graph[source][target] = weight
-        graph[target][source] = weight
-
-    return graph
-
-
-def recall_at_k(retrieved_doc_ids: list[str], relevant_doc_ids: set[str], k: int) -> float:
-    if not relevant_doc_ids:
-        return 0.0
-
-    retrieved_at_k = retrieved_doc_ids[:k]
-    hits = sum(1 for doc_id in retrieved_at_k if doc_id in relevant_doc_ids)
-
-    return hits / len(relevant_doc_ids)
-
-
-def mean_reciprocal_rank(retrieved_doc_ids: list[str], relevant_doc_ids: set[str]) -> float:
-    for rank, doc_id in enumerate(retrieved_doc_ids, start=1):
-        if doc_id in relevant_doc_ids:
-            return 1.0 / rank
-
-    return 0.0
-
-
-def faiss_retrieve(
-    index: faiss.Index,
-    query_embedding: np.ndarray,
-    document_ids: list[str],
-    top_k: int,
-) -> list[str]:
-    scores, indices = index.search(query_embedding, top_k)
-
-    retrieved_doc_ids = []
-
-    for index_position in indices[0]:
-        doc_id = document_ids[int(index_position)]
-        retrieved_doc_ids.append(doc_id)
-
-    return retrieved_doc_ids
-
-
-def static_graph_retrieve(
-    index: faiss.Index,
-    query_embedding: np.ndarray,
-    document_ids: list[str],
-    graph: dict[str, dict[str, float]],
-    top_k: int,
-    seed_k: int,
-    graph_activation_weight: float,
-) -> list[str]:
-    seed_scores, seed_indices = index.search(query_embedding, seed_k)
-
-    document_scores = defaultdict(float)
-
-    for seed_score, seed_index in zip(seed_scores[0], seed_indices[0]):
-        seed_doc_id = document_ids[int(seed_index)]
-        seed_score = float(seed_score)
-
-        # Seed documents keep their FAISS similarity score.
-        document_scores[seed_doc_id] += seed_score
-
-        # Connected graph neighbours receive partial activation.
-        for neighbour_id, edge_weight in graph[seed_doc_id].items():
-            neighbour_activation = seed_score * edge_weight * graph_activation_weight
-            document_scores[neighbour_id] += neighbour_activation
-
-    ranked_doc_ids = [
-        doc_id
-        for doc_id, score in sorted(
-            document_scores.items(),
-            key=lambda item: item[1],
-            reverse=True,
-        )
-    ]
-
-    return ranked_doc_ids[:top_k]
 
 
 def evaluate_system_result(
@@ -313,21 +177,21 @@ def main() -> None:
 
         embedding_start = time.perf_counter()
 
-        query_embedding = model.encode(
-            [query_text],
-            normalize_embeddings=True,
-        ).astype("float32")
+        query_embedding = encode_query(model, query_text)
 
         embedding_latency_ms = (time.perf_counter() - embedding_start) * 1000
 
         faiss_start = time.perf_counter()
 
-        faiss_doc_ids = faiss_retrieve(
-            index=index,
-            query_embedding=query_embedding,
-            document_ids=document_ids,
-            top_k=args.top_k,
-        )
+        faiss_doc_ids = [
+            doc_id
+            for doc_id, _ in faiss_retrieve(
+                index=index,
+                query_embedding=query_embedding,
+                document_ids=document_ids,
+                top_k=args.top_k,
+            )
+        ]
 
         faiss_retrieval_latency_ms = (time.perf_counter() - faiss_start) * 1000
 
@@ -345,15 +209,18 @@ def main() -> None:
 
         static_graph_start = time.perf_counter()
 
-        static_graph_doc_ids = static_graph_retrieve(
-            index=index,
-            query_embedding=query_embedding,
-            document_ids=document_ids,
-            graph=graph,
-            top_k=args.top_k,
-            seed_k=args.seed_k,
-            graph_activation_weight=args.graph_weight,
-        )
+        static_graph_doc_ids = [
+            doc_id
+            for doc_id, _ in static_graph_retrieve(
+                index=index,
+                query_embedding=query_embedding,
+                document_ids=document_ids,
+                graph=graph,
+                top_k=args.top_k,
+                seed_k=args.seed_k,
+                graph_activation_weight=args.graph_weight,
+            )
+        ]
 
         static_graph_retrieval_latency_ms = (time.perf_counter() - static_graph_start) * 1000
 

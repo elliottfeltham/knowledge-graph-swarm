@@ -1,78 +1,16 @@
 import argparse
-import json
 import time
-from collections import defaultdict
-from pathlib import Path
-
-import faiss
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-DOCUMENTS_PATH = PROJECT_ROOT / "data" / "processed" / "documents.jsonl"
-EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_embeddings.npy"
-IDS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_ids.json"
-STATIC_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "static_graph_edges.jsonl"
-
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-
-
-def read_jsonl(path: Path) -> list[dict]:
-    rows = []
-
-    with open(path, "r", encoding="utf-8") as file:
-        for line in file:
-            if line.strip():
-                rows.append(json.loads(line))
-
-    return rows
-
-
-def load_documents() -> dict[str, dict]:
-    documents = read_jsonl(DOCUMENTS_PATH)
-    return {doc["doc_id"]: doc for doc in documents}
-
-
-def load_embeddings() -> tuple[np.ndarray, list[str]]:
-    embeddings = np.load(EMBEDDINGS_PATH).astype("float32")
-
-    with open(IDS_PATH, "r", encoding="utf-8") as file:
-        document_ids = json.load(file)
-
-    if len(document_ids) != embeddings.shape[0]:
-        raise ValueError(
-            f"Document ID count ({len(document_ids)}) does not match "
-            f"embedding count ({embeddings.shape[0]})"
-        )
-
-    return embeddings, document_ids
-
-
-def build_faiss_index(embeddings: np.ndarray) -> faiss.Index:
-    embedding_dimensions = embeddings.shape[1]
-
-    index = faiss.IndexFlatIP(embedding_dimensions)
-    index.add(embeddings)
-
-    return index
-
-
-def load_static_graph() -> dict[str, dict[str, float]]:
-    graph = defaultdict(dict)
-
-    edges = read_jsonl(STATIC_GRAPH_PATH)
-
-    for edge in edges:
-        source = edge["source"]
-        target = edge["target"]
-        weight = float(edge["weight"])
-
-        graph[source][target] = weight
-        graph[target][source] = weight
-
-    return graph
+from src.common import (
+    MODEL_NAME,
+    build_faiss_index,
+    encode_query,
+    load_documents,
+    load_embeddings,
+    load_static_graph,
+    static_graph_retrieve,
+)
 
 
 def search(
@@ -90,33 +28,19 @@ def search(
 
     start_time = time.perf_counter()
 
-    query_embedding = model.encode(
-        [query],
-        normalize_embeddings=True,
-    ).astype("float32")
-
-    # Use the FAISS index to find the first relevant documents as a seed.
-    seed_scores, seed_indices = index.search(query_embedding, seed_k)
-
-    document_scores = defaultdict(float)
-
-    for seed_score, seed_index in zip(seed_scores[0], seed_indices[0]):
-        seed_doc_id = document_ids[int(seed_index)]
-        seed_score = float(seed_score)
-
-        document_scores[seed_doc_id] += seed_score
-
-        for neighbour_id, edge_weight in graph[seed_doc_id].items():
-            neighbour_activation = seed_score * edge_weight * graph_activation_weight
-            document_scores[neighbour_id] += neighbour_activation
+    query_embedding = encode_query(model, query)
 
     latency_ms = (time.perf_counter() - start_time) * 1000
 
-    ranked_results = sorted(
-        document_scores.items(),
-        key=lambda item: item[1],
-        reverse=True,
-    )[:top_k]
+    ranked_results = static_graph_retrieve(
+        index=index,
+        query_embedding=query_embedding,
+        document_ids=document_ids,
+        graph=graph,
+        top_k=top_k,
+        seed_k=seed_k,
+        graph_activation_weight=graph_activation_weight,
+    )
 
     results = []
 

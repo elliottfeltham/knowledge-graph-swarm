@@ -1,30 +1,18 @@
 import json
-from pathlib import Path
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
+from src.common import MODEL_NAME, PROJECT_ROOT, read_jsonl
 
-DOCUMENTS_PATH = Path("data/processed/documents.jsonl")
-EMBEDDINGS_DIR = Path("data/embeddings")
+
+DOCUMENTS_PATH = PROJECT_ROOT / "data" / "processed" / "documents.jsonl"
+EMBEDDINGS_DIR = PROJECT_ROOT / "data" / "embeddings"
 EMBEDDINGS_PATH = EMBEDDINGS_DIR / "document_embeddings.npy"
 IDS_PATH = EMBEDDINGS_DIR / "document_ids.json"
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
-
-def read_jsonl(path):
-    rows = []
-
-    with open(path, "r", encoding="utf-8") as file:
-        for line in file:
-            if line.strip():
-                rows.append(json.loads(line))
-
-    return rows
-
-
-def main():
+def main() -> None:
     EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
 
     documents = read_jsonl(DOCUMENTS_PATH)

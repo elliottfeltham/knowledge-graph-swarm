@@ -1,61 +1,15 @@
 import argparse
-import json
 import time
-from pathlib import Path
-
-import faiss
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-DOCUMENTS_PATH = PROJECT_ROOT / "data" / "processed" / "documents.jsonl"
-EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_embeddings.npy"
-IDS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_ids.json"
-
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-
-
-def read_jsonl(path: Path) -> list[dict]:
-    rows = []
-
-    with open(path, "r", encoding="utf-8") as file:
-        for line in file:
-            if line.strip():
-                rows.append(json.loads(line))
-
-    return rows
-
-
-def load_documents() -> dict[str, dict]:
-    documents = read_jsonl(DOCUMENTS_PATH)
-    return {doc["doc_id"]: doc for doc in documents}
-
-
-def load_embeddings() -> tuple[np.ndarray, list[str]]:
-    embeddings = np.load(EMBEDDINGS_PATH).astype("float32")
-
-    with open(IDS_PATH, "r", encoding="utf-8") as file:
-        document_ids = json.load(file)
-
-    if len(document_ids) != embeddings.shape[0]:
-        raise ValueError(
-            f"Document ID count ({len(document_ids)}) does not match "
-            f"embedding count ({embeddings.shape[0]})"
-        )
-
-    return embeddings, document_ids
-
-
-def build_faiss_index(embeddings: np.ndarray) -> faiss.Index:
-    embedding_dimensions = embeddings.shape[1]
-
-    # IndexFlatIP is a simple index that performs dot product search, equivalent to cosine similarity.
-    index = faiss.IndexFlatIP(embedding_dimensions)
-    index.add(embeddings)
-
-    return index
+from src.common import (
+    MODEL_NAME,
+    build_faiss_index,
+    encode_query,
+    faiss_retrieve,
+    load_documents,
+    load_embeddings,
+)
 
 
 def search(query: str, top_k: int = 10) -> tuple[list[dict], float]:
@@ -68,19 +22,20 @@ def search(query: str, top_k: int = 10) -> tuple[list[dict], float]:
 
     start_time = time.perf_counter()
 
-    query_embedding = model.encode(
-        [query],
-        normalize_embeddings=True,
-    ).astype("float32")
+    query_embedding = encode_query(model, query)
 
-    scores, indices = index.search(query_embedding, top_k)
+    ranked_results = faiss_retrieve(
+        index=index,
+        query_embedding=query_embedding,
+        document_ids=document_ids,
+        top_k=top_k,
+    )
 
     latency_ms = (time.perf_counter() - start_time) * 1000
 
     results = []
 
-    for score, index_position in zip(scores[0], indices[0]):
-        doc_id = document_ids[int(index_position)]
+    for doc_id, score in ranked_results:
         document = documents[doc_id]
 
         results.append(

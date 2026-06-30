@@ -1,11 +1,12 @@
-from datasets import load_dataset
 import json
-from pathlib import Path
+from datasets import load_dataset
+
+from src.common import PROJECT_ROOT
 
 dataset = load_dataset("hotpotqa/hotpot_qa", "distractor", split="train")
 subset = dataset.select(range(500))
 
-processed_dir = Path("data/processed")
+processed_dir = PROJECT_ROOT / "data" / "processed"
 processed_dir.mkdir(parents=True, exist_ok=True)
 
 documents = {}
