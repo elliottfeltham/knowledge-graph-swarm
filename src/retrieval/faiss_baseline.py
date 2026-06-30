@@ -51,8 +51,7 @@ def load_embeddings() -> tuple[np.ndarray, list[str]]:
 def build_faiss_index(embeddings: np.ndarray) -> faiss.Index:
     embedding_dimensions = embeddings.shape[1]
 
-    # IndexFlatIP = exact inner product search.
-    # Because our embeddings were normalised, inner product is equivalent to cosine similarity.
+    # IndexFlatIP is a simple index that performs dot product search, equivalent to cosine similarity.
     index = faiss.IndexFlatIP(embedding_dimensions)
     index.add(embeddings)
 
