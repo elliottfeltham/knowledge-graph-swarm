@@ -2,7 +2,7 @@ import argparse
 import time
 from sentence_transformers import SentenceTransformer
 
-from src.common import (
+from common import (
     MODEL_NAME,
     build_faiss_index,
     encode_query,

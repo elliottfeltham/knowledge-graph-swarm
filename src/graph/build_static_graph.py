@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.common import build_faiss_index, load_embeddings as load_shared_embeddings
+from common import build_faiss_index, load_embeddings as load_shared_embeddings
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

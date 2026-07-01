@@ -2,6 +2,10 @@
 
 This is an emergent knowledge graph that uses swarm intelligence to organise itself.
 
+## Setup
+
+Install the project and dependencies with `pip install -r requirements.txt` from the repository root.
+
 ## Evaluation Pipeline
 
 This is the pipeline so far for evaluating the FAISS baseline and the static graph baseline.

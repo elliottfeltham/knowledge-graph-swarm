@@ -3,7 +3,7 @@ import json
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-from src.common import MODEL_NAME, PROJECT_ROOT, read_jsonl
+from common import MODEL_NAME, PROJECT_ROOT, read_jsonl
 
 
 DOCUMENTS_PATH = PROJECT_ROOT / "data" / "processed" / "documents.jsonl"

@@ -1,7 +1,7 @@
 import json
 from datasets import load_dataset
 
-from src.common import PROJECT_ROOT
+from common import PROJECT_ROOT
 
 dataset = load_dataset("hotpotqa/hotpot_qa", "distractor", split="train")
 subset = dataset.select(range(500))

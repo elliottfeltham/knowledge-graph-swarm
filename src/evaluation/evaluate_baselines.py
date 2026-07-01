@@ -7,7 +7,7 @@ from pathlib import Path
 
 from sentence_transformers import SentenceTransformer
 
-from src.common import (
+from common import (
     MODEL_NAME,
     PROJECT_ROOT,
     average,
