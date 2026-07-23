@@ -37,6 +37,26 @@ data/processed/document_agents.jsonl
 
 The generated file is ignored by Git because it can be recreated from the processed documents and embeddings. Later, this step should be wrapped into a single build command for the whole system.
 
+## Agent Graph Retrieval
+
+The agent graph retrieval script uses FAISS to find the first set of related document agents, then lets activation spread once through their graph connections.
+
+For now, this is a read-only retrieval step. It uses the saved agent graph but does not strengthen, decay or prune any connections.
+
+```bash
+PYTHONPATH=src .venv/bin/python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
+```
+
+Arguments:
+
+`--query`: the search query to run. This is required.
+
+`--top-k`: controls how many ranked documents are returned. The default is `10`. A smaller value, such as `5`, is useful for quick inspection. A larger value, such as `20`, shows more of the graph-influenced ranking.
+
+`--seed-k`: controls how many FAISS results are used as the starting agents. The default is `5`. A smaller value, such as `3`, keeps the search focused on the closest semantic matches. A larger value, such as `10`, lets more documents spread activation into the graph.
+
+`--graph-weight`: controls how much influence neighbouring agents have on the final ranking. The default is `0.3`. `0.0` ignores the graph, `0.3` uses the graph gently, and `1.0` gives graph connections a much stronger effect.
+
 ## Data And Outputs
 
 Generated documents, embeddings, graph edges, and results are written under `data/` and `results/` and are ignored by Git.
