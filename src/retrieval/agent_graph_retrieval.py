@@ -1,3 +1,4 @@
+import argparse
 from collections import defaultdict
 from pathlib import Path
 import time
@@ -113,3 +114,46 @@ def search(
         )
 
     return results, latency_ms
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Run agent graph retrieval.")
+    parser.add_argument("--query", type=str, required=True)
+    parser.add_argument("--top-k", type=int, default=10)
+    parser.add_argument(
+        "--seed-k",
+        type=int,
+        default=5,
+        help="Number of FAISS seed documents to activate.",
+    )
+    parser.add_argument(
+        "--graph-weight",
+        type=float,
+        default=0.3,
+        help="How strongly graph neighbours affect final ranking.",
+    )
+
+    args = parser.parse_args()
+
+    results, latency_ms = search(
+        query=args.query,
+        top_k=args.top_k,
+        seed_k=args.seed_k,
+        graph_weight=args.graph_weight,
+    )
+
+    print(f"\nQuery: {args.query}")
+    print(f"Agent graph search latency: {latency_ms:.2f} ms")
+    print(f"Top {args.top_k} results:")
+
+    for rank, result in enumerate(results, start=1):
+        print("\n" + "-" * 80)
+        print(f"Rank {rank}")
+        print(f"Title: {result['title']}")
+        print(f"Doc ID: {result['doc_id']}")
+        print(f"Score: {result['score']:.4f}")
+        print(f"Preview: {result['text_preview']}")
+
+
+if __name__ == "__main__":
+    main()
