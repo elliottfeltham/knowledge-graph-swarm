@@ -9,6 +9,7 @@ class GraphUpdateConfig:
     decay_rate: float = 0.995
     prune_threshold: float = 0.05
     max_edge_weight: float = 1.0
+    enable_pruning: bool = True
 
 
 def make_edge_key(source_id: str, target_id: str) -> tuple[str, str]:
@@ -119,10 +120,13 @@ def update_graph_after_retrieval(
         strengthened_edges=strengthened_edges,
         config=config,
     )
-    pruned_edges = prune_weak_edges(
-        agents=agents,
-        config=config,
-    )
+    pruned_edges = 0
+
+    if config.enable_pruning:
+        pruned_edges = prune_weak_edges(
+            agents=agents,
+            config=config,
+        )
 
     return {
         "retrieved_documents": len(retrieved_doc_ids),
