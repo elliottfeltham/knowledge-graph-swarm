@@ -73,3 +73,29 @@ def decay_unused_edges(
             agents[target_id].add_edge(source_id, decayed_weight)
 
             decayed_edges.add(edge_key)
+
+
+def prune_weak_edges(
+    agents: dict[str, DocumentAgent],
+    config: GraphUpdateConfig,
+) -> int:
+    checked_edges = set()
+    edges_to_remove = []
+
+    for source_id, agent in agents.items():
+        for target_id, edge in agent.edges.items():
+            edge_key = make_edge_key(source_id, target_id)
+
+            if edge_key in checked_edges:
+                continue
+
+            checked_edges.add(edge_key)
+
+            if edge.weight < config.prune_threshold:
+                edges_to_remove.append((source_id, target_id))
+
+    for source_id, target_id in edges_to_remove:
+        agents[source_id].edges.pop(target_id, None)
+        agents[target_id].edges.pop(source_id, None)
+
+    return len(edges_to_remove)
