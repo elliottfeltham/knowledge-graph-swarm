@@ -41,7 +41,7 @@ The generated file is ignored by Git because it can be recreated from the proces
 
 The agent graph retrieval script uses FAISS to find the first set of related document agents, then lets activation spread once through their graph connections.
 
-For now, this is a read-only retrieval step. It uses the saved agent graph but does not strengthen, decay or prune any connections.
+By default, this is a read-only retrieval step. It uses the saved agent graph but does not strengthen, decay or prune any connections.
 
 ```bash
 PYTHONPATH=src .venv/bin/python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
@@ -56,6 +56,16 @@ Arguments:
 `--seed-k`: controls how many FAISS results are used as the starting agents. The default is `5`. A smaller value, such as `3`, keeps the search focused on the closest semantic matches. A larger value, such as `10`, lets more documents spread activation into the graph.
 
 `--graph-weight`: controls how much influence neighbouring agents have on the final ranking. The default is `0.3`. `0.0` ignores the graph, `0.3` uses the graph gently, and `1.0` gives graph connections a much stronger effect.
+
+`--adaptive`: updates and saves the agent graph after retrieval. This strengthens edges between documents retrieved together, decays unused edges, and prunes weak edges.
+
+`--disable-pruning`: skips pruning during adaptive updates. This is useful while testing the adaptive system without immediately removing weak initial edges.
+
+To run an adaptive query without pruning:
+
+```bash
+PYTHONPATH=src .venv/bin/python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?" --adaptive --disable-pruning
+```
 
 ## Data And Outputs
 
