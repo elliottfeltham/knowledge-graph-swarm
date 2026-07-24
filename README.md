@@ -6,6 +6,47 @@ This is an emergent knowledge graph that uses swarm intelligence to organise its
 
 Install the project and dependencies with `pip install -r requirements.txt` from the repository root.
 
+## Quick Demo
+
+These commands rebuild the small HotpotQA dataset, create the graphs, and run the current agent graph retrieval system.
+
+On macOS or Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python src/data/load_dataset.py
+python src/embeddings/embed_documents.py
+python src/graph/build_static_graph.py
+PYTHONPATH=src python src/graph/initialize_agent_graph.py
+PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
+```
+
+On Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python src/data/load_dataset.py
+python src/embeddings/embed_documents.py
+python src/graph/build_static_graph.py
+$env:PYTHONPATH = "src"
+python src/graph/initialize_agent_graph.py
+python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
+```
+
+The final command should return `Arthur's Magazine` and `First for Women` near the top of the results.
+
+To see the adaptive update mode, run:
+
+```bash
+PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?" --adaptive --disable-pruning
+```
+
+This runs the same retrieval, then strengthens edges between the returned documents and saves the updated agent graph.
+
 ## Evaluation Pipeline
 
 This is the pipeline so far for evaluating the FAISS baseline and the static graph baseline.
