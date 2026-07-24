@@ -32,7 +32,6 @@ def strengthen_edge(
     agents[target_id].add_edge(source_id, strengthened_weight)
 
 
-
 def strengthen_retrieved_edges(
     agents: dict[str, DocumentAgent],
     retrieved_doc_ids: list[str],
@@ -52,3 +51,25 @@ def strengthen_retrieved_edges(
             strengthened_edges.add(make_edge_key(source_id, target_id))
 
     return strengthened_edges
+
+
+def decay_unused_edges(
+    agents: dict[str, DocumentAgent],
+    strengthened_edges: set[tuple[str, str]],
+    config: GraphUpdateConfig,
+) -> None:
+    decayed_edges = set()
+
+    for source_id, agent in agents.items():
+        for target_id, edge in agent.edges.items():
+            edge_key = make_edge_key(source_id, target_id)
+
+            if edge_key in strengthened_edges or edge_key in decayed_edges:
+                continue
+
+            decayed_weight = edge.weight * config.decay_rate
+
+            agents[source_id].add_edge(target_id, decayed_weight)
+            agents[target_id].add_edge(source_id, decayed_weight)
+
+            decayed_edges.add(edge_key)
