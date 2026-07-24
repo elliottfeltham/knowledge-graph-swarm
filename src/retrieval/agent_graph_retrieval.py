@@ -190,18 +190,47 @@ def main() -> None:
         default=0.3,
         help="How strongly graph neighbours affect final ranking.",
     )
+    parser.add_argument(
+        "--adaptive",
+        action="store_true",
+        help="Update and save the agent graph after retrieval.",
+    )
+    parser.add_argument(
+        "--disable-pruning",
+        action="store_true",
+        help="Skip pruning during adaptive graph updates.",
+    )
 
     args = parser.parse_args()
 
-    results, latency_ms = search(
-        query=args.query,
-        top_k=args.top_k,
-        seed_k=args.seed_k,
-        graph_weight=args.graph_weight,
-    )
+    update_summary = None
+
+    if args.adaptive:
+        update_config = GraphUpdateConfig(enable_pruning=not args.disable_pruning)
+        results, latency_ms, update_summary = adaptive_search(
+            query=args.query,
+            top_k=args.top_k,
+            seed_k=args.seed_k,
+            graph_weight=args.graph_weight,
+            update_config=update_config,
+        )
+    else:
+        results, latency_ms = search(
+            query=args.query,
+            top_k=args.top_k,
+            seed_k=args.seed_k,
+            graph_weight=args.graph_weight,
+        )
 
     print(f"\nQuery: {args.query}")
     print(f"Agent graph search latency: {latency_ms:.2f} ms")
+    print(f"Adaptive update: {'yes' if args.adaptive else 'no'}")
+
+    if update_summary is not None:
+        print(f"Retrieved documents updated: {update_summary['retrieved_documents']}")
+        print(f"Strengthened edges: {update_summary['strengthened_edges']}")
+        print(f"Pruned edges: {update_summary['pruned_edges']}")
+
     print(f"Top {args.top_k} results:")
 
     for rank, result in enumerate(results, start=1):
