@@ -7,7 +7,8 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-from agents import DocumentAgent, load_agents
+from agents import DocumentAgent, GraphUpdateConfig, load_agents, save_agents
+from agents.graph_update import update_graph_after_retrieval
 from common import (
     MODEL_NAME,
     PROJECT_ROOT,
@@ -114,6 +115,63 @@ def search(
         )
 
     return results, latency_ms
+
+
+def adaptive_search(
+    query: str,
+    top_k: int = 10,
+    seed_k: int = 5,
+    graph_weight: float = 0.3,
+    update_config: GraphUpdateConfig | None = None,
+    agent_graph_path: Path = AGENT_GRAPH_PATH,
+) -> tuple[list[dict], float, dict]:
+    # TODO: Load this state once at API startup instead of inside each search call.
+    documents = load_documents()
+    embeddings, document_ids = load_embeddings()
+    agents = load_agent_graph(agent_graph_path)
+
+    index = build_faiss_index(embeddings)
+    model = SentenceTransformer(MODEL_NAME)
+
+    start_time = time.perf_counter()
+
+    query_embedding = encode_query(model, query)
+
+    ranked_results = agent_graph_retrieve(
+        index=index,
+        query_embedding=query_embedding,
+        document_ids=document_ids,
+        agents=agents,
+        top_k=top_k,
+        seed_k=seed_k,
+        graph_weight=graph_weight,
+    )
+
+    latency_ms = (time.perf_counter() - start_time) * 1000
+
+    results = []
+
+    for doc_id, score in ranked_results:
+        document = documents[doc_id]
+
+        results.append(
+            {
+                "doc_id": doc_id,
+                "title": document["title"],
+                "score": float(score),
+                "text_preview": document["text"][:300],
+            }
+        )
+
+    retrieved_doc_ids = [result["doc_id"] for result in results]
+    update_summary = update_graph_after_retrieval(
+        agents=agents,
+        retrieved_doc_ids=retrieved_doc_ids,
+        config=update_config,
+    )
+    save_agents(agent_graph_path, agents)
+
+    return results, latency_ms, update_summary
 
 
 def main() -> None:
