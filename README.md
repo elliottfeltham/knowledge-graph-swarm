@@ -1,6 +1,6 @@
 # An Emergent Knowledge Graph Using Swarm Intelligence
 
-This is an emergent knowledge graph that uses swarm intelligence to organise itself.
+This is an emergent knowledge graph that uses swarm intelligence to organise itself. Currently, the system works in a terminal as a CLI but will include a 3D visualisation and an API.
 
 ## Setup
 
