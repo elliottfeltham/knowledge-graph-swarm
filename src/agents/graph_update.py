@@ -99,3 +99,33 @@ def prune_weak_edges(
         agents[target_id].edges.pop(source_id, None)
 
     return len(edges_to_remove)
+
+
+def update_graph_after_retrieval(
+    agents: dict[str, DocumentAgent],
+    retrieved_doc_ids: list[str],
+    config: GraphUpdateConfig | None = None,
+) -> dict:
+    if config is None:
+        config = GraphUpdateConfig()
+
+    strengthened_edges = strengthen_retrieved_edges(
+        agents=agents,
+        retrieved_doc_ids=retrieved_doc_ids,
+        config=config,
+    )
+    decay_unused_edges(
+        agents=agents,
+        strengthened_edges=strengthened_edges,
+        config=config,
+    )
+    pruned_edges = prune_weak_edges(
+        agents=agents,
+        config=config,
+    )
+
+    return {
+        "retrieved_documents": len(retrieved_doc_ids),
+        "strengthened_edges": len(strengthened_edges),
+        "pruned_edges": pruned_edges,
+    }
