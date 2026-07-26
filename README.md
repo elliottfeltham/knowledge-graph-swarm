@@ -2,6 +2,8 @@
 
 This is an emergent knowledge graph that uses swarm intelligence to organise itself. Currently, the system works in a terminal as a CLI but will include a 3D visualisation and an API.
 
+This is a work-in-progress MSc dissertation project.
+
 ## Setup
 
 Install the project and dependencies with `pip install -r requirements.txt` from the repository root.
