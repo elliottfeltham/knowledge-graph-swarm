@@ -41,6 +41,12 @@ python src/retrieval/agent_graph_retrieval.py --query "Which magazine was starte
 
 The final command should return `Arthur's Magazine` and `First for Women` near the top of the results.
 
+To run a quick frozen evaluation across FAISS, the static graph, and the agent graph:
+
+```bash
+PYTHONPATH=src python src/evaluation/evaluate_baselines.py --limit 10
+```
+
 To see the adaptive update mode, run:
 
 ```bash
@@ -51,14 +57,14 @@ This runs the same retrieval, then strengthens edges between the returned docume
 
 ## Evaluation Pipeline
 
-This is the pipeline so far for evaluating the FAISS baseline and the static graph baseline.
+This is the pipeline so far for evaluating FAISS, the static graph baseline, and the agent graph retrieval system.
 
 1. Build the processed dataset with [src/data/load_dataset.py](src/data/load_dataset.py).
 2. Generate document embeddings with [src/embeddings/embed_documents.py](src/embeddings/embed_documents.py).
 3. Build the static nearest-neighbour graph with [src/graph/build_static_graph.py](src/graph/build_static_graph.py).
 4. Run a single-query FAISS baseline with [src/retrieval/faiss_baseline.py](src/retrieval/faiss_baseline.py).
 5. Run the graph-augmented baseline with [src/retrieval/static_graph_baseline.py](src/retrieval/static_graph_baseline.py).
-6. Evaluate both baselines over the query set with [src/evaluation/evaluate_baselines.py](src/evaluation/evaluate_baselines.py).
+6. Evaluate FAISS, the static graph, and the agent graph over the query set with [src/evaluation/evaluate_baselines.py](src/evaluation/evaluate_baselines.py).
 
 ## Agent Graph Pipeline
 

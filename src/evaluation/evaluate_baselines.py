@@ -22,6 +22,7 @@ from common import (
     recall_at_k,
     static_graph_retrieve,
 )
+from retrieval.agent_graph_retrieval import agent_graph_retrieve, load_agent_graph
 
 
 RESULTS_CSV_PATH = PROJECT_ROOT / "results" / "baseline_results.csv"
@@ -133,7 +134,7 @@ def print_summary(summary: dict) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate FAISS and static graph retrieval baselines.")
+    parser = argparse.ArgumentParser(description="Evaluate FAISS, static graph, and agent graph retrieval.")
     parser.add_argument("--top-k", type=int, default=10)
     parser.add_argument("--seed-k", type=int, default=5)
     parser.add_argument("--graph-weight", type=float, default=0.3)
@@ -161,6 +162,10 @@ def main() -> None:
 
     print("Loading static graph...")
     graph = load_static_graph()
+
+    print("Loading agent graph...")
+    agents = load_agent_graph()
+    print(f"Loaded agent graph agents: {len(agents)}")
 
     print("Loading embedding model...")
     model = SentenceTransformer(MODEL_NAME)
@@ -233,6 +238,35 @@ def main() -> None:
                 relevant_doc_ids=relevant_doc_ids,
                 embedding_latency_ms=embedding_latency_ms,
                 retrieval_latency_ms=static_graph_retrieval_latency_ms,
+            )
+        )
+
+        agent_graph_start = time.perf_counter()
+
+        agent_graph_doc_ids = [
+            doc_id
+            for doc_id, _ in agent_graph_retrieve(
+                index=index,
+                query_embedding=query_embedding,
+                document_ids=document_ids,
+                agents=agents,
+                top_k=args.top_k,
+                seed_k=args.seed_k,
+                graph_weight=args.graph_weight,
+            )
+        ]
+
+        agent_graph_retrieval_latency_ms = (time.perf_counter() - agent_graph_start) * 1000
+
+        rows.append(
+            evaluate_system_result(
+                system_name="agent_graph",
+                query_id=query_id,
+                query_text=query_text,
+                retrieved_doc_ids=agent_graph_doc_ids,
+                relevant_doc_ids=relevant_doc_ids,
+                embedding_latency_ms=embedding_latency_ms,
+                retrieval_latency_ms=agent_graph_retrieval_latency_ms,
             )
         )
 
