@@ -47,6 +47,14 @@ To run a quick frozen evaluation across FAISS, the static graph, and the agent g
 PYTHONPATH=src python src/evaluation/evaluate_baselines.py --limit 10
 ```
 
+To simulate user queries and compare the agent graph before and after adaptation:
+
+```bash
+PYTHONPATH=src python src/evaluation/simulate_user_workflow.py --adaptation-queries 100 --evaluation-queries 100 --disable-pruning
+```
+
+This copies the current agent graph into `results/`, adapts the copy, and leaves the main saved graph unchanged.
+
 To see the adaptive update mode, run:
 
 ```bash
