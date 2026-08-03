@@ -54,6 +54,7 @@ PYTHONPATH=src python src/evaluation/simulate_user_workflow.py --adaptation-quer
 ```
 
 This copies the current agent graph into `results/`, adapts the copy, and leaves the main saved graph unchanged.
+The summary also reports graph statistics such as edge count, average degree, average edge weight, and the largest changed edges.
 
 To see the adaptive update mode, run:
 

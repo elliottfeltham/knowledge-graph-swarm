@@ -7,7 +7,7 @@ from pathlib import Path
 from sentence_transformers import SentenceTransformer
 
 from agents import DocumentAgent, GraphUpdateConfig, load_agents, save_agents
-from agents.graph_update import update_graph_after_retrieval
+from agents.graph_update import make_edge_key, update_graph_after_retrieval
 from common import (
     MODEL_NAME,
     PROJECT_ROOT,
@@ -76,6 +76,102 @@ def summarise_metrics(rows: list[dict]) -> dict:
         "mean_recall_at_5": average([row["recall_at_5"] for row in rows]),
         "mean_recall_at_10": average([row["recall_at_10"] for row in rows]),
         "mean_mrr": average([row["mrr"] for row in rows]),
+    }
+
+
+def build_edge_snapshot(agents: dict[str, DocumentAgent]) -> dict[tuple[str, str], float]:
+    edge_snapshot = {}
+
+    for source_id, agent in agents.items():
+        for target_id, edge in agent.edges.items():
+            edge_key = make_edge_key(source_id, target_id)
+
+            if edge_key in edge_snapshot:
+                continue
+
+            edge_snapshot[edge_key] = edge.weight
+
+    return edge_snapshot
+
+
+def calculate_graph_statistics(agents: dict[str, DocumentAgent]) -> dict:
+    edge_snapshot = build_edge_snapshot(agents)
+    edge_weights = list(edge_snapshot.values())
+    agent_count = len(agents)
+    edge_count = len(edge_snapshot)
+
+    return {
+        "agents": agent_count,
+        "undirected_edges": edge_count,
+        "average_degree": (2 * edge_count) / agent_count if agent_count else 0.0,
+        "average_edge_weight": average(edge_weights),
+        "min_edge_weight": min(edge_weights) if edge_weights else 0.0,
+        "max_edge_weight": max(edge_weights) if edge_weights else 0.0,
+    }
+
+
+def calculate_graph_deltas(before_stats: dict, after_stats: dict) -> dict:
+    return {
+        "agents": after_stats["agents"] - before_stats["agents"],
+        "undirected_edges": after_stats["undirected_edges"] - before_stats["undirected_edges"],
+        "average_degree": after_stats["average_degree"] - before_stats["average_degree"],
+        "average_edge_weight": after_stats["average_edge_weight"] - before_stats["average_edge_weight"],
+        "min_edge_weight": after_stats["min_edge_weight"] - before_stats["min_edge_weight"],
+        "max_edge_weight": after_stats["max_edge_weight"] - before_stats["max_edge_weight"],
+    }
+
+
+def compare_edge_snapshots(
+    before_snapshot: dict[tuple[str, str], float],
+    after_snapshot: dict[tuple[str, str], float],
+    changed_edge_limit: int,
+) -> dict:
+    new_edges = 0
+    removed_edges = 0
+    strengthened_edges = 0
+    weakened_edges = 0
+    changed_edges = []
+
+    edge_keys = set(before_snapshot) | set(after_snapshot)
+
+    for source_id, target_id in edge_keys:
+        edge_key = (source_id, target_id)
+        before_weight = before_snapshot.get(edge_key, 0.0)
+        after_weight = after_snapshot.get(edge_key, 0.0)
+        weight_delta = after_weight - before_weight
+
+        if edge_key not in before_snapshot:
+            new_edges += 1
+        elif edge_key not in after_snapshot:
+            removed_edges += 1
+        elif weight_delta > 0:
+            strengthened_edges += 1
+        elif weight_delta < 0:
+            weakened_edges += 1
+
+        if weight_delta != 0:
+            changed_edges.append(
+                {
+                    "source_id": source_id,
+                    "target_id": target_id,
+                    "before_weight": before_weight,
+                    "after_weight": after_weight,
+                    "delta": weight_delta,
+                }
+            )
+
+    top_changed_edges = sorted(
+        changed_edges,
+        key=lambda edge: abs(edge["delta"]),
+        reverse=True,
+    )[:changed_edge_limit]
+
+    return {
+        "new_edges": new_edges,
+        "removed_edges": removed_edges,
+        "strengthened_edges": strengthened_edges,
+        "weakened_edges": weakened_edges,
+        "top_changed_edges": top_changed_edges,
     }
 
 
@@ -180,6 +276,24 @@ def print_metric_comparison(before_metrics: dict, after_metrics: dict, deltas: d
     print(f"Delta MRR:  {deltas['mean_mrr']:+.4f}")
 
 
+def print_graph_comparison(graph_before: dict, graph_after: dict, graph_deltas: dict, edge_changes: dict) -> None:
+    print("\nGraph adaptation")
+    print("=" * 80)
+    print(f"Edges before: {graph_before['undirected_edges']}")
+    print(f"Edges after:  {graph_after['undirected_edges']}")
+    print(f"Edge delta:   {graph_deltas['undirected_edges']:+}")
+    print(f"Average degree before: {graph_before['average_degree']:.4f}")
+    print(f"Average degree after:  {graph_after['average_degree']:.4f}")
+    print(f"Average degree delta:  {graph_deltas['average_degree']:+.4f}")
+    print(f"Average edge weight before: {graph_before['average_edge_weight']:.4f}")
+    print(f"Average edge weight after:  {graph_after['average_edge_weight']:.4f}")
+    print(f"Average edge weight delta:  {graph_deltas['average_edge_weight']:+.4f}")
+    print(f"\nNew edges: {edge_changes['new_edges']}")
+    print(f"Removed edges: {edge_changes['removed_edges']}")
+    print(f"Strengthened edges: {edge_changes['strengthened_edges']}")
+    print(f"Weakened edges: {edge_changes['weakened_edges']}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Simulate user queries and measure agent graph adaptation.")
     parser.add_argument("--adaptation-queries", type=int, default=100)
@@ -187,6 +301,12 @@ def main() -> None:
     parser.add_argument("--top-k", type=int, default=10)
     parser.add_argument("--seed-k", type=int, default=5)
     parser.add_argument("--graph-weight", type=float, default=0.3)
+    parser.add_argument(
+        "--changed-edges",
+        type=int,
+        default=10,
+        help="Number of largest edge changes to save in the simulation summary.",
+    )
     parser.add_argument(
         "--disable-pruning",
         action="store_true",
@@ -219,6 +339,8 @@ def main() -> None:
     print("Copying graph for simulation...")
     copy_agent_graph(AGENT_GRAPH_PATH, SIMULATED_AGENT_GRAPH_PATH)
     simulated_agents = load_agents(SIMULATED_AGENT_GRAPH_PATH)
+    edge_snapshot_before = build_edge_snapshot(simulated_agents)
+    graph_before = calculate_graph_statistics(simulated_agents)
 
     print("Evaluating original graph before simulated use...")
     start_time = time.perf_counter()
@@ -252,6 +374,8 @@ def main() -> None:
     save_agents(SIMULATED_AGENT_GRAPH_PATH, simulated_agents)
 
     print("Evaluating copied graph after simulated use...")
+    edge_snapshot_after = build_edge_snapshot(simulated_agents)
+    graph_after = calculate_graph_statistics(simulated_agents)
     start_time = time.perf_counter()
     after_metrics = evaluate_agent_graph(
         queries=evaluation_queries,
@@ -270,6 +394,15 @@ def main() -> None:
         before_metrics=before_metrics,
         after_metrics=after_metrics,
     )
+    graph_deltas = calculate_graph_deltas(
+        before_stats=graph_before,
+        after_stats=graph_after,
+    )
+    edge_changes = compare_edge_snapshots(
+        before_snapshot=edge_snapshot_before,
+        after_snapshot=edge_snapshot_after,
+        changed_edge_limit=args.changed_edges,
+    )
     summary = {
         "settings": {
             "adaptation_queries": args.adaptation_queries,
@@ -277,6 +410,7 @@ def main() -> None:
             "top_k": args.top_k,
             "seed_k": args.seed_k,
             "graph_weight": args.graph_weight,
+            "changed_edges": args.changed_edges,
             "pruning_enabled": not args.disable_pruning,
         },
         "paths": {
@@ -287,6 +421,16 @@ def main() -> None:
         "before": before_metrics,
         "after": after_metrics,
         "deltas": deltas,
+        "graph_before": graph_before,
+        "graph_after": graph_after,
+        "graph_deltas": graph_deltas,
+        "edge_changes": {
+            "new_edges": edge_changes["new_edges"],
+            "removed_edges": edge_changes["removed_edges"],
+            "strengthened_edges": edge_changes["strengthened_edges"],
+            "weakened_edges": edge_changes["weakened_edges"],
+        },
+        "top_changed_edges": edge_changes["top_changed_edges"],
         "latency_ms": {
             "before_evaluation": before_latency_ms,
             "after_evaluation": after_latency_ms,
@@ -298,6 +442,12 @@ def main() -> None:
         before_metrics=before_metrics,
         after_metrics=after_metrics,
         deltas=deltas,
+    )
+    print_graph_comparison(
+        graph_before=graph_before,
+        graph_after=graph_after,
+        graph_deltas=graph_deltas,
+        edge_changes=edge_changes,
     )
     print(f"\nAdaptation queries: {update_totals['adaptation_queries']}")
     print(f"Total strengthened edges: {update_totals['total_strengthened_edges']}")
