@@ -101,6 +101,8 @@ The agent graph retrieval script uses FAISS to find the first set of related doc
 
 By default, this is a read-only retrieval step. It uses the saved agent graph but does not strengthen, decay or prune any connections.
 
+Internally, the retrieval code now uses an `AgentGraphRuntime` object to load the documents, embeddings, FAISS index, embedding model, and agent graph once. This is the bridge toward the later API and frontend.
+
 ```bash
 PYTHONPATH=src .venv/bin/python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
 ```

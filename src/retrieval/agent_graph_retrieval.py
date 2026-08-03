@@ -1,22 +1,12 @@
 import argparse
 from collections import defaultdict
 from pathlib import Path
-import time
 
 import faiss
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
-from agents import DocumentAgent, GraphUpdateConfig, load_agents, save_agents
-from agents.graph_update import update_graph_after_retrieval
-from common import (
-    MODEL_NAME,
-    PROJECT_ROOT,
-    build_faiss_index,
-    encode_query,
-    load_documents,
-    load_embeddings,
-)
+from agents import DocumentAgent, GraphUpdateConfig, load_agents
+from common import PROJECT_ROOT
 
 
 AGENT_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "document_agents.jsonl"
@@ -76,45 +66,16 @@ def search(
     seed_k: int = 5,
     graph_weight: float = 0.3,
 ) -> tuple[list[dict], float]:
-    # TODO: Load this state once at API startup instead of inside each search call.
-    documents = load_documents()
-    embeddings, document_ids = load_embeddings()
-    agents = load_agent_graph()
+    from retrieval.agent_graph_runtime import AgentGraphRuntime
 
-    index = build_faiss_index(embeddings)
-    model = SentenceTransformer(MODEL_NAME)
+    runtime = AgentGraphRuntime.load()
 
-    start_time = time.perf_counter()
-
-    query_embedding = encode_query(model, query)
-
-    ranked_results = agent_graph_retrieve(
-        index=index,
-        query_embedding=query_embedding,
-        document_ids=document_ids,
-        agents=agents,
+    return runtime.search(
+        query=query,
         top_k=top_k,
         seed_k=seed_k,
         graph_weight=graph_weight,
     )
-
-    latency_ms = (time.perf_counter() - start_time) * 1000
-
-    results = []
-
-    for doc_id, score in ranked_results:
-        document = documents[doc_id]
-
-        results.append(
-            {
-                "doc_id": doc_id,
-                "title": document["title"],
-                "score": float(score),
-                "text_preview": document["text"][:300],
-            }
-        )
-
-    return results, latency_ms
 
 
 def adaptive_search(
@@ -125,53 +86,17 @@ def adaptive_search(
     update_config: GraphUpdateConfig | None = None,
     agent_graph_path: Path = AGENT_GRAPH_PATH,
 ) -> tuple[list[dict], float, dict]:
-    # TODO: Load this state once at API startup instead of inside each search call.
-    documents = load_documents()
-    embeddings, document_ids = load_embeddings()
-    agents = load_agent_graph(agent_graph_path)
+    from retrieval.agent_graph_runtime import AgentGraphRuntime
 
-    index = build_faiss_index(embeddings)
-    model = SentenceTransformer(MODEL_NAME)
+    runtime = AgentGraphRuntime.load(agent_graph_path=agent_graph_path)
 
-    start_time = time.perf_counter()
-
-    query_embedding = encode_query(model, query)
-
-    ranked_results = agent_graph_retrieve(
-        index=index,
-        query_embedding=query_embedding,
-        document_ids=document_ids,
-        agents=agents,
+    return runtime.adaptive_search(
+        query=query,
         top_k=top_k,
         seed_k=seed_k,
         graph_weight=graph_weight,
+        update_config=update_config,
     )
-
-    latency_ms = (time.perf_counter() - start_time) * 1000
-
-    results = []
-
-    for doc_id, score in ranked_results:
-        document = documents[doc_id]
-
-        results.append(
-            {
-                "doc_id": doc_id,
-                "title": document["title"],
-                "score": float(score),
-                "text_preview": document["text"][:300],
-            }
-        )
-
-    retrieved_doc_ids = [result["doc_id"] for result in results]
-    update_summary = update_graph_after_retrieval(
-        agents=agents,
-        retrieved_doc_ids=retrieved_doc_ids,
-        config=update_config,
-    )
-    save_agents(agent_graph_path, agents)
-
-    return results, latency_ms, update_summary
 
 
 def main() -> None:
