@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -86,5 +86,36 @@ describe("GraphWorkspace", () => {
 
     expect(resetGraph).toHaveBeenCalledOnce();
     expect(await screen.findByTestId("graph-canvas")).toBeInTheDocument();
+  });
+
+  it("keeps the inspector and graph management panels mutually exclusive", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+
+    render(<GraphWorkspace backendAvailable />);
+
+    expect(await screen.findByLabelText("Graph controls")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Open graph management"));
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText("Graph controls")).not.toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole("button", { name: "Open graph controls" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Open graph management"));
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Open graph controls" }),
+    );
+
+    expect(screen.getByLabelText("Graph controls")).toBeInTheDocument();
   });
 });

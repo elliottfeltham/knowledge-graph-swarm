@@ -5,12 +5,16 @@ import { getGraphStatistics, resetGraph } from "../api/client";
 import type { GraphStatistics } from "../api/types";
 
 interface GraphManagementProps {
+  open: boolean;
   backendAvailable: boolean;
+  onOpenChange: (open: boolean) => void;
   onGraphReset: () => Promise<void>;
 }
 
 function GraphManagement({
+  open,
   backendAvailable,
+  onOpenChange,
   onGraphReset,
 }: GraphManagementProps) {
   const [statistics, setStatistics] = useState<GraphStatistics | null>(null);
@@ -65,7 +69,11 @@ function GraphManagement({
   }
 
   return (
-    <details className="graph-management">
+    <details
+      className="graph-management"
+      open={open}
+      onToggle={(event) => onOpenChange(event.currentTarget.open)}
+    >
       <summary title="Graph statistics and reset" aria-label="Open graph management">
         <Database size={17} aria-hidden="true" />
       </summary>

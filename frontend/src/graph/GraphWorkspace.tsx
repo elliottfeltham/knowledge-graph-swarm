@@ -1,20 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle, BrainCircuit, RefreshCw } from "lucide-react";
 
 import { getFocusedSubgraph } from "../api/client";
 import type { GraphResponse } from "../api/types";
 import GraphCanvas from "./GraphCanvas";
+import type { GraphCanvasHandle } from "./GraphCanvas";
+import GraphInspector from "./GraphInspector";
 import GraphManagement from "./GraphManagement";
+import { DEFAULT_GRAPH_FORCE_SETTINGS } from "./graphForceSettings";
 import "./GraphWorkspace.css";
 
 interface GraphWorkspaceProps {
   backendAvailable: boolean;
 }
 
+type OpenGraphPanel = "inspector" | "management" | null;
+
 function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
   const [graph, setGraph] = useState<GraphResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forceSettings, setForceSettings] = useState(
+    DEFAULT_GRAPH_FORCE_SETTINGS,
+  );
+  const [openPanel, setOpenPanel] = useState<OpenGraphPanel>("inspector");
+  const graphCanvasRef = useRef<GraphCanvasHandle>(null);
 
   async function loadGraph() {
     if (!backendAvailable) {
@@ -48,6 +58,21 @@ function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
       ? "Loading graph"
       : "Waiting for graph data";
 
+  function handlePanelChange(panel: Exclude<OpenGraphPanel, null>, open: boolean) {
+    setOpenPanel((currentPanel) => {
+      if (open) {
+        return panel;
+      }
+
+      return currentPanel === panel ? null : currentPanel;
+    });
+  }
+
+  function resetGraphView() {
+    setForceSettings({ ...DEFAULT_GRAPH_FORCE_SETTINGS });
+    graphCanvasRef.current?.resetView();
+  }
+
   return (
     <main className="graph-workspace" aria-label="Graph workspace">
       <header className="graph-header">
@@ -58,13 +83,35 @@ function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
         <div className="graph-header-actions">
           <span className="graph-state">{graphState}</span>
           <GraphManagement
+            open={openPanel === "management"}
             backendAvailable={backendAvailable}
+            onOpenChange={(open) =>
+              handlePanelChange("management", open)
+            }
             onGraphReset={loadGraph}
           />
         </div>
       </header>
 
-      {graph && graph.nodes.length > 0 && <GraphCanvas graph={graph} />}
+      {graph && graph.nodes.length > 0 && (
+        <>
+          <GraphCanvas
+            ref={graphCanvasRef}
+            graph={graph}
+            forceSettings={forceSettings}
+          />
+          {openPanel !== "management" && (
+            <GraphInspector
+              open={openPanel === "inspector"}
+              forceSettings={forceSettings}
+              onOpenChange={(open) => handlePanelChange("inspector", open)}
+              onForceSettingsChange={setForceSettings}
+              onFitView={() => graphCanvasRef.current?.fitView()}
+              onResetView={resetGraphView}
+            />
+          )}
+        </>
+      )}
 
       {loading && !graph && (
         <div className="graph-message" role="status">
