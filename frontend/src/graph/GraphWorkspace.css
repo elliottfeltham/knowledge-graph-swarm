@@ -37,6 +37,156 @@
   font-size: 12px;
 }
 
+.graph-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.graph-management {
+  position: relative;
+}
+
+.graph-management > summary {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  color: #8f999c;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.graph-management > summary::-webkit-details-marker {
+  display: none;
+}
+
+.graph-management > summary:hover,
+.graph-management[open] > summary {
+  color: #e4e8e4;
+  background: #202425;
+  border-color: #34393b;
+}
+
+.graph-management > summary:focus-visible,
+.graph-management button:focus-visible {
+  outline: 2px solid #83d5d8;
+  outline-offset: 2px;
+}
+
+.graph-management-panel {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  width: 310px;
+  padding: 18px;
+  color: #dfe4e1;
+  background: #1b1f20;
+  border: 1px solid #383e40;
+  border-radius: 7px;
+  box-shadow: 0 16px 42px rgb(0 0 0 / 42%);
+}
+
+.graph-management-panel h3 {
+  font-family: "Space Grotesk Variable", "IBM Plex Sans Variable", sans-serif;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+.management-message {
+  padding: 18px 0 4px;
+  color: #8f999c;
+  font-size: 12px;
+}
+
+.graph-statistics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+  margin: 18px 0 0;
+}
+
+.graph-statistics dt {
+  color: #7f898c;
+  font-size: 10px;
+}
+
+.graph-statistics dd {
+  margin: 3px 0 0;
+  color: #e3e7e3;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+}
+
+.management-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 15px;
+  color: #df9887;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.management-error svg {
+  flex: 0 0 14px;
+}
+
+.graph-reset {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #303638;
+}
+
+.reset-graph-button,
+.reset-confirmation button {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 10px;
+  color: #b8c0c1;
+  background: #242829;
+  border: 1px solid #3a4042;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.reset-graph-button:hover,
+.reset-confirmation button:hover {
+  color: #e1e5e2;
+  background: #2d3233;
+}
+
+.reset-confirmation p {
+  color: #aeb6b5;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.reset-confirmation > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.reset-confirmation .confirm-reset-button {
+  color: #f0d7d1;
+  background: #57342e;
+  border-color: #75483f;
+}
+
+.graph-management button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .graph-canvas {
   position: absolute;
   inset: 84px 0 0;
@@ -121,5 +271,17 @@
   .graph-state {
     max-width: 120px;
     text-align: right;
+  }
+
+  .graph-header-actions {
+    gap: 5px;
+  }
+
+  .graph-management-panel {
+    position: fixed;
+    top: 74px;
+    right: 12px;
+    left: 12px;
+    width: auto;
   }
 }

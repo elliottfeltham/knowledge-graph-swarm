@@ -4,6 +4,7 @@ import { AlertCircle, BrainCircuit, RefreshCw } from "lucide-react";
 import { getFocusedSubgraph } from "../api/client";
 import type { GraphResponse } from "../api/types";
 import GraphCanvas from "./GraphCanvas";
+import GraphManagement from "./GraphManagement";
 import "./GraphWorkspace.css";
 
 interface GraphWorkspaceProps {
@@ -54,7 +55,13 @@ function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
           <p className="eyebrow">Graph view</p>
           <h2>Focused network</h2>
         </div>
-        <span className="graph-state">{graphState}</span>
+        <div className="graph-header-actions">
+          <span className="graph-state">{graphState}</span>
+          <GraphManagement
+            backendAvailable={backendAvailable}
+            onGraphReset={loadGraph}
+          />
+        </div>
       </header>
 
       {graph && graph.nodes.length > 0 && <GraphCanvas graph={graph} />}
