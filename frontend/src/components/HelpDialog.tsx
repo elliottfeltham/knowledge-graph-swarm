@@ -29,10 +29,7 @@ function HelpDialog({ onClose }: HelpDialogProps) {
 				onMouseDown={(event) => event.stopPropagation()}
 			>
 				<header>
-					<div>
-						<p className="eyebrow">About this project</p>
-						<h2 id="help-title">How it works</h2>
-					</div>
+					<h2 id="help-title">About this project</h2>
 					<button
 						type="button"
 						aria-label="Close help"
@@ -43,11 +40,21 @@ function HelpDialog({ onClose }: HelpDialogProps) {
 				</header>
 
 				<p>
-					Knowledge Graph Swarm searches documents using semantic
-					similarity and relationships between neighbouring document
-					agents. The current demonstration uses documents from the
-					HotpotQA dataset and there are queries available under the
-					search bar that relate to the current dataset.
+					<strong>Knowledge Graph Swarm</strong> searches documents
+					using semantic similarity and relationships between
+					neighbouring document agents.
+				</p>
+				<br></br>
+				<p>
+					The current demonstration uses documents from the HotpotQA
+					dataset and there are queries available under the search bar
+					that relate to the current dataset.
+				</p>
+				<br></br>
+				<p>
+					Search results are highlighted in the graph alongside their
+					neighbouring documents. Clear the search field to return to
+					the default graph view.
 				</p>
 
 				<dl>

@@ -42,7 +42,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open project help" }));
 
     expect(
-      screen.getByRole("dialog", { name: "How it works" }),
+      screen.getByRole("dialog", { name: "About this project" }),
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Close help" }));
