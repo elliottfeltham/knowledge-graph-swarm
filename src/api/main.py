@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.models import AdaptiveSearchResponse, SearchRequest, SearchResponse
@@ -41,4 +41,66 @@ def health() -> dict:
     return {
         "status": "ok",
         "runtime_loaded": runtime is not None,
+    }
+
+
+@app.post("/search", response_model=SearchResponse)
+def search(request: SearchRequest) -> SearchResponse:
+    if runtime is None:
+        raise HTTPException(status_code=503, detail="Runtime is not loaded")
+
+    results, latency_ms = runtime.search(
+        query=request.query,
+        top_k=request.top_k,
+        seed_k=request.seed_k,
+        graph_weight=request.graph_weight,
+    )
+
+    return SearchResponse(
+        query=request.query,
+        adaptive=False,
+        latency_ms=latency_ms,
+        results=results,
+    )
+
+
+@app.post("/adaptive-search", response_model=AdaptiveSearchResponse)
+def adaptive_search(request: SearchRequest) -> AdaptiveSearchResponse:
+    if runtime is None:
+        raise HTTPException(status_code=503, detail="Runtime is not loaded")
+
+    results, latency_ms, update_summary = runtime.adaptive_search(
+        query=request.query,
+        top_k=request.top_k,
+        seed_k=request.seed_k,
+        graph_weight=request.graph_weight,
+    )
+
+    return AdaptiveSearchResponse(
+        query=request.query,
+        adaptive=True,
+        latency_ms=latency_ms,
+        results=results,
+        update_summary=update_summary,
+    )
+
+
+@app.get("/graph/stats")
+def graph_stats() -> dict:
+    if runtime is None:
+        raise HTTPException(status_code=503, detail="Runtime is not loaded")
+
+    return runtime.graph_statistics()
+
+
+@app.post("/graph/reset")
+def reset_graph() -> dict:
+    if runtime is None:
+        raise HTTPException(status_code=503, detail="Runtime is not loaded")
+
+    graph_statistics = runtime.reset_graph()
+
+    return {
+        "status": "reset",
+        "graph_statistics": graph_statistics,
     }

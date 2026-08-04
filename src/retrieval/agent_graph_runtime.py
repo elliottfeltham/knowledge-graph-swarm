@@ -16,6 +16,7 @@ from common import (
     load_documents,
     load_embeddings,
 )
+from graph.initialize_agent_graph import build_initial_agent_graph
 from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrieve
 
 
@@ -102,6 +103,19 @@ class AgentGraphRuntime:
 
     def graph_statistics(self) -> dict:
         return calculate_graph_statistics(self.agents)
+
+    def reset_graph(
+        self,
+        neighbours_per_doc: int = 5,
+        initial_weight_scale: float = 0.2,
+    ) -> dict:
+        self.agents = build_initial_agent_graph(
+            neighbours_per_doc=neighbours_per_doc,
+            initial_weight_scale=initial_weight_scale,
+        )
+        self.save_graph()
+
+        return self.graph_statistics()
 
     def format_results(self, ranked_results: list[tuple[str, float]]) -> list[dict]:
         results = []

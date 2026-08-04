@@ -1,6 +1,6 @@
 # An Emergent Knowledge Graph Using Swarm Intelligence
 
-This is an emergent knowledge graph that uses swarm intelligence to organise itself. Currently, the system works in a terminal as a CLI but will include a 3D visualisation and an API.
+This is an emergent knowledge graph that uses swarm intelligence to organise itself. The system currently has a command-line interface and a FastAPI backend, with a 3D visualisation planned for the frontend.
 
 This is a work-in-progress MSc dissertation project.
 
@@ -126,6 +126,37 @@ To run an adaptive query without pruning:
 ```bash
 PYTHONPATH=src .venv/bin/python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?" --adaptive --disable-pruning
 ```
+
+## Backend API
+
+The FastAPI backend loads the documents, embeddings, model, and agent graph once when the server starts. It then keeps this runtime in memory so each request can reuse it.
+
+On macOS or Linux, start the backend with:
+
+```bash
+PYTHONPATH=src .venv/bin/python -m uvicorn api.main:app --port 8000
+```
+
+On Windows PowerShell, start it with:
+
+```powershell
+$env:PYTHONPATH = "src"
+.\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000
+```
+
+Once the server has started, open `http://127.0.0.1:8000/docs` to try the endpoints through FastAPI's interactive documentation.
+
+The current endpoints are:
+
+`GET /health`: checks that the API and agent graph runtime have loaded.
+
+`POST /search`: runs a read-only search without changing the graph.
+
+`POST /adaptive-search`: runs a search, updates the graph relationships, and saves the changes.
+
+`GET /graph/stats`: returns the current graph statistics.
+
+`POST /graph/reset`: rebuilds and saves the original weak nearest-neighbour graph. This can be used after testing adaptive search to return the graph to its initial state.
 
 ## Data And Outputs
 
