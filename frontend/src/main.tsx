@@ -5,7 +5,7 @@ import "@fontsource-variable/ibm-plex-sans";
 import "@fontsource-variable/space-grotesk";
 
 import App from "./App";
-import "./styles.css";
+import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 
+import "./HelpDialog.css";
+
 interface HelpDialogProps {
 	onClose: () => void;
 }

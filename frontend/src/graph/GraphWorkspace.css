@@ -1,0 +1,70 @@
+.graph-workspace {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  color: #f4f5f2;
+  background: #101213;
+}
+
+.graph-header {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 84px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #2a2e30;
+}
+
+.graph-header h2 {
+  font-family: "Space Grotesk Variable", "IBM Plex Sans Variable", sans-serif;
+  font-size: 20px;
+  font-weight: 620;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.graph-header .eyebrow {
+  color: #8f999c;
+}
+
+.graph-state {
+  color: #a5adaf;
+  font-size: 12px;
+}
+
+.graph-loading {
+  position: absolute;
+  inset: 84px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #778184;
+  font-size: 13px;
+}
+
+.graph-loading svg {
+  color: #4e797d;
+}
+
+
+@media (max-width: 760px) {
+  .graph-workspace {
+    min-height: 430px;
+  }
+
+  .graph-header {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .graph-state {
+    max-width: 120px;
+    text-align: right;
+  }
+}

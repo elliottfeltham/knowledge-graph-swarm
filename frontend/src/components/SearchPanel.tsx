@@ -18,6 +18,7 @@ import type {
   GraphUpdateSummary,
   SearchResponse,
 } from "../api/types";
+import "./SearchPanel.css";
 
 interface SearchPanelProps {
   backendAvailable: boolean;

@@ -1,0 +1,59 @@
+.help-backdrop {
+  position: fixed;
+  z-index: 20;
+  display: grid;
+  padding: 20px;
+  background: rgb(5 7 8 / 72%);
+  inset: 0;
+  place-items: center;
+}
+
+.help-dialog {
+  width: min(440px, 100%);
+  padding: 24px;
+  color: #dfe4e1;
+  background: #1b1f20;
+  border: 1px solid #383e40;
+  border-radius: 7px;
+  box-shadow: 0 20px 55px rgb(0 0 0 / 45%);
+}
+
+.help-dialog header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.help-dialog h2 {
+  font-family: "Space Grotesk Variable", "IBM Plex Sans Variable", sans-serif;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.help-dialog > p {
+  color: #aeb6b5;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.help-dialog dl {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0 0;
+}
+
+.help-dialog dt {
+  color: #dfe4e1;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.help-dialog dd {
+  margin: 3px 0 0;
+  color: #929c9e;
+  font-size: 12px;
+  line-height: 1.45;
+}
+

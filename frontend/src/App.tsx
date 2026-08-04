@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  BrainCircuit,
   CircleHelp,
   PanelLeftClose,
   PanelLeftOpen,
@@ -10,6 +9,8 @@ import {
 import { getHealth } from "./api/client";
 import HelpDialog from "./components/HelpDialog";
 import SearchPanel from "./components/SearchPanel";
+import GraphWorkspace from "./graph/GraphWorkspace";
+import "./App.css";
 
 type ConnectionStatus = "checking" | "connected" | "disconnected";
 
@@ -113,20 +114,7 @@ function App() {
         </footer>
       </aside>
 
-      <main className="graph-workspace" aria-label="Graph workspace">
-        <header className="graph-header">
-          <div>
-            <p className="eyebrow">Graph view</p>
-            <h2>Focused network</h2>
-          </div>
-          <span className="graph-state">Waiting for graph data</span>
-        </header>
-
-        <div className="graph-loading" role="status">
-          <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
-          <span>Loading workspace</span>
-        </div>
-      </main>
+      <GraphWorkspace />
 
       {helpOpen && <HelpDialog onClose={() => setHelpOpen(false)} />}
     </div>
