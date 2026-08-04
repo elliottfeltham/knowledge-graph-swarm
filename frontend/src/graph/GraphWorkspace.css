@@ -37,10 +37,20 @@
   font-size: 12px;
 }
 
-.graph-loading {
+.graph-canvas {
+  position: absolute;
+  inset: 84px 0 0;
+}
+
+.graph-canvas canvas {
+  display: block;
+}
+
+.graph-message {
   position: absolute;
   inset: 84px 0 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
@@ -48,8 +58,53 @@
   font-size: 13px;
 }
 
-.graph-loading svg {
+.graph-message svg {
   color: #4e797d;
+}
+
+.graph-error {
+  padding: 24px;
+  color: #b8c0c1;
+  text-align: center;
+}
+
+.graph-error svg {
+  color: #c78070;
+}
+
+.graph-error button {
+  display: inline-flex;
+  height: 32px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 11px;
+  color: #d9ddda;
+  background: #242829;
+  border: 1px solid #3a4042;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.graph-error button:hover {
+  background: #2d3233;
+}
+
+.graph-error button:focus-visible {
+  outline: 2px solid #83d5d8;
+  outline-offset: 2px;
+}
+
+.graph-limit {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  padding: 6px 8px;
+  color: #8e989a;
+  background: rgb(20 23 24 / 82%);
+  border: 1px solid #303638;
+  border-radius: 4px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
 }
 
 

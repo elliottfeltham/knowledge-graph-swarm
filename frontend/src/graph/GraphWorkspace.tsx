@@ -1,8 +1,52 @@
-import { BrainCircuit } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertCircle, BrainCircuit, RefreshCw } from "lucide-react";
 
+import { getFocusedSubgraph } from "../api/client";
+import type { GraphResponse } from "../api/types";
+import GraphCanvas from "./GraphCanvas";
 import "./GraphWorkspace.css";
 
-function GraphWorkspace() {
+interface GraphWorkspaceProps {
+  backendAvailable: boolean;
+}
+
+function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
+  const [graph, setGraph] = useState<GraphResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadGraph() {
+    if (!backendAvailable) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      setGraph(await getFocusedSubgraph({ max_nodes: 250 }));
+    } catch (requestError) {
+      const message =
+        requestError instanceof Error
+          ? requestError.message
+          : "The graph could not be loaded.";
+
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadGraph();
+  }, [backendAvailable]);
+
+  const graphState = graph
+    ? `${graph.nodes.length} nodes / ${graph.edges.length} edges`
+    : loading
+      ? "Loading graph"
+      : "Waiting for graph data";
+
   return (
     <main className="graph-workspace" aria-label="Graph workspace">
       <header className="graph-header">
@@ -10,13 +54,48 @@ function GraphWorkspace() {
           <p className="eyebrow">Graph view</p>
           <h2>Focused network</h2>
         </div>
-        <span className="graph-state">Waiting for graph data</span>
+        <span className="graph-state">{graphState}</span>
       </header>
 
-      <div className="graph-loading" role="status">
-        <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
-        <span>Loading workspace</span>
-      </div>
+      {graph && graph.nodes.length > 0 && <GraphCanvas graph={graph} />}
+
+      {loading && !graph && (
+        <div className="graph-message" role="status">
+          <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
+          <span>Loading graph</span>
+        </div>
+      )}
+
+      {!loading && !graph && !error && (
+        <div className="graph-message" role="status">
+          <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
+          <span>Waiting for backend connection</span>
+        </div>
+      )}
+
+      {!loading && graph?.nodes.length === 0 && (
+        <div className="graph-message" role="status">
+          <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
+          <span>No graph data available</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="graph-message graph-error" role="alert">
+          <AlertCircle size={28} aria-hidden="true" />
+          <span>{error}</span>
+          <button type="button" onClick={() => void loadGraph()}>
+            <RefreshCw size={14} aria-hidden="true" />
+            Retry
+          </button>
+        </div>
+      )}
+
+      {graph?.truncated && (
+        <span className="graph-limit">
+          Showing {graph.nodes.length} of {graph.total_nodes} nodes
+        </span>
+      )}
     </main>
   );
 }

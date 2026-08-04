@@ -114,7 +114,7 @@ function App() {
         </footer>
       </aside>
 
-      <GraphWorkspace />
+      <GraphWorkspace backendAvailable={connectionStatus === "connected"} />
 
       {helpOpen && <HelpDialog onClose={() => setHelpOpen(false)} />}
     </div>
