@@ -30,9 +30,22 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+function renderSearchPanel(
+  onSearchComplete = vi.fn(),
+  onSearchClear = vi.fn(),
+) {
+  render(
+    <SearchPanel
+      backendAvailable
+      onSearchComplete={onSearchComplete}
+      onSearchClear={onSearchClear}
+    />,
+  );
+}
+
 describe("SearchPanel", () => {
   it("fills the search input from an example question", () => {
-    render(<SearchPanel backendAvailable />);
+    renderSearchPanel();
 
     fireEvent.click(screen.getByText("Example HotpotQA queries"));
     fireEvent.click(
@@ -49,7 +62,8 @@ describe("SearchPanel", () => {
 
   it("runs a read-only search and displays ranked results", async () => {
     vi.mocked(searchDocuments).mockResolvedValue(searchResponse);
-    render(<SearchPanel backendAvailable />);
+    const handleSearchComplete = vi.fn();
+    renderSearchPanel(handleSearchComplete);
 
     fireEvent.change(screen.getByLabelText("Search documents"), {
       target: { value: "example query" },
@@ -70,6 +84,7 @@ describe("SearchPanel", () => {
       graph_weight: 0.3,
     });
     expect(adaptiveSearchDocuments).not.toHaveBeenCalled();
+    expect(handleSearchComplete).toHaveBeenCalledWith(searchResponse);
   });
 
   it("uses adaptive search when the toggle is enabled", async () => {
@@ -82,7 +97,7 @@ describe("SearchPanel", () => {
         pruned_edges: 0,
       },
     });
-    render(<SearchPanel backendAvailable />);
+    renderSearchPanel();
 
     fireEvent.change(screen.getByLabelText("Search documents"), {
       target: { value: "adaptive query" },
@@ -99,7 +114,7 @@ describe("SearchPanel", () => {
     vi.mocked(searchDocuments).mockRejectedValue(
       new Error("The backend could not complete the search."),
     );
-    render(<SearchPanel backendAvailable />);
+    renderSearchPanel();
 
     fireEvent.change(screen.getByLabelText("Search documents"), {
       target: { value: "example query" },
@@ -109,5 +124,22 @@ describe("SearchPanel", () => {
     expect(
       await screen.findByText("The backend could not complete the search."),
     ).toBeInTheDocument();
+  });
+
+  it("clears completed search context when the query is cleared", async () => {
+    vi.mocked(searchDocuments).mockResolvedValue(searchResponse);
+    const handleSearchClear = vi.fn();
+    renderSearchPanel(vi.fn(), handleSearchClear);
+
+    const queryInput = screen.getByLabelText("Search documents");
+    fireEvent.change(queryInput, { target: { value: "example query" } });
+    fireEvent.click(screen.getByRole("button", { name: "Search" }));
+
+    expect(await screen.findByText("Example Document")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
+
+    expect(handleSearchClear).toHaveBeenCalledOnce();
+    expect(queryInput).toHaveValue("");
+    expect(screen.queryByText("Example Document")).not.toBeInTheDocument();
   });
 });

@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -30,9 +31,22 @@ beforeEach(() => {
   });
 });
 
+function renderGraphWorkspace(
+  props: Partial<ComponentProps<typeof GraphWorkspace>> = {},
+) {
+  render(
+    <GraphWorkspace
+      backendAvailable
+      searchContext={null}
+      graphRevision={0}
+      {...props}
+    />,
+  );
+}
+
 describe("GraphWorkspace", () => {
   it("waits until the backend is available", () => {
-    render(<GraphWorkspace backendAvailable={false} />);
+    renderGraphWorkspace({ backendAvailable: false });
 
     expect(screen.getByText("Waiting for backend connection")).toBeInTheDocument();
     expect(getFocusedSubgraph).not.toHaveBeenCalled();
@@ -47,7 +61,7 @@ describe("GraphWorkspace", () => {
       truncated: false,
     });
 
-    render(<GraphWorkspace backendAvailable />);
+    renderGraphWorkspace();
 
     expect(await screen.findByTestId("graph-canvas")).toBeInTheDocument();
     expect(screen.getByText("1 nodes / 0 edges")).toBeInTheDocument();
@@ -74,7 +88,7 @@ describe("GraphWorkspace", () => {
       },
     });
 
-    render(<GraphWorkspace backendAvailable />);
+    renderGraphWorkspace();
 
     fireEvent.click(screen.getByLabelText("Open graph management"));
     expect(await screen.findByText("350")).toBeInTheDocument();
@@ -97,7 +111,7 @@ describe("GraphWorkspace", () => {
       truncated: false,
     });
 
-    render(<GraphWorkspace backendAvailable />);
+    renderGraphWorkspace();
 
     expect(await screen.findByLabelText("Graph controls")).toBeInTheDocument();
 
@@ -117,5 +131,43 @@ describe("GraphWorkspace", () => {
     );
 
     expect(screen.getByLabelText("Graph controls")).toBeInTheDocument();
+  });
+
+  it("loads a focused graph around ranked search results", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-2", title: "Document 2", degree: 3 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+
+    renderGraphWorkspace({
+      searchContext: {
+        query: "example query",
+        adaptive: false,
+        latency_ms: 12,
+        results: [
+          {
+            doc_id: "document-2",
+            title: "Document 2",
+            score: 0.9,
+            text_preview: "Example text",
+          },
+        ],
+      },
+    });
+
+    expect(await screen.findByText("Search network")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Clear the search field to return to the default graph view.",
+      ),
+    ).toBeInTheDocument();
+    expect(getFocusedSubgraph).toHaveBeenCalledWith({
+      document_ids: ["document-2"],
+      depth: 1,
+      max_nodes: 250,
+    });
   });
 });

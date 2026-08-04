@@ -13,6 +13,7 @@ describe("GraphInspector", () => {
     render(
       <GraphInspector
         open
+        searchNetworkActive={false}
         forceSettings={DEFAULT_GRAPH_FORCE_SETTINGS}
         onOpenChange={vi.fn()}
         onForceSettingsChange={handleSettingsChange}
@@ -41,6 +42,7 @@ describe("GraphInspector", () => {
     render(
       <GraphInspector
         open
+        searchNetworkActive={false}
         forceSettings={DEFAULT_GRAPH_FORCE_SETTINGS}
         onOpenChange={handleOpenChange}
         onForceSettingsChange={vi.fn()}

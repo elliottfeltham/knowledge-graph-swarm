@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertCircle, BrainCircuit, RefreshCw } from "lucide-react";
 
 import { getFocusedSubgraph } from "../api/client";
-import type { GraphResponse } from "../api/types";
+import type { GraphResponse, SearchResponse } from "../api/types";
 import GraphCanvas from "./GraphCanvas";
 import type { GraphCanvasHandle } from "./GraphCanvas";
 import GraphInspector from "./GraphInspector";
@@ -12,11 +12,17 @@ import "./GraphWorkspace.css";
 
 interface GraphWorkspaceProps {
   backendAvailable: boolean;
+  searchContext: SearchResponse | null;
+  graphRevision: number;
 }
 
 type OpenGraphPanel = "inspector" | "management" | null;
 
-function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
+function GraphWorkspace({
+  backendAvailable,
+  searchContext,
+  graphRevision,
+}: GraphWorkspaceProps) {
   const [graph, setGraph] = useState<GraphResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,32 +31,60 @@ function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
   );
   const [openPanel, setOpenPanel] = useState<OpenGraphPanel>("inspector");
   const graphCanvasRef = useRef<GraphCanvasHandle>(null);
+  const graphRequestRef = useRef(0);
 
-  async function loadGraph() {
+  const loadGraph = useCallback(async () => {
     if (!backendAvailable) {
       return;
     }
 
+    const requestNumber = graphRequestRef.current + 1;
+    graphRequestRef.current = requestNumber;
     setLoading(true);
     setError(null);
 
     try {
-      setGraph(await getFocusedSubgraph({ max_nodes: 250 }));
+      const documentIds = searchContext?.results.map((result) => result.doc_id);
+
+      if (searchContext && !documentIds?.length) {
+        setGraph({
+          nodes: [],
+          edges: [],
+          total_nodes: 0,
+          total_edges: 0,
+          truncated: false,
+        });
+        setLoading(false);
+        return;
+      }
+
+      const nextGraph = await getFocusedSubgraph({
+        ...(documentIds?.length ? { document_ids: documentIds, depth: 1 } : {}),
+        max_nodes: 250,
+      });
+
+      if (graphRequestRef.current === requestNumber) {
+        setGraph(nextGraph);
+      }
     } catch (requestError) {
       const message =
         requestError instanceof Error
           ? requestError.message
           : "The graph could not be loaded.";
 
-      setError(message);
+      if (graphRequestRef.current === requestNumber) {
+        setError(message);
+      }
     } finally {
-      setLoading(false);
+      if (graphRequestRef.current === requestNumber) {
+        setLoading(false);
+      }
     }
-  }
+  }, [backendAvailable, searchContext]);
 
   useEffect(() => {
     void loadGraph();
-  }, [backendAvailable]);
+  }, [loadGraph]);
 
   const graphState = graph
     ? `${graph.nodes.length} nodes / ${graph.edges.length} edges`
@@ -78,13 +112,14 @@ function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
       <header className="graph-header">
         <div>
           <p className="eyebrow">Graph view</p>
-          <h2>Focused network</h2>
+          <h2>{searchContext ? "Search network" : "Focused network"}</h2>
         </div>
         <div className="graph-header-actions">
           <span className="graph-state">{graphState}</span>
           <GraphManagement
             open={openPanel === "management"}
             backendAvailable={backendAvailable}
+            refreshKey={graphRevision}
             onOpenChange={(open) =>
               handlePanelChange("management", open)
             }
@@ -99,10 +134,12 @@ function GraphWorkspace({ backendAvailable }: GraphWorkspaceProps) {
             ref={graphCanvasRef}
             graph={graph}
             forceSettings={forceSettings}
+            searchResults={searchContext?.results ?? []}
           />
           {openPanel !== "management" && (
             <GraphInspector
               open={openPanel === "inspector"}
+              searchNetworkActive={searchContext !== null}
               forceSettings={forceSettings}
               onOpenChange={(open) => handlePanelChange("inspector", open)}
               onForceSettingsChange={setForceSettings}

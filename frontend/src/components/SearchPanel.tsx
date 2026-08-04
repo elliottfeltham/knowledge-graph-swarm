@@ -6,6 +6,7 @@ import {
   LoaderCircle,
   Search,
   SlidersHorizontal,
+  X,
   Zap,
 } from "lucide-react";
 
@@ -22,6 +23,8 @@ import "./SearchPanel.css";
 
 interface SearchPanelProps {
   backendAvailable: boolean;
+  onSearchComplete: (response: SearchResponse) => void;
+  onSearchClear: () => void;
 }
 
 const EXAMPLE_QUESTIONS = [
@@ -36,7 +39,11 @@ function isAdaptiveResponse(
   return "update_summary" in response;
 }
 
-function SearchPanel({ backendAvailable }: SearchPanelProps) {
+function SearchPanel({
+  backendAvailable,
+  onSearchComplete,
+  onSearchClear,
+}: SearchPanelProps) {
   const [query, setQuery] = useState("");
   const [adaptive, setAdaptive] = useState(false);
   const [topK, setTopK] = useState(10);
@@ -51,6 +58,15 @@ function SearchPanel({ backendAvailable }: SearchPanelProps) {
     useState<GraphUpdateSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
+
+  function clearSearch() {
+    setQuery("");
+    setResponse(null);
+    setLastSearchSettings(null);
+    setUpdateSummary(null);
+    setError(null);
+    onSearchClear();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,6 +95,7 @@ function SearchPanel({ backendAvailable }: SearchPanelProps) {
 
       setResponse(nextResponse);
       setLastSearchSettings({ topK, seedK });
+      onSearchComplete(nextResponse);
 
       if (isAdaptiveResponse(nextResponse)) {
         setUpdateSummary(nextResponse.update_summary);
@@ -103,15 +120,34 @@ function SearchPanel({ backendAvailable }: SearchPanelProps) {
         </label>
 
         <div className="search-input-row">
-          <input
-            id="search-query"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Enter a question"
-            autoComplete="off"
-            required
-          />
+          <div className="search-query-control">
+            <input
+              id="search-query"
+              type="search"
+              value={query}
+              onChange={(event) => {
+                const nextQuery = event.target.value;
+                setQuery(nextQuery);
+
+                if (!nextQuery) {
+                  clearSearch();
+                }
+              }}
+              placeholder="Enter a question"
+              autoComplete="off"
+              required
+            />
+            {query && (
+              <button
+                type="button"
+                title="Clear search"
+                aria-label="Clear search"
+                onClick={clearSearch}
+              >
+                <X size={15} aria-hidden="true" />
+              </button>
+            )}
+          </div>
           <button
             className="search-button"
             type="submit"

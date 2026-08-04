@@ -7,6 +7,7 @@ import type { GraphStatistics } from "../api/types";
 interface GraphManagementProps {
   open: boolean;
   backendAvailable: boolean;
+  refreshKey: number;
   onOpenChange: (open: boolean) => void;
   onGraphReset: () => Promise<void>;
 }
@@ -14,6 +15,7 @@ interface GraphManagementProps {
 function GraphManagement({
   open,
   backendAvailable,
+  refreshKey,
   onOpenChange,
   onGraphReset,
 }: GraphManagementProps) {
@@ -46,7 +48,7 @@ function GraphManagement({
     }
 
     void loadStatistics();
-  }, [backendAvailable]);
+  }, [backendAvailable, refreshKey]);
 
   async function handleReset() {
     setResetting(true);

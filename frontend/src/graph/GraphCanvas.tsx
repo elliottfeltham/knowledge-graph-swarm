@@ -10,12 +10,18 @@ import {
 import ForceGraph3D from "react-force-graph-3d";
 import type { ForceGraphMethods } from "react-force-graph-3d";
 
-import type { GraphEdge, GraphNode, GraphResponse } from "../api/types";
+import type {
+  GraphEdge,
+  GraphNode,
+  GraphResponse,
+  SearchResult,
+} from "../api/types";
 import type { GraphForceSettings } from "./graphForceSettings";
 
 interface GraphCanvasProps {
   graph: GraphResponse;
   forceSettings: GraphForceSettings;
+  searchResults: SearchResult[];
 }
 
 export interface GraphCanvasHandle {
@@ -67,7 +73,7 @@ function createOriginForce(strength: number) {
 }
 
 const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
-  function GraphCanvas({ graph, forceSettings }, ref) {
+  function GraphCanvas({ graph, forceSettings, searchResults }, ref) {
     const containerRef = useRef<HTMLDivElement>(null);
     const graphRef = useRef<ForceGraphMethods<GraphCanvasNode, GraphEdge>>(
       undefined,
@@ -82,6 +88,16 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
         links: graph.edges.map((edge) => ({ ...edge })),
       }),
       [graph],
+    );
+    const resultRanks = useMemo(
+      () =>
+        new Map(
+          searchResults.map((result, index) => [
+            result.doc_id,
+            { rank: index + 1, score: result.score },
+          ]),
+        ),
+      [searchResults],
     );
 
     useEffect(() => {
@@ -177,9 +193,24 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
             controlType="orbit"
             enableNavigationControls
             enableNodeDrag
-            nodeLabel="title"
-            nodeVal={(node) => Math.max(1, Math.sqrt(node.degree))}
-            nodeColor={() => "#78c9cc"}
+            nodeLabel={(node) => {
+              const result = resultRanks.get(node.id);
+              return result ? `#${result.rank} ${node.title}` : node.title;
+            }}
+            nodeVal={(node) => {
+              const baseSize = Math.max(1, Math.sqrt(node.degree));
+              const result = resultRanks.get(node.id);
+
+              if (!result) {
+                return baseSize;
+              }
+
+              const rankEmphasis = 1 - (result.rank - 1) / searchResults.length;
+              return baseSize + 2 + rankEmphasis * 2;
+            }}
+            nodeColor={(node) =>
+              resultRanks.has(node.id) ? "#f0b56b" : "#78c9cc"
+            }
             nodeOpacity={0.9}
             nodeResolution={12}
             linkWidth={(edge) => 0.2 + edge.weight * 1.4}

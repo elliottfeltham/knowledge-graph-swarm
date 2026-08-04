@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { getHealth } from "./api/client";
+import type { SearchResponse } from "./api/types";
 import HelpDialog from "./components/HelpDialog";
 import SearchPanel from "./components/SearchPanel";
 import GraphWorkspace from "./graph/GraphWorkspace";
@@ -19,6 +20,18 @@ function App() {
     useState<ConnectionStatus>("checking");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [searchContext, setSearchContext] = useState<SearchResponse | null>(
+    null,
+  );
+  const [graphRevision, setGraphRevision] = useState(0);
+
+  function handleSearchComplete(response: SearchResponse) {
+    setSearchContext(response);
+
+    if (response.adaptive) {
+      setGraphRevision((revision) => revision + 1);
+    }
+  }
 
   async function checkBackend() {
     setConnectionStatus("checking");
@@ -91,7 +104,11 @@ function App() {
         </header>
 
         <div className="sidebar-content">
-          <SearchPanel backendAvailable={connectionStatus === "connected"} />
+          <SearchPanel
+            backendAvailable={connectionStatus === "connected"}
+            onSearchComplete={handleSearchComplete}
+            onSearchClear={() => setSearchContext(null)}
+          />
         </div>
 
         <footer className="runtime-status">
@@ -114,7 +131,11 @@ function App() {
         </footer>
       </aside>
 
-      <GraphWorkspace backendAvailable={connectionStatus === "connected"} />
+      <GraphWorkspace
+        backendAvailable={connectionStatus === "connected"}
+        searchContext={searchContext}
+        graphRevision={graphRevision}
+      />
 
       {helpOpen && <HelpDialog onClose={() => setHelpOpen(false)} />}
     </div>

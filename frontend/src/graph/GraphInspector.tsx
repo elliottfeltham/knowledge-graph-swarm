@@ -10,6 +10,7 @@ import type { GraphForceSettings } from "./graphForceSettings";
 
 interface GraphInspectorProps {
   open: boolean;
+  searchNetworkActive: boolean;
   forceSettings: GraphForceSettings;
   onOpenChange: (open: boolean) => void;
   onForceSettingsChange: (settings: GraphForceSettings) => void;
@@ -34,6 +35,7 @@ const FORCE_CONTROLS: ForceControl[] = [
 
 function GraphInspector({
   open,
+  searchNetworkActive,
   forceSettings,
   onOpenChange,
   onForceSettingsChange,
@@ -111,6 +113,12 @@ function GraphInspector({
           Reset view
         </button>
       </div>
+
+      {searchNetworkActive && (
+        <p className="search-network-hint">
+          Clear the search field to return to the default graph view.
+        </p>
+      )}
     </aside>
   );
 }
