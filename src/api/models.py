@@ -34,3 +34,30 @@ class SearchResponse(BaseModel):
 
 class AdaptiveSearchResponse(SearchResponse):
     update_summary: dict[str, Any]
+
+
+class SubgraphRequest(BaseModel):
+    document_ids: list[str] = Field(default_factory=list)
+    depth: int = Field(default=1, ge=0, le=3)
+    max_nodes: int = Field(default=250, ge=1, le=1000)
+
+
+class GraphNode(BaseModel):
+    id: str
+    title: str
+    degree: int
+
+
+class GraphEdge(BaseModel):
+    source: str
+    target: str
+    weight: float
+    activation_count: int
+
+
+class GraphResponse(BaseModel):
+    nodes: list[GraphNode]
+    edges: list[GraphEdge]
+    total_nodes: int
+    total_edges: int
+    truncated: bool

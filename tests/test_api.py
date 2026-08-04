@@ -20,11 +20,26 @@ GRAPH_STATISTICS = {
     "average_edge_weight": 0.12,
 }
 
+GRAPH_DATA = {
+    "nodes": [
+        {
+            "id": "document-1",
+            "title": "Example Document",
+            "degree": 2,
+        }
+    ],
+    "edges": [],
+    "total_nodes": 1,
+    "total_edges": 0,
+    "truncated": False,
+}
+
 
 class FakeAgentGraphRuntime:
     def __init__(self) -> None:
         self.search_arguments = None
         self.adaptive_search_arguments = None
+        self.subgraph_arguments = None
 
     def search(self, query: str, top_k: int, seed_k: int, graph_weight: float):
         self.search_arguments = {
@@ -51,6 +66,21 @@ class FakeAgentGraphRuntime:
 
     def graph_statistics(self) -> dict:
         return GRAPH_STATISTICS
+
+    def graph_data(self) -> dict:
+        return GRAPH_DATA
+
+    def subgraph_data(self, document_ids: list[str], depth: int, max_nodes: int) -> dict:
+        self.subgraph_arguments = {
+            "document_ids": document_ids,
+            "depth": depth,
+            "max_nodes": max_nodes,
+        }
+
+        if "missing-document" in document_ids:
+            raise ValueError("Unknown document IDs: missing-document")
+
+        return GRAPH_DATA
 
     def reset_graph(self) -> dict:
         return GRAPH_STATISTICS
@@ -131,6 +161,72 @@ def test_graph_stats_returns_current_statistics(api_client) -> None:
 
     assert response.status_code == 200
     assert response.json() == GRAPH_STATISTICS
+
+
+def test_full_graph_returns_graph_data(api_client) -> None:
+    client, _ = api_client
+
+    response = client.get("/graph")
+
+    assert response.status_code == 200
+    assert response.json() == GRAPH_DATA
+
+
+def test_subgraph_returns_graph_data_and_forwards_arguments(api_client) -> None:
+    client, fake_runtime = api_client
+    request_body = {
+        "document_ids": ["document-1"],
+        "depth": 2,
+        "max_nodes": 100,
+    }
+
+    response = client.post("/graph/subgraph", json=request_body)
+
+    assert response.status_code == 200
+    assert response.json() == GRAPH_DATA
+    assert fake_runtime.subgraph_arguments == request_body
+
+
+def test_subgraph_uses_overview_defaults(api_client) -> None:
+    client, fake_runtime = api_client
+
+    response = client.post("/graph/subgraph", json={})
+
+    assert response.status_code == 200
+    assert fake_runtime.subgraph_arguments == {
+        "document_ids": [],
+        "depth": 1,
+        "max_nodes": 250,
+    }
+
+
+@pytest.mark.parametrize(
+    "request_body",
+    [
+        {"depth": 4},
+        {"max_nodes": 0},
+    ],
+)
+def test_subgraph_rejects_invalid_limits(api_client, request_body) -> None:
+    client, _ = api_client
+
+    response = client.post("/graph/subgraph", json=request_body)
+
+    assert response.status_code == 422
+
+
+def test_subgraph_rejects_unknown_document_ids(api_client) -> None:
+    client, _ = api_client
+
+    response = client.post(
+        "/graph/subgraph",
+        json={"document_ids": ["missing-document"]},
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": "Unknown document IDs: missing-document",
+    }
 
 
 def test_reset_graph_returns_rebuilt_statistics(api_client) -> None:

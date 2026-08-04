@@ -3,7 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.models import AdaptiveSearchResponse, SearchRequest, SearchResponse
+from api.models import (
+    AdaptiveSearchResponse,
+    GraphResponse,
+    SearchRequest,
+    SearchResponse,
+    SubgraphRequest,
+)
 from retrieval.agent_graph_runtime import AgentGraphRuntime
 
 
@@ -91,6 +97,31 @@ def graph_stats() -> dict:
         raise HTTPException(status_code=503, detail="Runtime is not loaded")
 
     return runtime.graph_statistics()
+
+
+@app.get("/graph", response_model=GraphResponse)
+def full_graph() -> GraphResponse:
+    if runtime is None:
+        raise HTTPException(status_code=503, detail="Runtime is not loaded")
+
+    return GraphResponse(**runtime.graph_data())
+
+
+@app.post("/graph/subgraph", response_model=GraphResponse)
+def graph_subgraph(request: SubgraphRequest) -> GraphResponse:
+    if runtime is None:
+        raise HTTPException(status_code=503, detail="Runtime is not loaded")
+
+    try:
+        graph_data = runtime.subgraph_data(
+            document_ids=request.document_ids,
+            depth=request.depth,
+            max_nodes=request.max_nodes,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    return GraphResponse(**graph_data)
 
 
 @app.post("/graph/reset")

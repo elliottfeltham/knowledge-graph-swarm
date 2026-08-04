@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 
 from agents import DocumentAgent, GraphUpdateConfig, load_agents, save_agents
 from agents.graph_statistics import calculate_graph_statistics
-from agents.graph_update import update_graph_after_retrieval
+from agents.graph_update import make_edge_key, update_graph_after_retrieval
 from common import (
     MODEL_NAME,
     build_faiss_index,
@@ -103,6 +103,113 @@ class AgentGraphRuntime:
 
     def graph_statistics(self) -> dict:
         return calculate_graph_statistics(self.agents)
+
+    def graph_data(
+        self,
+        document_ids: set[str] | None = None,
+        truncated: bool = False,
+    ) -> dict:
+        selected_ids = set(self.agents) if document_ids is None else document_ids
+
+        nodes = [
+            {
+                "id": doc_id,
+                "title": self.agents[doc_id].title,
+                "degree": len(self.agents[doc_id].edges),
+            }
+            for doc_id in sorted(selected_ids)
+        ]
+
+        edges = []
+        added_edges = set()
+
+        for source_id in sorted(selected_ids):
+            for target_id, edge in self.agents[source_id].edges.items():
+                if target_id not in selected_ids:
+                    continue
+
+                edge_key = make_edge_key(source_id, target_id)
+
+                if edge_key in added_edges:
+                    continue
+
+                edges.append(
+                    {
+                        "source": source_id,
+                        "target": target_id,
+                        "weight": edge.weight,
+                        "activation_count": edge.activation_count,
+                    }
+                )
+                added_edges.add(edge_key)
+
+        return {
+            "nodes": nodes,
+            "edges": edges,
+            "total_nodes": len(nodes),
+            "total_edges": len(edges),
+            "truncated": truncated,
+        }
+
+    def subgraph_data(
+        self,
+        document_ids: list[str],
+        depth: int = 1,
+        max_nodes: int = 250,
+    ) -> dict:
+        root_ids = list(dict.fromkeys(document_ids))
+        unknown_ids = sorted(set(root_ids) - set(self.agents))
+
+        if unknown_ids:
+            raise ValueError(f"Unknown document IDs: {', '.join(unknown_ids)}")
+
+        if len(root_ids) > max_nodes:
+            raise ValueError("max_nodes cannot be smaller than the number of document IDs")
+
+        if not root_ids:
+            root_ids = sorted(
+                self.agents,
+                key=lambda doc_id: (-len(self.agents[doc_id].edges), doc_id),
+            )[:min(10, max_nodes)]
+
+        selected_ids = set(root_ids)
+        frontier = root_ids
+        truncated = False
+
+        for _ in range(depth):
+            candidate_edges = []
+
+            for source_id in frontier:
+                for target_id, edge in self.agents[source_id].edges.items():
+                    if target_id in selected_ids:
+                        continue
+
+                    candidate_edges.append(
+                        (-edge.weight, source_id, target_id)
+                    )
+
+            next_frontier = []
+
+            for _, _, target_id in sorted(candidate_edges):
+                if target_id in selected_ids:
+                    continue
+
+                if len(selected_ids) >= max_nodes:
+                    truncated = True
+                    break
+
+                selected_ids.add(target_id)
+                next_frontier.append(target_id)
+
+            if not next_frontier or truncated:
+                break
+
+            frontier = next_frontier
+
+        return self.graph_data(
+            document_ids=selected_ids,
+            truncated=truncated,
+        )
 
     def reset_graph(
         self,
