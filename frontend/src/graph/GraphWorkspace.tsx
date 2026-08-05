@@ -21,6 +21,14 @@ type GraphViewMode = "focused" | "full";
 
 const FULL_GRAPH_EDGE_LIMIT = 10_000;
 
+function getInitialOpenPanel(): OpenGraphPanel {
+  if (window.matchMedia?.("(max-width: 760px)").matches) {
+    return null;
+  }
+
+  return "inspector";
+}
+
 function GraphWorkspace({
   backendAvailable,
   searchContext,
@@ -33,7 +41,7 @@ function GraphWorkspace({
     DEFAULT_GRAPH_FORCE_SETTINGS,
   );
   const [viewMode, setViewMode] = useState<GraphViewMode>("focused");
-  const [openPanel, setOpenPanel] = useState<OpenGraphPanel>("inspector");
+  const [openPanel, setOpenPanel] = useState<OpenGraphPanel>(getInitialOpenPanel);
   const graphCanvasRef = useRef<GraphCanvasHandle>(null);
   const graphRequestRef = useRef(0);
   const fullGraphCacheRef = useRef<{
@@ -194,7 +202,9 @@ function GraphWorkspace({
               </button>
             </div>
           )}
-          <span className="graph-state">{graphState}</span>
+          <span className="graph-state" aria-live="polite">
+            {graphState}
+          </span>
           <GraphManagement
             open={openPanel === "management"}
             backendAvailable={backendAvailable}
@@ -219,6 +229,7 @@ function GraphWorkspace({
           {openPanel !== "management" && (
             <GraphInspector
               open={openPanel === "inspector"}
+              observationMode={fullGraphActive}
               searchNetworkActive={searchContext !== null}
               forceSettings={forceSettings}
               onOpenChange={(open) => handlePanelChange("inspector", open)}

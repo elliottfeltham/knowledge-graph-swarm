@@ -111,7 +111,7 @@ function App() {
           />
         </div>
 
-        <footer className="runtime-status">
+        <footer className="runtime-status" role="status" aria-live="polite">
           <span
             className={`status-dot status-dot-${connectionStatus}`}
             aria-hidden="true"

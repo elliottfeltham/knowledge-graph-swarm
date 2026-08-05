@@ -76,7 +76,10 @@ function GraphManagement({
       open={open}
       onToggle={(event) => onOpenChange(event.currentTarget.open)}
     >
-      <summary title="Graph statistics and reset" aria-label="Open graph management">
+      <summary
+        title={open ? "Close graph management" : "Graph statistics and reset"}
+        aria-label={open ? "Close graph management" : "Open graph management"}
+      >
         <Database size={17} aria-hidden="true" />
       </summary>
 

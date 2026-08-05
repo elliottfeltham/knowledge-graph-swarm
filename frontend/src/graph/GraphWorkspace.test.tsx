@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   getFocusedSubgraph,
@@ -46,6 +46,10 @@ beforeEach(() => {
   });
 });
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 function renderGraphWorkspace(
   props: Partial<ComponentProps<typeof GraphWorkspace>> = {},
 ) {
@@ -83,6 +87,27 @@ describe("GraphWorkspace", () => {
     expect(getFocusedSubgraph).toHaveBeenCalledWith({ max_nodes: 250 });
   });
 
+  it("starts with graph controls collapsed on narrow screens", async () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn().mockReturnValue({ matches: true }),
+    );
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+
+    renderGraphWorkspace();
+
+    expect(
+      await screen.findByRole("button", { name: "Open graph controls" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText("Graph controls")).not.toBeInTheDocument();
+  });
+
   it("loads the complete graph when full mode is selected", async () => {
     vi.mocked(getFocusedSubgraph).mockResolvedValue({
       nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
@@ -116,6 +141,8 @@ describe("GraphWorkspace", () => {
 
     expect(await screen.findByText("Full network")).toBeInTheDocument();
     expect(await screen.findByText("2 nodes / 1 edges")).toBeInTheDocument();
+    expect(screen.getByText("Observation mode")).toBeInTheDocument();
+    expect(screen.queryByRole("slider")).not.toBeInTheDocument();
     expect(getFullGraph).toHaveBeenCalledOnce();
 
     fireEvent.click(screen.getByRole("button", { name: "Focused" }));
@@ -214,7 +241,7 @@ describe("GraphWorkspace", () => {
       screen.queryByRole("button", { name: "Open graph controls" }),
     ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText("Open graph management"));
+    fireEvent.click(screen.getByLabelText("Close graph management"));
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Open graph controls" }),

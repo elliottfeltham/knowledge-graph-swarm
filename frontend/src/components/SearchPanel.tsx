@@ -242,7 +242,11 @@ function SearchPanel({
       )}
 
       {updateSummary && (
-        <section className="update-summary" aria-label="Graph update summary">
+        <section
+          className="update-summary"
+          aria-label="Graph update summary"
+          role="status"
+        >
           <div className="update-heading">
             <Zap size={15} aria-hidden="true" />
             <span>Graph updated</span>

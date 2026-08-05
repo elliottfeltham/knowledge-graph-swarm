@@ -10,7 +10,9 @@
 
 .help-dialog {
   width: min(440px, 100%);
+  max-height: calc(100dvh - 40px);
   padding: 24px;
+  overflow-y: auto;
   color: #dfe4e1;
   background: #1b1f20;
   border: 1px solid #383e40;
@@ -32,7 +34,12 @@
   letter-spacing: 0;
 }
 
-.help-dialog > p {
+.help-introduction {
+  display: grid;
+  gap: 12px;
+}
+
+.help-introduction p {
   color: #aeb6b5;
   font-size: 13px;
   line-height: 1.55;
@@ -57,3 +64,19 @@
   line-height: 1.45;
 }
 
+@media (max-width: 480px) {
+  .help-backdrop {
+    padding: 12px;
+  }
+
+  .help-dialog {
+    max-height: calc(100dvh - 24px);
+    padding: 20px;
+  }
+
+  .help-dialog header button {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+}

@@ -267,6 +267,7 @@
 
 .settings-grid input:focus {
   border-color: #5aaeb3;
+  box-shadow: 0 0 0 2px rgb(90 174 179 / 16%);
 }
 
 .search-error {
@@ -437,4 +438,37 @@
 
 .spin {
   animation: spin 800ms linear infinite;
+}
+
+@media (max-width: 480px) {
+  .search-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .search-button {
+    width: 100%;
+  }
+
+  .search-query-control input,
+  .search-button {
+    height: 44px;
+  }
+
+  .search-query-control button {
+    top: 2px;
+    right: 2px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .results-header,
+  .result-title-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .result-score {
+    align-items: flex-start;
+  }
 }

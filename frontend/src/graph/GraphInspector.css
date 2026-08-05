@@ -2,7 +2,7 @@
 .graph-inspector-toggle {
   position: absolute;
   z-index: 1;
-  top: 104px;
+  top: calc(var(--graph-header-height, 84px) + 20px);
   right: 18px;
 }
 
@@ -122,6 +122,26 @@
   background: #2d3233;
 }
 
+.view-actions-single {
+  grid-template-columns: 1fr;
+}
+
+.observation-mode-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 18px;
+  color: #9ba3a5;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.observation-mode-status svg {
+  flex: 0 0 14px;
+  margin-top: 1px;
+  color: #79bfc2;
+}
+
 .search-network-hint {
   margin-top: 12px;
   padding-top: 11px;
@@ -134,11 +154,26 @@
 @media (max-width: 760px) {
   .graph-inspector,
   .graph-inspector-toggle {
-    top: 100px;
     right: 12px;
   }
 
   .graph-inspector {
     width: min(230px, calc(100% - 24px));
+    max-height: calc(100% - var(--graph-header-height, 84px) - 32px);
+    overflow-y: auto;
+  }
+
+  .graph-inspector header button,
+  .graph-inspector-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .force-control input {
+    height: 24px;
+  }
+
+  .view-actions button {
+    height: 40px;
   }
 }

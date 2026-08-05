@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import App from "./App";
@@ -36,17 +36,36 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("opens and closes the project help", () => {
+  it("opens and closes the project help", async () => {
     render(<App />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Open project help" }));
+    const helpButton = screen.getByRole("button", { name: "Open project help" });
+    helpButton.focus();
+    fireEvent.click(helpButton);
 
     expect(
       screen.getByRole("dialog", { name: "About this project" }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Close help" })).toHaveFocus();
+
+    fireEvent.keyDown(window, { key: "Tab" });
+    expect(screen.getByRole("button", { name: "Close help" })).toHaveFocus();
 
     fireEvent.click(screen.getByRole("button", { name: "Close help" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await waitFor(() => expect(helpButton).toHaveFocus());
+  });
+
+  it("closes the project help with Escape", async () => {
+    render(<App />);
+
+    const helpButton = screen.getByRole("button", { name: "Open project help" });
+    helpButton.focus();
+    fireEvent.click(helpButton);
+    fireEvent.keyDown(window, { key: "Escape" });
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await waitFor(() => expect(helpButton).toHaveFocus());
   });
 });

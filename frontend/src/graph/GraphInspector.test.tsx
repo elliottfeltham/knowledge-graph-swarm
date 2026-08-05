@@ -13,6 +13,7 @@ describe("GraphInspector", () => {
     render(
       <GraphInspector
         open
+        observationMode={false}
         searchNetworkActive={false}
         forceSettings={DEFAULT_GRAPH_FORCE_SETTINGS}
         onOpenChange={vi.fn()}
@@ -42,6 +43,7 @@ describe("GraphInspector", () => {
     render(
       <GraphInspector
         open
+        observationMode={false}
         searchNetworkActive={false}
         forceSettings={DEFAULT_GRAPH_FORCE_SETTINGS}
         onOpenChange={handleOpenChange}
@@ -56,5 +58,31 @@ describe("GraphInspector", () => {
     );
 
     expect(handleOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("shows only view fitting in observation mode", () => {
+    const handleFitView = vi.fn();
+
+    render(
+      <GraphInspector
+        open
+        observationMode
+        searchNetworkActive={false}
+        forceSettings={DEFAULT_GRAPH_FORCE_SETTINGS}
+        onOpenChange={vi.fn()}
+        onForceSettingsChange={vi.fn()}
+        onFitView={handleFitView}
+        onResetView={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Observation mode")).toBeInTheDocument();
+    expect(screen.queryByRole("slider")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Reset view" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Fit to view" }));
+    expect(handleFitView).toHaveBeenCalledOnce();
   });
 });

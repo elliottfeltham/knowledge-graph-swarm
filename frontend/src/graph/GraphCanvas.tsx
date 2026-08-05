@@ -186,7 +186,12 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
     }));
 
     return (
-      <div className="graph-canvas" ref={containerRef}>
+      <div
+        className="graph-canvas"
+        ref={containerRef}
+        role="img"
+        aria-label={`3D document graph with ${graph.nodes.length} nodes and ${graph.edges.length} edges`}
+      >
         {size.width > 0 && size.height > 0 && (
           <ForceGraph3D<GraphCanvasNode, GraphEdge>
             ref={graphRef}
@@ -196,7 +201,7 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
             backgroundColor="#101213"
             controlType="orbit"
             enableNavigationControls
-            enableNodeDrag
+            enableNodeDrag={!performanceMode}
             nodeLabel={(node) => {
               const result = resultRanks.get(node.id);
               return result ? `#${result.rank} ${node.title}` : node.title;
