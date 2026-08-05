@@ -43,6 +43,39 @@
   gap: 12px;
 }
 
+.graph-view-switch {
+  display: inline-flex;
+  padding: 2px;
+  background: #191c1d;
+  border: 1px solid #303537;
+  border-radius: 6px;
+}
+
+.graph-view-switch button {
+  height: 26px;
+  padding: 0 9px;
+  color: #7f898c;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.graph-view-switch button:hover {
+  color: #c8cfcd;
+}
+
+.graph-view-switch button[aria-pressed="true"] {
+  color: #dce3df;
+  background: #303638;
+}
+
+.graph-view-switch button:focus-visible {
+  outline: 2px solid #83d5d8;
+  outline-offset: 1px;
+}
+
 .graph-management {
   position: relative;
 }
@@ -277,11 +310,21 @@
     gap: 5px;
   }
 
+  .graph-view-switch button {
+    padding: 0 7px;
+  }
+
   .graph-management-panel {
     position: fixed;
     top: 74px;
     right: 12px;
     left: 12px;
     width: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .graph-state {
+    display: none;
   }
 }

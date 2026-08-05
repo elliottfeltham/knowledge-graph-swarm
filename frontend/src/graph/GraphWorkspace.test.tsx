@@ -4,19 +4,34 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   getFocusedSubgraph,
+  getFullGraph,
   getGraphStatistics,
   resetGraph,
 } from "../api/client";
+import type { GraphResponse } from "../api/types";
 import GraphWorkspace from "./GraphWorkspace";
 
 vi.mock("../api/client", () => ({
   getFocusedSubgraph: vi.fn(),
+  getFullGraph: vi.fn(),
   getGraphStatistics: vi.fn(),
   resetGraph: vi.fn(),
 }));
 
 vi.mock("./GraphCanvas", () => ({
-  default: () => <div data-testid="graph-canvas" />,
+  default: ({
+    graph,
+    performanceMode,
+  }: {
+    graph: GraphResponse;
+    performanceMode: boolean;
+  }) => (
+    <div
+      data-testid="graph-canvas"
+      data-edge-count={graph.edges.length}
+      data-performance-mode={performanceMode}
+    />
+  ),
 }));
 
 beforeEach(() => {
@@ -66,6 +81,81 @@ describe("GraphWorkspace", () => {
     expect(await screen.findByTestId("graph-canvas")).toBeInTheDocument();
     expect(screen.getByText("1 nodes / 0 edges")).toBeInTheDocument();
     expect(getFocusedSubgraph).toHaveBeenCalledWith({ max_nodes: 250 });
+  });
+
+  it("loads the complete graph when full mode is selected", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+    vi.mocked(getFullGraph).mockResolvedValue({
+      nodes: [
+        { id: "document-1", title: "Document 1", degree: 2 },
+        { id: "document-2", title: "Document 2", degree: 3 },
+      ],
+      edges: [
+        {
+          source: "document-1",
+          target: "document-2",
+          weight: 0.2,
+          activation_count: 0,
+        },
+      ],
+      total_nodes: 2,
+      total_edges: 1,
+      truncated: false,
+    });
+
+    renderGraphWorkspace();
+
+    expect(await screen.findByText("Focused network")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Full" }));
+
+    expect(await screen.findByText("Full network")).toBeInTheDocument();
+    expect(await screen.findByText("2 nodes / 1 edges")).toBeInTheDocument();
+    expect(getFullGraph).toHaveBeenCalledOnce();
+
+    fireEvent.click(screen.getByRole("button", { name: "Focused" }));
+    await screen.findByText("Focused network");
+    fireEvent.click(screen.getByRole("button", { name: "Full" }));
+
+    expect(await screen.findByText("2 nodes / 1 edges")).toBeInTheDocument();
+    expect(getFullGraph).toHaveBeenCalledOnce();
+  });
+
+  it("limits full mode to the strongest 10,000 visible edges", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 10_001 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+    vi.mocked(getFullGraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 10_001 }],
+      edges: Array.from({ length: 10_001 }, (_, index) => ({
+        source: "document-1",
+        target: `document-${index + 2}`,
+        weight: index / 10_001,
+        activation_count: 0,
+      })),
+      total_nodes: 1,
+      total_edges: 10_001,
+      truncated: false,
+    });
+
+    renderGraphWorkspace();
+    fireEvent.click(await screen.findByRole("button", { name: "Full" }));
+
+    const canvas = await screen.findByTestId("graph-canvas");
+    expect(canvas).toHaveAttribute("data-edge-count", "10000");
+    expect(canvas).toHaveAttribute("data-performance-mode", "true");
+    expect(
+      screen.getByText("Showing the strongest 10,000 of 10,001 edges"),
+    ).toBeInTheDocument();
   });
 
   it("shows statistics and resets the graph after confirmation", async () => {
@@ -159,6 +249,9 @@ describe("GraphWorkspace", () => {
     });
 
     expect(await screen.findByText("Search network")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("group", { name: "Graph scope" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByText(
         "Clear the search field to return to the default graph view.",

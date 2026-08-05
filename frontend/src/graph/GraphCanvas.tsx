@@ -20,6 +20,7 @@ import type { GraphForceSettings } from "./graphForceSettings";
 
 interface GraphCanvasProps {
   graph: GraphResponse;
+  performanceMode: boolean;
   forceSettings: GraphForceSettings;
   searchResults: SearchResult[];
 }
@@ -73,7 +74,10 @@ function createOriginForce(strength: number) {
 }
 
 const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
-  function GraphCanvas({ graph, forceSettings, searchResults }, ref) {
+  function GraphCanvas(
+    { graph, performanceMode, forceSettings, searchResults },
+    ref,
+  ) {
     const containerRef = useRef<HTMLDivElement>(null);
     const graphRef = useRef<ForceGraphMethods<GraphCanvasNode, GraphEdge>>(
       undefined,
@@ -212,11 +216,18 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
               resultRanks.has(node.id) ? "#f0b56b" : "#78c9cc"
             }
             nodeOpacity={0.9}
-            nodeResolution={12}
+            nodeResolution={performanceMode ? 5 : 12}
             linkWidth={(edge) => 0.2 + edge.weight * 1.4}
             linkColor={() => "#536a6d"}
             linkOpacity={0.3}
             showNavInfo={false}
+            {...(performanceMode
+              ? {
+                  cooldownTicks: 120,
+                  cooldownTime: 5000,
+                  d3AlphaDecay: 0.06,
+                }
+              : {})}
             onEngineTick={() => {
               if (engineReadyRef.current || !graphRef.current) {
                 return;

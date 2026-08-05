@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, BrainCircuit, RefreshCw } from "lucide-react";
 
-import { getFocusedSubgraph } from "../api/client";
+import { getFocusedSubgraph, getFullGraph } from "../api/client";
 import type { GraphResponse, SearchResponse } from "../api/types";
 import GraphCanvas from "./GraphCanvas";
 import type { GraphCanvasHandle } from "./GraphCanvas";
@@ -17,6 +17,9 @@ interface GraphWorkspaceProps {
 }
 
 type OpenGraphPanel = "inspector" | "management" | null;
+type GraphViewMode = "focused" | "full";
+
+const FULL_GRAPH_EDGE_LIMIT = 10_000;
 
 function GraphWorkspace({
   backendAvailable,
@@ -29,9 +32,14 @@ function GraphWorkspace({
   const [forceSettings, setForceSettings] = useState(
     DEFAULT_GRAPH_FORCE_SETTINGS,
   );
+  const [viewMode, setViewMode] = useState<GraphViewMode>("focused");
   const [openPanel, setOpenPanel] = useState<OpenGraphPanel>("inspector");
   const graphCanvasRef = useRef<GraphCanvasHandle>(null);
   const graphRequestRef = useRef(0);
+  const fullGraphCacheRef = useRef<{
+    revision: number;
+    graph: GraphResponse;
+  } | null>(null);
 
   const loadGraph = useCallback(async () => {
     if (!backendAvailable) {
@@ -41,6 +49,7 @@ function GraphWorkspace({
     const requestNumber = graphRequestRef.current + 1;
     graphRequestRef.current = requestNumber;
     setLoading(true);
+    setGraph(null);
     setError(null);
 
     try {
@@ -58,10 +67,28 @@ function GraphWorkspace({
         return;
       }
 
-      const nextGraph = await getFocusedSubgraph({
-        ...(documentIds?.length ? { document_ids: documentIds, depth: 1 } : {}),
-        max_nodes: 250,
-      });
+      let nextGraph: GraphResponse;
+
+      if (!searchContext && viewMode === "full") {
+        const cachedGraph = fullGraphCacheRef.current;
+
+        if (cachedGraph?.revision === graphRevision) {
+          nextGraph = cachedGraph.graph;
+        } else {
+          nextGraph = await getFullGraph();
+          fullGraphCacheRef.current = {
+            revision: graphRevision,
+            graph: nextGraph,
+          };
+        }
+      } else {
+        nextGraph = await getFocusedSubgraph({
+          ...(documentIds?.length
+            ? { document_ids: documentIds, depth: 1 }
+            : {}),
+          max_nodes: 250,
+        });
+      }
 
       if (graphRequestRef.current === requestNumber) {
         setGraph(nextGraph);
@@ -80,17 +107,42 @@ function GraphWorkspace({
         setLoading(false);
       }
     }
-  }, [backendAvailable, searchContext]);
+  }, [backendAvailable, graphRevision, searchContext, viewMode]);
 
   useEffect(() => {
     void loadGraph();
   }, [loadGraph]);
 
-  const graphState = graph
-    ? `${graph.nodes.length} nodes / ${graph.edges.length} edges`
-    : loading
-      ? "Loading graph"
+  const fullGraphActive = !searchContext && viewMode === "full";
+  const displayedGraph = useMemo(() => {
+    if (!graph || !fullGraphActive || graph.edges.length <= FULL_GRAPH_EDGE_LIMIT) {
+      return graph;
+    }
+
+    return {
+      ...graph,
+      edges: [...graph.edges]
+        .sort((first, second) => second.weight - first.weight)
+        .slice(0, FULL_GRAPH_EDGE_LIMIT),
+    };
+  }, [fullGraphActive, graph]);
+  const edgesLimited = Boolean(
+    displayedGraph && graph && displayedGraph.edges.length < graph.edges.length,
+  );
+
+  const graphState = loading
+    ? viewMode === "full" && !searchContext
+      ? "Loading full graph"
+      : "Loading graph"
+    : displayedGraph
+      ? `${displayedGraph.nodes.length} nodes / ${displayedGraph.edges.length} edges`
       : "Waiting for graph data";
+
+  const graphTitle = searchContext
+    ? "Search network"
+    : viewMode === "full"
+      ? "Full network"
+      : "Focused network";
 
   function handlePanelChange(panel: Exclude<OpenGraphPanel, null>, open: boolean) {
     setOpenPanel((currentPanel) => {
@@ -107,14 +159,41 @@ function GraphWorkspace({
     graphCanvasRef.current?.resetView();
   }
 
+  async function handleGraphReset() {
+    fullGraphCacheRef.current = null;
+    await loadGraph();
+  }
+
   return (
     <main className="graph-workspace" aria-label="Graph workspace">
       <header className="graph-header">
         <div>
           <p className="eyebrow">Graph view</p>
-          <h2>{searchContext ? "Search network" : "Focused network"}</h2>
+          <h2>{graphTitle}</h2>
         </div>
         <div className="graph-header-actions">
+          {!searchContext && (
+            <div
+              className="graph-view-switch"
+              role="group"
+              aria-label="Graph scope"
+            >
+              <button
+                type="button"
+                aria-pressed={viewMode === "focused"}
+                onClick={() => setViewMode("focused")}
+              >
+                Focused
+              </button>
+              <button
+                type="button"
+                aria-pressed={viewMode === "full"}
+                onClick={() => setViewMode("full")}
+              >
+                Full
+              </button>
+            </div>
+          )}
           <span className="graph-state">{graphState}</span>
           <GraphManagement
             open={openPanel === "management"}
@@ -123,16 +202,17 @@ function GraphWorkspace({
             onOpenChange={(open) =>
               handlePanelChange("management", open)
             }
-            onGraphReset={loadGraph}
+            onGraphReset={handleGraphReset}
           />
         </div>
       </header>
 
-      {graph && graph.nodes.length > 0 && (
+      {displayedGraph && displayedGraph.nodes.length > 0 && (
         <>
           <GraphCanvas
             ref={graphCanvasRef}
-            graph={graph}
+            graph={displayedGraph}
+            performanceMode={fullGraphActive}
             forceSettings={forceSettings}
             searchResults={searchContext?.results ?? []}
           />
@@ -153,7 +233,11 @@ function GraphWorkspace({
       {loading && !graph && (
         <div className="graph-message" role="status">
           <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
-          <span>Loading graph</span>
+          <span>
+            {viewMode === "full" && !searchContext
+              ? "Loading full graph. This may take a moment."
+              : "Loading graph"}
+          </span>
         </div>
       )}
 
@@ -185,6 +269,13 @@ function GraphWorkspace({
       {graph?.truncated && (
         <span className="graph-limit">
           Showing {graph.nodes.length} of {graph.total_nodes} nodes
+        </span>
+      )}
+
+      {edgesLimited && graph && displayedGraph && (
+        <span className="graph-limit">
+          Showing the strongest {displayedGraph.edges.length.toLocaleString()} of{" "}
+          {graph.edges.length.toLocaleString()} edges
         </span>
       )}
     </main>
