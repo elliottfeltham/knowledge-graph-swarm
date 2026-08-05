@@ -1,5 +1,6 @@
 import type {
   AdaptiveSearchResponse,
+  DocumentDetail,
   GraphResponse,
   GraphStatistics,
   HealthResponse,
@@ -95,6 +96,11 @@ export function adaptiveSearchDocuments(
 
 export function getGraphStatistics(): Promise<GraphStatistics> {
   return apiRequest<GraphStatistics>("/graph/stats");
+}
+
+
+export function getDocumentDetail(docId: string): Promise<DocumentDetail> {
+  return apiRequest<DocumentDetail>(`/documents/${encodeURIComponent(docId)}`);
 }
 
 

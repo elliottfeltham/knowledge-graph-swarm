@@ -34,6 +34,13 @@ GRAPH_DATA = {
     "truncated": False,
 }
 
+DOCUMENT_DETAIL = {
+    "doc_id": "document-1",
+    "title": "Example Document",
+    "text_preview": "An example document used by the API tests.",
+    "degree": 2,
+}
+
 
 class FakeAgentGraphRuntime:
     def __init__(self) -> None:
@@ -66,6 +73,12 @@ class FakeAgentGraphRuntime:
 
     def graph_statistics(self) -> dict:
         return GRAPH_STATISTICS
+
+    def document_data(self, doc_id: str) -> dict:
+        if doc_id != "document-1":
+            raise ValueError(f"Unknown document ID: {doc_id}")
+
+        return DOCUMENT_DETAIL
 
     def graph_data(self) -> dict:
         return GRAPH_DATA
@@ -161,6 +174,26 @@ def test_graph_stats_returns_current_statistics(api_client) -> None:
 
     assert response.status_code == 200
     assert response.json() == GRAPH_STATISTICS
+
+
+def test_document_detail_returns_document_data(api_client) -> None:
+    client, _ = api_client
+
+    response = client.get("/documents/document-1")
+
+    assert response.status_code == 200
+    assert response.json() == DOCUMENT_DETAIL
+
+
+def test_document_detail_rejects_unknown_document_id(api_client) -> None:
+    client, _ = api_client
+
+    response = client.get("/documents/missing-document")
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Unknown document ID: missing-document",
+    }
 
 
 def test_full_graph_returns_graph_data(api_client) -> None:

@@ -56,3 +56,19 @@ def test_empty_subgraph_request_starts_from_highest_degree_agents() -> None:
     )
 
     assert [node["id"] for node in graph_data["nodes"]] == ["a"]
+
+
+def test_document_data_returns_a_bounded_preview() -> None:
+    agents = {
+        "a": DocumentAgent(doc_id="a", title="Document A", text="Long text")
+    }
+    runtime = create_runtime(agents)
+
+    document = runtime.document_data("a", preview_length=4)
+
+    assert document == {
+        "doc_id": "a",
+        "title": "Document A",
+        "text_preview": "Long",
+        "degree": 0,
+    }

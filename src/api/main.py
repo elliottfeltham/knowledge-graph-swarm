@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.models import (
     AdaptiveSearchResponse,
+    DocumentDetailResponse,
     GraphResponse,
     SearchRequest,
     SearchResponse,
@@ -97,6 +98,19 @@ def graph_stats() -> dict:
         raise HTTPException(status_code=503, detail="Runtime is not loaded")
 
     return runtime.graph_statistics()
+
+
+@app.get("/documents/{doc_id}", response_model=DocumentDetailResponse)
+def document_detail(doc_id: str) -> DocumentDetailResponse:
+    if runtime is None:
+        raise HTTPException(status_code=503, detail="Runtime is not loaded")
+
+    try:
+        document = runtime.document_data(doc_id)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+    return DocumentDetailResponse(**document)
 
 
 @app.get("/graph", response_model=GraphResponse)

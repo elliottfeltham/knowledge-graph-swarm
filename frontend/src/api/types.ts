@@ -74,3 +74,10 @@ export interface GraphResponse {
   total_edges: number;
   truncated: boolean;
 }
+
+export interface DocumentDetail {
+  doc_id: string;
+  title: string;
+  text_preview: string;
+  degree: number;
+}

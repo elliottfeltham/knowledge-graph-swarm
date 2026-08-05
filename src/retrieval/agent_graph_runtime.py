@@ -104,6 +104,19 @@ class AgentGraphRuntime:
     def graph_statistics(self) -> dict:
         return calculate_graph_statistics(self.agents)
 
+    def document_data(self, doc_id: str, preview_length: int = 1_000) -> dict:
+        if doc_id not in self.agents:
+            raise ValueError(f"Unknown document ID: {doc_id}")
+
+        agent = self.agents[doc_id]
+
+        return {
+            "doc_id": doc_id,
+            "title": agent.title,
+            "text_preview": agent.text[:preview_length],
+            "degree": len(agent.edges),
+        }
+
     def graph_data(
         self,
         document_ids: set[str] | None = None,

@@ -3,6 +3,7 @@ import type { ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  getDocumentDetail,
   getFocusedSubgraph,
   getFullGraph,
   getGraphStatistics,
@@ -12,6 +13,7 @@ import type { GraphResponse } from "../api/types";
 import GraphWorkspace from "./GraphWorkspace";
 
 vi.mock("../api/client", () => ({
+  getDocumentDetail: vi.fn(),
   getFocusedSubgraph: vi.fn(),
   getFullGraph: vi.fn(),
   getGraphStatistics: vi.fn(),
@@ -22,15 +24,30 @@ vi.mock("./GraphCanvas", () => ({
   default: ({
     graph,
     performanceMode,
+    nodeSelectionEnabled,
+    selectedNodeId,
+    onNodeSelect,
   }: {
     graph: GraphResponse;
     performanceMode: boolean;
+    nodeSelectionEnabled: boolean;
+    selectedNodeId: string | null;
+    onNodeSelect: (docId: string) => void;
   }) => (
-    <div
-      data-testid="graph-canvas"
-      data-edge-count={graph.edges.length}
-      data-performance-mode={performanceMode}
-    />
+    <div>
+      <div
+        data-testid="graph-canvas"
+        data-edge-count={graph.edges.length}
+        data-performance-mode={performanceMode}
+        data-selection-enabled={nodeSelectionEnabled}
+        data-selected-node={selectedNodeId ?? ""}
+      />
+      {nodeSelectionEnabled && graph.nodes[0] && (
+        <button type="button" onClick={() => onNodeSelect(graph.nodes[0].id)}>
+          Select first node
+        </button>
+      )}
+    </div>
   ),
 }));
 
@@ -85,6 +102,42 @@ describe("GraphWorkspace", () => {
     expect(await screen.findByTestId("graph-canvas")).toBeInTheDocument();
     expect(screen.getByText("1 nodes / 0 edges")).toBeInTheDocument();
     expect(getFocusedSubgraph).toHaveBeenCalledWith({ max_nodes: 250 });
+  });
+
+  it("shows details when a document node is selected", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+    vi.mocked(getDocumentDetail).mockResolvedValue({
+      doc_id: "document-1",
+      title: "Document 1",
+      text_preview: "Document text preview",
+      degree: 2,
+    });
+
+    renderGraphWorkspace();
+    fireEvent.click(await screen.findByRole("button", { name: "Select first node" }));
+
+    expect(await screen.findByLabelText("Document details")).toBeInTheDocument();
+    expect(screen.getByText("Document text preview")).toBeInTheDocument();
+    expect(screen.getByText("document-1")).toBeInTheDocument();
+    expect(getDocumentDetail).toHaveBeenCalledWith("document-1");
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
+      "data-selected-node",
+      "document-1",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Back to graph controls" }));
+
+    expect(screen.getByLabelText("Graph controls")).toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
+      "data-selected-node",
+      "",
+    );
   });
 
   it("starts with graph controls collapsed on narrow screens", async () => {
@@ -143,6 +196,10 @@ describe("GraphWorkspace", () => {
     expect(await screen.findByText("2 nodes / 1 edges")).toBeInTheDocument();
     expect(screen.getByText("Observation mode")).toBeInTheDocument();
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
+      "data-selection-enabled",
+      "false",
+    );
     expect(getFullGraph).toHaveBeenCalledOnce();
 
     fireEvent.click(screen.getByRole("button", { name: "Focused" }));

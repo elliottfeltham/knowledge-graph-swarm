@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   adaptiveSearchDocuments,
   ApiError,
+  getDocumentDetail,
   getFocusedSubgraph,
   getFullGraph,
   getGraphStatistics,
@@ -68,6 +69,7 @@ describe("API client", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await adaptiveSearchDocuments({ query: "adaptive query" });
+    await getDocumentDetail("document-1");
     await getGraphStatistics();
     await resetGraph();
     await getFocusedSubgraph({ document_ids: ["document-1"] });
@@ -75,6 +77,7 @@ describe("API client", () => {
 
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       "http://127.0.0.1:8000/adaptive-search",
+      "http://127.0.0.1:8000/documents/document-1",
       "http://127.0.0.1:8000/graph/stats",
       "http://127.0.0.1:8000/graph/reset",
       "http://127.0.0.1:8000/graph/subgraph",

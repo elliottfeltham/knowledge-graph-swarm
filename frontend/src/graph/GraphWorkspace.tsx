@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, BrainCircuit, RefreshCw } from "lucide-react";
 
-import { getFocusedSubgraph, getFullGraph } from "../api/client";
-import type { GraphResponse, SearchResponse } from "../api/types";
+import {
+  getDocumentDetail,
+  getFocusedSubgraph,
+  getFullGraph,
+} from "../api/client";
+import type {
+  DocumentDetail,
+  GraphResponse,
+  SearchResponse,
+} from "../api/types";
+import DocumentInspector from "./DocumentInspector";
 import GraphCanvas from "./GraphCanvas";
 import type { GraphCanvasHandle } from "./GraphCanvas";
 import GraphInspector from "./GraphInspector";
@@ -42,8 +51,14 @@ function GraphWorkspace({
   );
   const [viewMode, setViewMode] = useState<GraphViewMode>("focused");
   const [openPanel, setOpenPanel] = useState<OpenGraphPanel>(getInitialOpenPanel);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] =
+    useState<DocumentDetail | null>(null);
+  const [documentLoading, setDocumentLoading] = useState(false);
+  const [documentError, setDocumentError] = useState<string | null>(null);
   const graphCanvasRef = useRef<GraphCanvasHandle>(null);
   const graphRequestRef = useRef(0);
+  const documentRequestRef = useRef(0);
   const fullGraphCacheRef = useRef<{
     revision: number;
     graph: GraphResponse;
@@ -56,9 +71,14 @@ function GraphWorkspace({
 
     const requestNumber = graphRequestRef.current + 1;
     graphRequestRef.current = requestNumber;
+    documentRequestRef.current += 1;
     setLoading(true);
     setGraph(null);
     setError(null);
+    setSelectedNodeId(null);
+    setSelectedDocument(null);
+    setDocumentLoading(false);
+    setDocumentError(null);
 
     try {
       const documentIds = searchContext?.results.map((result) => result.doc_id);
@@ -167,10 +187,60 @@ function GraphWorkspace({
     graphCanvasRef.current?.resetView();
   }
 
+  async function selectDocument(docId: string) {
+    if (fullGraphActive) {
+      return;
+    }
+
+    const requestNumber = documentRequestRef.current + 1;
+    documentRequestRef.current = requestNumber;
+    setSelectedNodeId(docId);
+    setSelectedDocument(null);
+    setDocumentLoading(true);
+    setDocumentError(null);
+    setOpenPanel("inspector");
+
+    try {
+      const document = await getDocumentDetail(docId);
+
+      if (documentRequestRef.current === requestNumber) {
+        setSelectedDocument(document);
+      }
+    } catch (requestError) {
+      if (documentRequestRef.current === requestNumber) {
+        setDocumentError(
+          requestError instanceof Error
+            ? requestError.message
+            : "The document could not be loaded.",
+        );
+      }
+    } finally {
+      if (documentRequestRef.current === requestNumber) {
+        setDocumentLoading(false);
+      }
+    }
+  }
+
+  function clearDocumentSelection() {
+    documentRequestRef.current += 1;
+    setSelectedNodeId(null);
+    setSelectedDocument(null);
+    setDocumentLoading(false);
+    setDocumentError(null);
+  }
+
   async function handleGraphReset() {
     fullGraphCacheRef.current = null;
     await loadGraph();
   }
+
+  const selectedResultIndex = searchContext?.results.findIndex(
+    (result) => result.doc_id === selectedNodeId,
+  ) ?? -1;
+  const selectedSearchResult =
+    selectedResultIndex >= 0 && searchContext
+      ? searchContext.results[selectedResultIndex]
+      : null;
 
   return (
     <main className="graph-workspace" aria-label="Graph workspace">
@@ -223,20 +293,37 @@ function GraphWorkspace({
             ref={graphCanvasRef}
             graph={displayedGraph}
             performanceMode={fullGraphActive}
+            nodeSelectionEnabled={!fullGraphActive}
+            selectedNodeId={selectedNodeId}
             forceSettings={forceSettings}
             searchResults={searchContext?.results ?? []}
+            onNodeSelect={(docId) => void selectDocument(docId)}
           />
           {openPanel !== "management" && (
-            <GraphInspector
-              open={openPanel === "inspector"}
-              observationMode={fullGraphActive}
-              searchNetworkActive={searchContext !== null}
-              forceSettings={forceSettings}
-              onOpenChange={(open) => handlePanelChange("inspector", open)}
-              onForceSettingsChange={setForceSettings}
-              onFitView={() => graphCanvasRef.current?.fitView()}
-              onResetView={resetGraphView}
-            />
+            selectedNodeId ? (
+              <DocumentInspector
+                document={selectedDocument}
+                loading={documentLoading}
+                error={documentError}
+                searchResult={selectedSearchResult}
+                searchRank={
+                  selectedResultIndex >= 0 ? selectedResultIndex + 1 : null
+                }
+                onBack={clearDocumentSelection}
+                onRetry={() => void selectDocument(selectedNodeId)}
+              />
+            ) : (
+              <GraphInspector
+                open={openPanel === "inspector"}
+                observationMode={fullGraphActive}
+                searchNetworkActive={searchContext !== null}
+                forceSettings={forceSettings}
+                onOpenChange={(open) => handlePanelChange("inspector", open)}
+                onForceSettingsChange={setForceSettings}
+                onFitView={() => graphCanvasRef.current?.fitView()}
+                onResetView={resetGraphView}
+              />
+            )
           )}
         </>
       )}

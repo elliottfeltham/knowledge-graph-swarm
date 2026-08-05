@@ -21,8 +21,11 @@ import type { GraphForceSettings } from "./graphForceSettings";
 interface GraphCanvasProps {
   graph: GraphResponse;
   performanceMode: boolean;
+  nodeSelectionEnabled: boolean;
+  selectedNodeId: string | null;
   forceSettings: GraphForceSettings;
   searchResults: SearchResult[];
+  onNodeSelect: (docId: string) => void;
 }
 
 export interface GraphCanvasHandle {
@@ -75,7 +78,15 @@ function createOriginForce(strength: number) {
 
 const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
   function GraphCanvas(
-    { graph, performanceMode, forceSettings, searchResults },
+    {
+      graph,
+      performanceMode,
+      nodeSelectionEnabled,
+      selectedNodeId,
+      forceSettings,
+      searchResults,
+      onNodeSelect,
+    },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -210,22 +221,34 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
               const baseSize = Math.max(1, Math.sqrt(node.degree));
               const result = resultRanks.get(node.id);
 
-              if (!result) {
+              if (!result && node.id !== selectedNodeId) {
                 return baseSize;
               }
 
-              const rankEmphasis = 1 - (result.rank - 1) / searchResults.length;
-              return baseSize + 2 + rankEmphasis * 2;
+              const rankEmphasis = result
+                ? 1 - (result.rank - 1) / searchResults.length
+                : 0;
+              const selectionEmphasis = node.id === selectedNodeId ? 2 : 0;
+              return baseSize + 2 + rankEmphasis * 2 + selectionEmphasis;
             }}
-            nodeColor={(node) =>
-              resultRanks.has(node.id) ? "#f0b56b" : "#78c9cc"
-            }
+            nodeColor={(node) => {
+              if (node.id === selectedNodeId) {
+                return "#f3e3a1";
+              }
+
+              return resultRanks.has(node.id) ? "#f0b56b" : "#78c9cc";
+            }}
             nodeOpacity={0.9}
             nodeResolution={performanceMode ? 5 : 12}
             linkWidth={(edge) => 0.2 + edge.weight * 1.4}
             linkColor={() => "#536a6d"}
             linkOpacity={0.3}
             showNavInfo={false}
+            onNodeClick={(node) => {
+              if (nodeSelectionEnabled) {
+                onNodeSelect(node.id);
+              }
+            }}
             {...(performanceMode
               ? {
                   cooldownTicks: 120,

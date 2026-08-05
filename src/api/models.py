@@ -61,3 +61,10 @@ class GraphResponse(BaseModel):
     total_nodes: int
     total_edges: int
     truncated: bool
+
+
+class DocumentDetailResponse(BaseModel):
+    doc_id: str
+    title: str
+    text_preview: str
+    degree: int
