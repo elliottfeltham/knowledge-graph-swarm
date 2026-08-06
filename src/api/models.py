@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -32,8 +32,24 @@ class SearchResponse(BaseModel):
     results: list[SearchResult]
 
 
+class GraphEdgeUpdate(BaseModel):
+    source: str
+    target: str
+    previous_weight: float
+    new_weight: float | None
+    change_type: Literal["strengthened", "created", "pruned"]
+
+
+class GraphUpdateSummary(BaseModel):
+    retrieved_documents: int
+    strengthened_edges: int
+    created_edges: int
+    pruned_edges: int
+    edge_updates: list[GraphEdgeUpdate]
+
+
 class AdaptiveSearchResponse(SearchResponse):
-    update_summary: dict[str, Any]
+    update_summary: GraphUpdateSummary
 
 
 class SubgraphRequest(BaseModel):

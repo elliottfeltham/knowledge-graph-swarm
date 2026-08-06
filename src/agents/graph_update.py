@@ -21,7 +21,7 @@ def strengthen_edge(
     source_id: str,
     target_id: str,
     config: GraphUpdateConfig,
-) -> None:
+) -> dict:
     current_edge = agents[source_id].edges.get(target_id)
     current_weight = current_edge.weight if current_edge is not None else 0.0
     strengthened_weight = min(
@@ -32,26 +32,35 @@ def strengthen_edge(
     agents[source_id].add_edge(target_id, strengthened_weight)
     agents[target_id].add_edge(source_id, strengthened_weight)
 
+    return {
+        "source": source_id,
+        "target": target_id,
+        "previous_weight": current_weight,
+        "new_weight": strengthened_weight,
+        "change_type": "strengthened" if current_edge is not None else "created",
+    }
+
 
 def strengthen_retrieved_edges(
     agents: dict[str, DocumentAgent],
     retrieved_doc_ids: list[str],
     config: GraphUpdateConfig,
-) -> set[tuple[str, str]]:
+) -> list[dict]:
     unique_doc_ids = list(dict.fromkeys(retrieved_doc_ids))
-    strengthened_edges = set()
+    edge_updates = []
 
     for source_position, source_id in enumerate(unique_doc_ids):
         for target_id in unique_doc_ids[source_position + 1:]:
-            strengthen_edge(
-                agents=agents,
-                source_id=source_id,
-                target_id=target_id,
-                config=config,
+            edge_updates.append(
+                strengthen_edge(
+                    agents=agents,
+                    source_id=source_id,
+                    target_id=target_id,
+                    config=config,
+                )
             )
-            strengthened_edges.add(make_edge_key(source_id, target_id))
 
-    return strengthened_edges
+    return edge_updates
 
 
 def decay_unused_edges(
@@ -79,7 +88,7 @@ def decay_unused_edges(
 def prune_weak_edges(
     agents: dict[str, DocumentAgent],
     config: GraphUpdateConfig,
-) -> int:
+) -> list[dict]:
     checked_edges = set()
     edges_to_remove = []
 
@@ -93,13 +102,22 @@ def prune_weak_edges(
             checked_edges.add(edge_key)
 
             if edge.weight < config.prune_threshold:
-                edges_to_remove.append((source_id, target_id))
+                edges_to_remove.append((source_id, target_id, edge.weight))
 
-    for source_id, target_id in edges_to_remove:
+    for source_id, target_id, _ in edges_to_remove:
         agents[source_id].edges.pop(target_id, None)
         agents[target_id].edges.pop(source_id, None)
 
-    return len(edges_to_remove)
+    return [
+        {
+            "source": source_id,
+            "target": target_id,
+            "previous_weight": weight,
+            "new_weight": None,
+            "change_type": "pruned",
+        }
+        for source_id, target_id, weight in edges_to_remove
+    ]
 
 
 def update_graph_after_retrieval(
@@ -110,26 +128,37 @@ def update_graph_after_retrieval(
     if config is None:
         config = GraphUpdateConfig()
 
-    strengthened_edges = strengthen_retrieved_edges(
+    strengthened_updates = strengthen_retrieved_edges(
         agents=agents,
         retrieved_doc_ids=retrieved_doc_ids,
         config=config,
     )
+    strengthened_edges = {
+        make_edge_key(update["source"], update["target"])
+        for update in strengthened_updates
+    }
     decay_unused_edges(
         agents=agents,
         strengthened_edges=strengthened_edges,
         config=config,
     )
-    pruned_edges = 0
+    pruned_updates = []
 
     if config.enable_pruning:
-        pruned_edges = prune_weak_edges(
+        pruned_updates = prune_weak_edges(
             agents=agents,
             config=config,
         )
 
+    created_edges = sum(
+        update["change_type"] == "created"
+        for update in strengthened_updates
+    )
+
     return {
         "retrieved_documents": len(retrieved_doc_ids),
         "strengthened_edges": len(strengthened_edges),
-        "pruned_edges": pruned_edges,
+        "created_edges": created_edges,
+        "pruned_edges": len(pruned_updates),
+        "edge_updates": strengthened_updates + pruned_updates,
     }

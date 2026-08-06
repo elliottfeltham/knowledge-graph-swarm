@@ -65,9 +65,19 @@ class FakeAgentGraphRuntime:
             "graph_weight": graph_weight,
         }
         update_summary = {
+            "retrieved_documents": 1,
             "strengthened_edges": 1,
-            "decayed_edges": 2,
+            "created_edges": 0,
             "pruned_edges": 0,
+            "edge_updates": [
+                {
+                    "source": "document-1",
+                    "target": "document-2",
+                    "previous_weight": 0.2,
+                    "new_weight": 0.25,
+                    "change_type": "strengthened",
+                }
+            ],
         }
         return [SEARCH_RESULT], 14.0, update_summary
 
@@ -159,9 +169,19 @@ def test_adaptive_search_returns_update_summary(api_client) -> None:
         "latency_ms": 14.0,
         "results": [SEARCH_RESULT],
         "update_summary": {
+            "retrieved_documents": 1,
             "strengthened_edges": 1,
-            "decayed_edges": 2,
+            "created_edges": 0,
             "pruned_edges": 0,
+            "edge_updates": [
+                {
+                    "source": "document-1",
+                    "target": "document-2",
+                    "previous_weight": 0.2,
+                    "new_weight": 0.25,
+                    "change_type": "strengthened",
+                }
+            ],
         },
     }
     assert fake_runtime.adaptive_search_arguments == request_body
