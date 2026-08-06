@@ -7,7 +7,9 @@ import {
   getFullGraph,
 } from "../api/client";
 import type {
+  AdaptiveSearchResponse,
   DocumentDetail,
+  GraphEdgeUpdate,
   GraphResponse,
   SearchResponse,
 } from "../api/types";
@@ -21,14 +23,22 @@ import "./GraphWorkspace.css";
 
 interface GraphWorkspaceProps {
   backendAvailable: boolean;
-  searchContext: SearchResponse | null;
+  searchContext: SearchResponse | AdaptiveSearchResponse | null;
+  animationKey: number;
+  searchPending: boolean;
   graphRevision: number;
 }
 
 type OpenGraphPanel = "inspector" | "management" | null;
 type GraphViewMode = "focused" | "full";
 
-const FULL_GRAPH_EDGE_LIMIT = 10_000;
+const GRAPH_ANIMATION_DURATION_MS = 3_000;
+
+function isAdaptiveResponse(
+  response: SearchResponse | null,
+): response is AdaptiveSearchResponse {
+  return response !== null && "update_summary" in response;
+}
 
 function getInitialOpenPanel(): OpenGraphPanel {
   if (window.matchMedia?.("(max-width: 760px)").matches) {
@@ -38,9 +48,27 @@ function getInitialOpenPanel(): OpenGraphPanel {
   return "inspector";
 }
 
+function FullGraphLoadingMessage() {
+  return (
+    <div className="graph-message full-graph-loading" role="status">
+      <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
+      <span className="full-graph-loading-label">
+        Arranging full graph
+        <span className="full-graph-loading-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+      </span>
+    </div>
+  );
+}
+
 function GraphWorkspace({
   backendAvailable,
   searchContext,
+  animationKey,
+  searchPending,
   graphRevision,
 }: GraphWorkspaceProps) {
   const [graph, setGraph] = useState<GraphResponse | null>(null);
@@ -56,6 +84,10 @@ function GraphWorkspace({
     useState<DocumentDetail | null>(null);
   const [documentLoading, setDocumentLoading] = useState(false);
   const [documentError, setDocumentError] = useState<string | null>(null);
+  const [loadedAnimationKey, setLoadedAnimationKey] = useState<number | null>(null);
+  const [animationActive, setAnimationActive] = useState(false);
+  const [animationAnnouncement, setAnimationAnnouncement] = useState("");
+  const [fullGraphReady, setFullGraphReady] = useState(false);
   const graphCanvasRef = useRef<GraphCanvasHandle>(null);
   const graphRequestRef = useRef(0);
   const documentRequestRef = useRef(0);
@@ -120,6 +152,7 @@ function GraphWorkspace({
 
       if (graphRequestRef.current === requestNumber) {
         setGraph(nextGraph);
+        setLoadedAnimationKey(searchContext ? animationKey : null);
       }
     } catch (requestError) {
       const message =
@@ -135,28 +168,45 @@ function GraphWorkspace({
         setLoading(false);
       }
     }
-  }, [backendAvailable, graphRevision, searchContext, viewMode]);
+  }, [animationKey, backendAvailable, graphRevision, searchContext, viewMode]);
 
   useEffect(() => {
     void loadGraph();
   }, [loadGraph]);
 
-  const fullGraphActive = !searchContext && viewMode === "full";
-  const displayedGraph = useMemo(() => {
-    if (!graph || !fullGraphActive || graph.edges.length <= FULL_GRAPH_EDGE_LIMIT) {
-      return graph;
+  useEffect(() => {
+    if (loadedAnimationKey === null || !searchContext || searchPending) {
+      setAnimationActive(false);
+      if (!searchPending) {
+        setAnimationAnnouncement("");
+      }
+      return;
     }
 
-    return {
-      ...graph,
-      edges: [...graph.edges]
-        .sort((first, second) => second.weight - first.weight)
-        .slice(0, FULL_GRAPH_EDGE_LIMIT),
-    };
-  }, [fullGraphActive, graph]);
-  const edgesLimited = Boolean(
-    displayedGraph && graph && displayedGraph.edges.length < graph.edges.length,
-  );
+    setAnimationActive(true);
+    setAnimationAnnouncement("");
+
+    const timer = window.setTimeout(() => {
+      setAnimationActive(false);
+      setAnimationAnnouncement(
+        isAdaptiveResponse(searchContext)
+          ? "Graph adaptation complete"
+          : "Search results highlighted",
+      );
+    }, GRAPH_ANIMATION_DURATION_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [loadedAnimationKey, searchContext, searchPending]);
+
+  const fullGraphActive = !searchContext && viewMode === "full";
+
+  useEffect(() => {
+    if (fullGraphActive) {
+      setFullGraphReady(false);
+    }
+  }, [fullGraphActive, graphRevision]);
+
+  const displayedGraph = graph;
 
   const graphState = loading
     ? viewMode === "full" && !searchContext
@@ -188,10 +238,6 @@ function GraphWorkspace({
   }
 
   async function selectDocument(docId: string) {
-    if (fullGraphActive) {
-      return;
-    }
-
     const requestNumber = documentRequestRef.current + 1;
     documentRequestRef.current = requestNumber;
     setSelectedNodeId(docId);
@@ -241,6 +287,14 @@ function GraphWorkspace({
     selectedResultIndex >= 0 && searchContext
       ? searchContext.results[selectedResultIndex]
       : null;
+  const edgeUpdates = useMemo<GraphEdgeUpdate[]>(
+    () =>
+      isAdaptiveResponse(searchContext)
+        ? searchContext.update_summary.edge_updates
+        : [],
+    [searchContext],
+  );
+  const highlightActive = loadedAnimationKey !== null && searchContext !== null;
 
   return (
     <main className="graph-workspace" aria-label="Graph workspace">
@@ -293,12 +347,31 @@ function GraphWorkspace({
             ref={graphCanvasRef}
             graph={displayedGraph}
             performanceMode={fullGraphActive}
-            nodeSelectionEnabled={!fullGraphActive}
+            nodeSelectionEnabled
             selectedNodeId={selectedNodeId}
             forceSettings={forceSettings}
             searchResults={searchContext?.results ?? []}
+            animationKey={loadedAnimationKey}
+            animationActive={animationActive}
+            highlightActive={highlightActive}
+            edgeUpdates={edgeUpdates}
             onNodeSelect={(docId) => void selectDocument(docId)}
+            onInitialLayoutComplete={
+              fullGraphActive ? () => setFullGraphReady(true) : undefined
+            }
           />
+          {highlightActive && searchContext && (
+            <div className="graph-animation-legend" aria-label="Graph animation legend">
+              <span><i className="legend-node" />Retrieved document</span>
+              {isAdaptiveResponse(searchContext) && (
+                <>
+                  <span><i className="legend-strengthened" />Strengthened</span>
+                  <span><i className="legend-created" />Created</span>
+                  <span><i className="legend-pruned" />Pruned</span>
+                </>
+              )}
+            </div>
+          )}
           {openPanel !== "management" && (
             selectedNodeId ? (
               <DocumentInspector
@@ -329,14 +402,18 @@ function GraphWorkspace({
       )}
 
       {loading && !graph && (
-        <div className="graph-message" role="status">
-          <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
-          <span>
-            {viewMode === "full" && !searchContext
-              ? "Loading full graph. This may take a moment."
-              : "Loading graph"}
-          </span>
-        </div>
+        fullGraphActive ? (
+          <FullGraphLoadingMessage />
+        ) : (
+          <div className="graph-message" role="status">
+            <BrainCircuit size={36} strokeWidth={1.25} aria-hidden="true" />
+            <span>Loading graph</span>
+          </div>
+        )
+      )}
+
+      {fullGraphActive && displayedGraph && !fullGraphReady && (
+        <FullGraphLoadingMessage />
       )}
 
       {!loading && !graph && !error && (
@@ -370,12 +447,9 @@ function GraphWorkspace({
         </span>
       )}
 
-      {edgesLimited && graph && displayedGraph && (
-        <span className="graph-limit">
-          Showing the strongest {displayedGraph.edges.length.toLocaleString()} of{" "}
-          {graph.edges.length.toLocaleString()} edges
-        </span>
-      )}
+      <span className="sr-only" aria-live="polite">
+        {animationAnnouncement}
+      </span>
     </main>
   );
 }

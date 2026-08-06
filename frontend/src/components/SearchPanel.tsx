@@ -23,6 +23,7 @@ import "./SearchPanel.css";
 
 interface SearchPanelProps {
   backendAvailable: boolean;
+  onSearchStateChange: (searching: boolean) => void;
   onSearchComplete: (response: SearchResponse) => void;
   onSearchClear: () => void;
 }
@@ -41,6 +42,7 @@ function isAdaptiveResponse(
 
 function SearchPanel({
   backendAvailable,
+  onSearchStateChange,
   onSearchComplete,
   onSearchClear,
 }: SearchPanelProps) {
@@ -80,6 +82,7 @@ function SearchPanel({
     setSearching(true);
     setError(null);
     setUpdateSummary(null);
+    onSearchStateChange(true);
 
     const request = {
       query: trimmedQuery,
@@ -109,6 +112,7 @@ function SearchPanel({
       setError(message);
     } finally {
       setSearching(false);
+      onSearchStateChange(false);
     }
   }
 
@@ -259,6 +263,10 @@ function SearchPanel({
             <div>
               <dt>Strengthened</dt>
               <dd>{updateSummary.strengthened_edges}</dd>
+            </div>
+            <div>
+              <dt>Created</dt>
+              <dd>{updateSummary.created_edges}</dd>
             </div>
             <div>
               <dt>Pruned</dt>

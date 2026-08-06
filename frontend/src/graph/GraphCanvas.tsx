@@ -12,6 +12,8 @@ import type { ForceGraphMethods } from "react-force-graph-3d";
 
 import type {
   GraphEdge,
+  GraphEdgeChangeType,
+  GraphEdgeUpdate,
   GraphNode,
   GraphResponse,
   SearchResult,
@@ -25,7 +27,12 @@ interface GraphCanvasProps {
   selectedNodeId: string | null;
   forceSettings: GraphForceSettings;
   searchResults: SearchResult[];
+  animationKey: number | null;
+  animationActive: boolean;
+  highlightActive: boolean;
+  edgeUpdates: GraphEdgeUpdate[];
   onNodeSelect: (docId: string) => void;
+  onInitialLayoutComplete?: () => void;
 }
 
 export interface GraphCanvasHandle {
@@ -40,7 +47,9 @@ interface CanvasSize {
 
 interface LinkDistanceForce {
   distance: (distance: number) => LinkDistanceForce;
-  strength: (strength: number) => LinkDistanceForce;
+  strength: (
+    strength: number | ((edge: AnimatedGraphEdge) => number),
+  ) => LinkDistanceForce;
 }
 
 interface StrengthForce {
@@ -57,6 +66,24 @@ interface SimulationNode {
 }
 
 interface GraphCanvasNode extends GraphNode, SimulationNode {}
+
+interface AnimatedGraphEdge extends GraphEdge {
+  animationChangeType?: GraphEdgeChangeType;
+  edgeKey: string;
+  temporary?: boolean;
+}
+
+const GRAPH_ANIMATION_DURATION_MS = 3_000;
+const MAX_PARTICLE_EDGES = 50;
+const FULL_GRAPH_FORCE_EDGE_LIMIT = 10_000;
+
+function makeEdgeKey(source: string, target: string): string {
+  return [source, target].sort().join("::");
+}
+
+function getEdgeNodeId(node: string | GraphCanvasNode): string {
+  return typeof node === "string" ? node : node.id;
+}
 
 function createOriginForce(strength: number) {
   let nodes: SimulationNode[] = [];
@@ -85,25 +112,78 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
       selectedNodeId,
       forceSettings,
       searchResults,
+      animationKey,
+      animationActive,
+      highlightActive,
+      edgeUpdates,
       onNodeSelect,
+      onInitialLayoutComplete,
     },
     ref,
   ) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const graphRef = useRef<ForceGraphMethods<GraphCanvasNode, GraphEdge>>(
+    const graphRef = useRef<ForceGraphMethods<GraphCanvasNode, AnimatedGraphEdge>>(
       undefined,
     );
     const engineReadyRef = useRef(false);
     const appliedSettingsRef = useRef<GraphForceSettings | null>(null);
+    const hasAutomaticallyFittedRef = useRef(false);
+    const layoutCompleteTimerRef = useRef<number | null>(null);
     const [size, setSize] = useState<CanvasSize>({ width: 0, height: 0 });
-
-    const graphData = useMemo(
-      () => ({
-        nodes: graph.nodes.map((node): GraphCanvasNode => ({ ...node })),
-        links: graph.edges.map((edge) => ({ ...edge })),
-      }),
-      [graph],
+    const [animationProgress, setAnimationProgress] = useState(1);
+    const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+    const [reducedMotion, setReducedMotion] = useState(
+      () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false,
     );
+
+    const graphData = useMemo(() => {
+      const visibleNodeIds = new Set(graph.nodes.map((node) => node.id));
+      const updateByEdge = new Map(
+        edgeUpdates.map((update) => [
+          makeEdgeKey(update.source, update.target),
+          update,
+        ]),
+      );
+      const links: AnimatedGraphEdge[] = graph.edges.map((edge) => {
+        const edgeKey = makeEdgeKey(edge.source, edge.target);
+        return {
+          ...edge,
+          edgeKey,
+          animationChangeType: updateByEdge.get(edgeKey)?.change_type,
+        };
+      });
+      const existingEdgeKeys = new Set(links.map((edge) => edge.edgeKey));
+
+      if (highlightActive) {
+        for (const update of edgeUpdates) {
+          const edgeKey = makeEdgeKey(update.source, update.target);
+
+          if (
+            update.change_type !== "pruned" ||
+            existingEdgeKeys.has(edgeKey) ||
+            !visibleNodeIds.has(update.source) ||
+            !visibleNodeIds.has(update.target)
+          ) {
+            continue;
+          }
+
+          links.push({
+            source: update.source,
+            target: update.target,
+            weight: update.previous_weight,
+            activation_count: 0,
+            edgeKey,
+            animationChangeType: "pruned",
+            temporary: true,
+          });
+        }
+      }
+
+      return {
+        nodes: graph.nodes.map((node): GraphCanvasNode => ({ ...node })),
+        links,
+      };
+    }, [edgeUpdates, graph, highlightActive]);
     const resultRanks = useMemo(
       () =>
         new Map(
@@ -114,6 +194,92 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
         ),
       [searchResults],
     );
+    const particleEdgeKeys = useMemo(
+      () =>
+        new Set(
+          edgeUpdates
+            .filter((update) => update.change_type !== "pruned")
+            .sort(
+              (first, second) =>
+                Math.abs((second.new_weight ?? 0) - second.previous_weight) -
+                Math.abs((first.new_weight ?? 0) - first.previous_weight),
+            )
+            .slice(0, MAX_PARTICLE_EDGES)
+            .map((update) => makeEdgeKey(update.source, update.target)),
+        ),
+      [edgeUpdates],
+    );
+    const forceEdgeKeys = useMemo(() => {
+      if (!performanceMode || graphData.links.length <= FULL_GRAPH_FORCE_EDGE_LIMIT) {
+        return null;
+      }
+
+      return new Set(
+        [...graphData.links]
+          .sort((first, second) => second.weight - first.weight)
+          .slice(0, FULL_GRAPH_FORCE_EDGE_LIMIT)
+          .map((edge) => edge.edgeKey),
+      );
+    }, [graphData.links, performanceMode]);
+
+    useEffect(() => {
+      const mediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+
+      if (!mediaQuery) {
+        return;
+      }
+
+      const handleChange = () => setReducedMotion(mediaQuery.matches);
+      mediaQuery.addEventListener?.("change", handleChange);
+      return () => mediaQuery.removeEventListener?.("change", handleChange);
+    }, []);
+
+    useEffect(() => {
+      if (!animationActive) {
+        setAnimationProgress(1);
+        return;
+      }
+
+      if (reducedMotion) {
+        setAnimationProgress(0.35);
+        return;
+      }
+
+      const startTime = performance.now();
+      let frameId = 0;
+
+      const updateAnimation = (currentTime: number) => {
+        const progress = Math.min(
+          (currentTime - startTime) / GRAPH_ANIMATION_DURATION_MS,
+          1,
+        );
+        setAnimationProgress(progress);
+
+        if (progress < 1) {
+          frameId = requestAnimationFrame(updateAnimation);
+        }
+      };
+
+      frameId = requestAnimationFrame(updateAnimation);
+      return () => cancelAnimationFrame(frameId);
+    }, [animationActive, animationKey, reducedMotion]);
+
+    useEffect(() => {
+      engineReadyRef.current = false;
+      appliedSettingsRef.current = null;
+      hasAutomaticallyFittedRef.current = false;
+
+      if (layoutCompleteTimerRef.current !== null) {
+        window.clearTimeout(layoutCompleteTimerRef.current);
+        layoutCompleteTimerRef.current = null;
+      }
+
+      return () => {
+        if (layoutCompleteTimerRef.current !== null) {
+          window.clearTimeout(layoutCompleteTimerRef.current);
+        }
+      };
+    }, [graph]);
 
     useEffect(() => {
       const container = containerRef.current;
@@ -156,7 +322,12 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
         centreForce?.strength(settings.centreForce);
         repelForce?.strength(-settings.repelForce);
         linkForce
-          ?.strength(settings.linkForce)
+          ?.strength(
+            forceEdgeKeys
+              ? (edge) =>
+                  forceEdgeKeys.has(edge.edgeKey) ? settings.linkForce : 0
+              : settings.linkForce,
+          )
           .distance(settings.linkDistance);
         appliedSettingsRef.current = settings;
 
@@ -164,7 +335,7 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
           graphRef.current.d3ReheatSimulation();
         }
       },
-      [],
+      [forceEdgeKeys],
     );
 
     useEffect(() => {
@@ -204,7 +375,7 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
         aria-label={`3D document graph with ${graph.nodes.length} nodes and ${graph.edges.length} edges`}
       >
         {size.width > 0 && size.height > 0 && (
-          <ForceGraph3D<GraphCanvasNode, GraphEdge>
+          <ForceGraph3D<GraphCanvasNode, AnimatedGraphEdge>
             ref={graphRef}
             graphData={graphData}
             width={size.width}
@@ -229,21 +400,120 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
                 ? 1 - (result.rank - 1) / searchResults.length
                 : 0;
               const selectionEmphasis = node.id === selectedNodeId ? 2 : 0;
-              return baseSize + 2 + rankEmphasis * 2 + selectionEmphasis;
+              const hoverEmphasis = node.id === hoveredNodeId ? 1.5 : 0;
+              const pulse =
+                animationActive && result && !reducedMotion
+                  ? (Math.sin(animationProgress * Math.PI * 4) + 1) * 0.75
+                  : 0;
+              return (
+                baseSize +
+                2 +
+                rankEmphasis * 2 +
+                selectionEmphasis +
+                hoverEmphasis +
+                pulse
+              );
             }}
             nodeColor={(node) => {
               if (node.id === selectedNodeId) {
                 return "#f3e3a1";
               }
 
-              return resultRanks.has(node.id) ? "#f0b56b" : "#78c9cc";
+              if (resultRanks.has(node.id)) {
+                return "#f0b56b";
+              }
+
+              if (animationActive) {
+                return "#405456";
+              }
+
+              return highlightActive ? "#668f92" : "#78c9cc";
             }}
             nodeOpacity={0.9}
-            nodeResolution={performanceMode ? 5 : 12}
-            linkWidth={(edge) => 0.2 + edge.weight * 1.4}
-            linkColor={() => "#536a6d"}
+            nodeResolution={12}
+            linkWidth={(edge) => {
+              const normalWidth = 0.2 + edge.weight * 1.4;
+              const connectedToHoveredNode =
+                hoveredNodeId !== null &&
+                (getEdgeNodeId(edge.source) === hoveredNodeId ||
+                  getEdgeNodeId(edge.target) === hoveredNodeId);
+              const settleProgress = Math.max(
+                0,
+                (animationProgress - 0.47) / 0.53,
+              );
+
+              if (!highlightActive || !edge.animationChangeType) {
+                return connectedToHoveredNode ? normalWidth + 1.2 : normalWidth;
+              }
+
+              if (animationActive && edge.animationChangeType === "created") {
+                return normalWidth * Math.max(0.15, animationProgress / 0.47);
+              }
+
+              if (edge.animationChangeType === "pruned") {
+                return animationActive
+                  ? Math.max(0.02, 2 * (1 - settleProgress))
+                  : 0;
+              }
+
+              if (animationActive) {
+                return normalWidth + 2.2 * (1 - settleProgress);
+              }
+
+              const updateEmphasis =
+                edge.animationChangeType === "strengthened" ? 0.7 : 0.4;
+              return normalWidth + updateEmphasis;
+            }}
+            linkColor={(edge) => {
+              const connectedToHoveredNode =
+                hoveredNodeId !== null &&
+                (getEdgeNodeId(edge.source) === hoveredNodeId ||
+                  getEdgeNodeId(edge.target) === hoveredNodeId);
+
+              if (
+                highlightActive &&
+                edge.animationChangeType === "strengthened"
+              ) {
+                return "#f0b56b";
+              }
+
+              if (highlightActive && edge.animationChangeType === "created") {
+                return "#58c4c7";
+              }
+
+              if (highlightActive && edge.animationChangeType === "pruned") {
+                return "#d97868";
+              }
+
+              if (connectedToHoveredNode) {
+                return "#a5e4e6";
+              }
+
+              if (hoveredNodeId) {
+                return "#354244";
+              }
+
+              if (highlightActive) {
+                return animationActive ? "#354244" : "#485c5e";
+              }
+
+              return "#536a6d";
+            }}
             linkOpacity={0.3}
+            linkDirectionalParticles={(edge) =>
+              animationActive &&
+              !reducedMotion &&
+              particleEdgeKeys.has(edge.edgeKey)
+                ? 2
+                : 0
+            }
+            linkDirectionalParticleWidth={1.5}
+            linkDirectionalParticleSpeed={0.008}
+            linkDirectionalParticleColor={(edge) =>
+              edge.animationChangeType === "created" ? "#58c4c7" : "#f0b56b"
+            }
             showNavInfo={false}
+            onNodeHover={(node) => setHoveredNodeId(node?.id ?? null)}
             onNodeClick={(node) => {
               if (nodeSelectionEnabled) {
                 onNodeSelect(node.id);
@@ -266,7 +536,17 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
               applyForceSettings(forceSettings, false);
             }}
             onEngineStop={() => {
-              graphRef.current?.zoomToFit(600, 48);
+              if (!hasAutomaticallyFittedRef.current) {
+                hasAutomaticallyFittedRef.current = true;
+                graphRef.current?.zoomToFit(600, 48);
+
+                if (onInitialLayoutComplete) {
+                  layoutCompleteTimerRef.current = window.setTimeout(
+                    onInitialLayoutComplete,
+                    650,
+                  );
+                }
+              }
             }}
           />
         )}

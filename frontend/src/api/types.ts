@@ -24,10 +24,22 @@ export interface SearchResponse {
   results: SearchResult[];
 }
 
+export type GraphEdgeChangeType = "strengthened" | "created" | "pruned";
+
+export interface GraphEdgeUpdate {
+  source: string;
+  target: string;
+  previous_weight: number;
+  new_weight: number | null;
+  change_type: GraphEdgeChangeType;
+}
+
 export interface GraphUpdateSummary {
   retrieved_documents: number;
   strengthened_edges: number;
+  created_edges: number;
   pruned_edges: number;
+  edge_updates: GraphEdgeUpdate[];
 }
 
 export interface AdaptiveSearchResponse extends SearchResponse {

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -37,6 +37,7 @@ function renderSearchPanel(
   render(
     <SearchPanel
       backendAvailable
+      onSearchStateChange={vi.fn()}
       onSearchComplete={onSearchComplete}
       onSearchClear={onSearchClear}
     />,
@@ -94,7 +95,9 @@ describe("SearchPanel", () => {
       update_summary: {
         retrieved_documents: 1,
         strengthened_edges: 3,
+        created_edges: 1,
         pruned_edges: 0,
+        edge_updates: [],
       },
     });
     renderSearchPanel();
@@ -106,6 +109,9 @@ describe("SearchPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
     expect(await screen.findByText("Graph updated")).toBeInTheDocument();
+    const updateSummary = screen.getByLabelText("Graph update summary");
+    expect(within(updateSummary).getByText("Created")).toBeInTheDocument();
+    expect(within(updateSummary).getAllByText("1")).toHaveLength(2);
     expect(adaptiveSearchDocuments).toHaveBeenCalledOnce();
     expect(searchDocuments).not.toHaveBeenCalled();
   });

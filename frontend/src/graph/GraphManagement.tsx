@@ -81,6 +81,7 @@ function GraphManagement({
         aria-label={open ? "Close graph management" : "Open graph management"}
       >
         <Database size={17} aria-hidden="true" />
+        <span>Graph Statistics</span>
       </summary>
 
       <div className="graph-management-panel">

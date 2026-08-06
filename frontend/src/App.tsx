@@ -24,9 +24,12 @@ function App() {
     null,
   );
   const [graphRevision, setGraphRevision] = useState(0);
+  const [searchAnimationKey, setSearchAnimationKey] = useState(0);
+  const [searchPending, setSearchPending] = useState(false);
 
   function handleSearchComplete(response: SearchResponse) {
     setSearchContext(response);
+    setSearchAnimationKey((key) => key + 1);
 
     if (response.adaptive) {
       setGraphRevision((revision) => revision + 1);
@@ -106,6 +109,7 @@ function App() {
         <div className="sidebar-content">
           <SearchPanel
             backendAvailable={connectionStatus === "connected"}
+            onSearchStateChange={setSearchPending}
             onSearchComplete={handleSearchComplete}
             onSearchClear={() => setSearchContext(null)}
           />
@@ -134,6 +138,8 @@ function App() {
       <GraphWorkspace
         backendAvailable={connectionStatus === "connected"}
         searchContext={searchContext}
+        animationKey={searchAnimationKey}
+        searchPending={searchPending}
         graphRevision={graphRevision}
       />
 

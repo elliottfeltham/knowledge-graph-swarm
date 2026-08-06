@@ -26,6 +26,9 @@ vi.mock("./GraphCanvas", () => ({
     performanceMode,
     nodeSelectionEnabled,
     selectedNodeId,
+    animationActive,
+    highlightActive,
+    edgeUpdates,
     onNodeSelect,
   }: {
     graph: GraphResponse;
@@ -33,6 +36,9 @@ vi.mock("./GraphCanvas", () => ({
     nodeSelectionEnabled: boolean;
     selectedNodeId: string | null;
     onNodeSelect: (docId: string) => void;
+    animationActive: boolean;
+    highlightActive: boolean;
+    edgeUpdates: unknown[];
   }) => (
     <div>
       <div
@@ -41,6 +47,9 @@ vi.mock("./GraphCanvas", () => ({
         data-performance-mode={performanceMode}
         data-selection-enabled={nodeSelectionEnabled}
         data-selected-node={selectedNodeId ?? ""}
+        data-animation-active={animationActive}
+        data-highlight-active={highlightActive}
+        data-edge-updates={edgeUpdates.length}
       />
       {nodeSelectionEnabled && graph.nodes[0] && (
         <button type="button" onClick={() => onNodeSelect(graph.nodes[0].id)}>
@@ -74,6 +83,8 @@ function renderGraphWorkspace(
     <GraphWorkspace
       backendAvailable
       searchContext={null}
+      animationKey={0}
+      searchPending={false}
       graphRevision={0}
       {...props}
     />,
@@ -198,7 +209,7 @@ describe("GraphWorkspace", () => {
     expect(screen.queryByRole("slider")).not.toBeInTheDocument();
     expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
       "data-selection-enabled",
-      "false",
+      "true",
     );
     expect(getFullGraph).toHaveBeenCalledOnce();
 
@@ -210,7 +221,7 @@ describe("GraphWorkspace", () => {
     expect(getFullGraph).toHaveBeenCalledOnce();
   });
 
-  it("limits full mode to the strongest 10,000 visible edges", async () => {
+  it("shows every edge in full mode", async () => {
     vi.mocked(getFocusedSubgraph).mockResolvedValue({
       nodes: [{ id: "document-1", title: "Document 1", degree: 10_001 }],
       edges: [],
@@ -235,11 +246,41 @@ describe("GraphWorkspace", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Full" }));
 
     const canvas = await screen.findByTestId("graph-canvas");
-    expect(canvas).toHaveAttribute("data-edge-count", "10000");
+    expect(canvas).toHaveAttribute("data-edge-count", "10001");
     expect(canvas).toHaveAttribute("data-performance-mode", "true");
-    expect(
-      screen.getByText("Showing the strongest 10,000 of 10,001 edges"),
-    ).toBeInTheDocument();
+  });
+
+  it("opens document details from a full graph node", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+    vi.mocked(getFullGraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+    vi.mocked(getDocumentDetail).mockResolvedValue({
+      doc_id: "document-1",
+      title: "Document 1",
+      text_preview: "Full graph document preview",
+      degree: 2,
+    });
+
+    renderGraphWorkspace();
+    fireEvent.click(await screen.findByRole("button", { name: "Full" }));
+    await screen.findByText("Full network");
+    fireEvent.click(await screen.findByRole("button", { name: "Select first node" }));
+
+    expect(await screen.findByLabelText("Document details")).toHaveTextContent(
+      "Full graph document preview",
+    );
+    expect(getDocumentDetail).toHaveBeenCalledWith("document-1");
   });
 
   it("shows statistics and resets the graph after confirmation", async () => {
@@ -346,5 +387,71 @@ describe("GraphWorkspace", () => {
       depth: 1,
       max_nodes: 250,
     });
+    expect(await screen.findByLabelText("Graph animation legend")).toHaveTextContent(
+      "Retrieved document",
+    );
+    expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
+      "data-animation-active",
+      "true",
+    );
+  });
+
+  it("passes adaptive edge changes to the graph animation", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [
+        { id: "document-1", title: "Document 1", degree: 1 },
+        { id: "document-2", title: "Document 2", degree: 1 },
+      ],
+      edges: [],
+      total_nodes: 2,
+      total_edges: 0,
+      truncated: false,
+    });
+
+    renderGraphWorkspace({
+      animationKey: 2,
+      searchContext: {
+        query: "adaptive query",
+        adaptive: true,
+        latency_ms: 14,
+        results: [
+          {
+            doc_id: "document-1",
+            title: "Document 1",
+            score: 0.9,
+            text_preview: "Example text",
+          },
+          {
+            doc_id: "document-2",
+            title: "Document 2",
+            score: 0.8,
+            text_preview: "Example text",
+          },
+        ],
+        update_summary: {
+          retrieved_documents: 2,
+          strengthened_edges: 1,
+          created_edges: 1,
+          pruned_edges: 0,
+          edge_updates: [
+            {
+              source: "document-1",
+              target: "document-2",
+              previous_weight: 0,
+              new_weight: 0.05,
+              change_type: "created",
+            },
+          ],
+        },
+      },
+    });
+
+    expect(await screen.findByTestId("graph-canvas")).toHaveAttribute(
+      "data-edge-updates",
+      "1",
+    );
+    expect(screen.getByLabelText("Graph animation legend")).toHaveTextContent(
+      "StrengthenedCreatedPruned",
+    );
   });
 });
