@@ -18,10 +18,7 @@ On macOS or Linux:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python src/data/load_dataset.py
-python src/embeddings/embed_documents.py
-python src/graph/build_static_graph.py
-PYTHONPATH=src python src/graph/initialize_agent_graph.py
+PYTHONPATH=src python src/prepare_system.py
 PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
 ```
 
@@ -31,11 +28,8 @@ On Windows PowerShell:
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python src/data/load_dataset.py
-python src/embeddings/embed_documents.py
-python src/graph/build_static_graph.py
 $env:PYTHONPATH = "src"
-python src/graph/initialize_agent_graph.py
+python src/prepare_system.py
 python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
 ```
 
@@ -93,7 +87,11 @@ This creates:
 data/processed/document_agents.jsonl
 ```
 
-The generated file is ignored by Git because it can be recreated from the processed documents and embeddings. Later, this step should be wrapped into a single build command for the whole system.
+The generated file is ignored by Git because it can be recreated from the processed documents and embeddings. The full dataset, embedding, and graph preparation pipeline can be run with:
+
+```bash
+PYTHONPATH=src python src/prepare_system.py
+```
 
 ## Agent Graph Retrieval
 

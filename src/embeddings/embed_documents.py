@@ -12,7 +12,7 @@ EMBEDDINGS_PATH = EMBEDDINGS_DIR / "document_embeddings.npy"
 IDS_PATH = EMBEDDINGS_DIR / "document_ids.json"
 
 
-def main() -> None:
+def create_document_embeddings() -> None:
     EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
 
     documents = read_jsonl(DOCUMENTS_PATH)
@@ -43,6 +43,10 @@ def main() -> None:
     print(f"Saved embeddings to {EMBEDDINGS_PATH}")
     print(f"Saved document IDs to {IDS_PATH}")
     print(f"Embedding shape: {embeddings.shape}")
+
+
+def main() -> None:
+    create_document_embeddings()
 
 
 if __name__ == "__main__":
