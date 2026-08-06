@@ -22,11 +22,19 @@ from common import (
     recall_at_k,
     static_graph_retrieve,
 )
-from retrieval.agent_graph_retrieval import agent_graph_retrieve, load_agent_graph
+from evaluation.graph_state import (
+    create_initial_evaluation_graph,
+    file_checksum,
+    graph_file_is_unchanged,
+)
+from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrieve
 
 
 RESULTS_CSV_PATH = PROJECT_ROOT / "results" / "baseline_results.csv"
 SUMMARY_JSON_PATH = PROJECT_ROOT / "results" / "baseline_summary.json"
+INITIAL_EVALUATION_GRAPH_PATH = (
+    PROJECT_ROOT / "results" / "initial_evaluation_document_agents.jsonl"
+)
 
 
 def evaluate_system_result(
@@ -163,8 +171,10 @@ def main() -> None:
     print("Loading static graph...")
     graph = load_static_graph()
 
-    print("Loading agent graph...")
-    agents = load_agent_graph()
+    application_graph_checksum = file_checksum(AGENT_GRAPH_PATH)
+
+    print("Creating fresh initial graph for evaluation...")
+    agents = create_initial_evaluation_graph(INITIAL_EVALUATION_GRAPH_PATH)
     print(f"Loaded agent graph agents: {len(agents)}")
 
     print("Loading embedding model...")
@@ -273,13 +283,39 @@ def main() -> None:
         if query_number % 50 == 0 or query_number == len(queries):
             print(f"Evaluated {query_number}/{len(queries)} queries")
 
-    summary = summarise_results(rows)
+    system_summary = summarise_results(rows)
+    application_graph_unchanged = graph_file_is_unchanged(
+        AGENT_GRAPH_PATH,
+        application_graph_checksum,
+    )
+
+    if not application_graph_unchanged:
+        raise RuntimeError(
+            "Evaluation unexpectedly modified the application agent graph"
+        )
+
+    summary = {
+        "settings": {
+            "queries_evaluated": len(queries),
+            "top_k": args.top_k,
+            "seed_k": args.seed_k,
+            "graph_weight": args.graph_weight,
+        },
+        "paths": {
+            "application_agent_graph": str(AGENT_GRAPH_PATH),
+            "initial_evaluation_graph": str(INITIAL_EVALUATION_GRAPH_PATH),
+        },
+        "application_graph_unchanged": application_graph_unchanged,
+        "systems": system_summary,
+    }
 
     save_results_csv(rows)
     save_summary_json(summary)
 
-    print_summary(summary)
+    print_summary(system_summary)
 
+    print(f"\nApplication graph unchanged: {application_graph_unchanged}")
+    print(f"Initial evaluation graph: {INITIAL_EVALUATION_GRAPH_PATH}")
     print(f"\nSaved detailed results to: {RESULTS_CSV_PATH}")
     print(f"Saved summary results to: {SUMMARY_JSON_PATH}")
 

@@ -1,6 +1,5 @@
 import argparse
 import json
-import shutil
 import time
 from pathlib import Path
 
@@ -26,9 +25,18 @@ from common import (
     mean_reciprocal_rank,
     recall_at_k,
 )
+from evaluation.graph_state import (
+    copy_agent_graph,
+    create_initial_evaluation_graph,
+    file_checksum,
+    graph_file_is_unchanged,
+)
 from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrieve
 
 
+INITIAL_EVALUATION_GRAPH_PATH = (
+    PROJECT_ROOT / "results" / "initial_evaluation_document_agents.jsonl"
+)
 SIMULATED_AGENT_GRAPH_PATH = PROJECT_ROOT / "results" / "simulated_document_agents.jsonl"
 SIMULATION_SUMMARY_PATH = PROJECT_ROOT / "results" / "adaptive_simulation_summary.json"
 
@@ -83,11 +91,6 @@ def summarise_metrics(rows: list[dict]) -> dict:
         "mean_recall_at_10": average([row["recall_at_10"] for row in rows]),
         "mean_mrr": average([row["mrr"] for row in rows]),
     }
-
-
-def copy_agent_graph(source_path: Path, target_path: Path) -> None:
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(source_path, target_path)
 
 
 def split_queries(
@@ -243,11 +246,13 @@ def main() -> None:
     print("Loading embedding model...")
     model = SentenceTransformer(MODEL_NAME)
 
-    print("Loading original agent graph...")
-    original_agents = load_agents(AGENT_GRAPH_PATH)
+    application_graph_checksum = file_checksum(AGENT_GRAPH_PATH)
 
-    print("Copying graph for simulation...")
-    copy_agent_graph(AGENT_GRAPH_PATH, SIMULATED_AGENT_GRAPH_PATH)
+    print("Creating fresh initial graph for evaluation...")
+    original_agents = create_initial_evaluation_graph(INITIAL_EVALUATION_GRAPH_PATH)
+
+    print("Copying initial graph for simulation...")
+    copy_agent_graph(INITIAL_EVALUATION_GRAPH_PATH, SIMULATED_AGENT_GRAPH_PATH)
     simulated_agents = load_agents(SIMULATED_AGENT_GRAPH_PATH)
     edge_snapshot_before = build_edge_snapshot(simulated_agents)
     graph_before = calculate_graph_statistics(simulated_agents)
@@ -313,6 +318,16 @@ def main() -> None:
         after_snapshot=edge_snapshot_after,
         changed_edge_limit=args.changed_edges,
     )
+    application_graph_unchanged = graph_file_is_unchanged(
+        AGENT_GRAPH_PATH,
+        application_graph_checksum,
+    )
+
+    if not application_graph_unchanged:
+        raise RuntimeError(
+            "Evaluation unexpectedly modified the application agent graph"
+        )
+
     summary = {
         "settings": {
             "adaptation_queries": args.adaptation_queries,
@@ -324,9 +339,11 @@ def main() -> None:
             "pruning_enabled": not args.disable_pruning,
         },
         "paths": {
-            "source_agent_graph": str(AGENT_GRAPH_PATH),
+            "application_agent_graph": str(AGENT_GRAPH_PATH),
+            "initial_evaluation_graph": str(INITIAL_EVALUATION_GRAPH_PATH),
             "simulated_agent_graph": str(SIMULATED_AGENT_GRAPH_PATH),
         },
+        "application_graph_unchanged": application_graph_unchanged,
         "updates": update_totals,
         "before": before_metrics,
         "after": after_metrics,
@@ -362,6 +379,8 @@ def main() -> None:
     print(f"\nAdaptation queries: {update_totals['adaptation_queries']}")
     print(f"Total strengthened edges: {update_totals['total_strengthened_edges']}")
     print(f"Total pruned edges: {update_totals['total_pruned_edges']}")
+    print(f"Application graph unchanged: {application_graph_unchanged}")
+    print(f"Initial evaluation graph: {INITIAL_EVALUATION_GRAPH_PATH}")
     print(f"Copied graph saved to: {SIMULATED_AGENT_GRAPH_PATH}")
     print(f"Summary saved to: {SIMULATION_SUMMARY_PATH}")
 
