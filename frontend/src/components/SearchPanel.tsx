@@ -206,6 +206,7 @@ function SearchPanel({
                   type="number"
                   min="1"
                   max="100"
+                  required
                   value={topK}
                   onChange={(event) => setTopK(Number(event.target.value))}
                 />
@@ -216,6 +217,7 @@ function SearchPanel({
                   type="number"
                   min="1"
                   max="100"
+                  required
                   value={seedK}
                   onChange={(event) => setSeedK(Number(event.target.value))}
                 />
@@ -227,6 +229,7 @@ function SearchPanel({
                   min="0"
                   max="1"
                   step="0.1"
+                  required
                   value={graphWeight}
                   onChange={(event) =>
                     setGraphWeight(Number(event.target.value))

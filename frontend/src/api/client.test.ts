@@ -98,6 +98,29 @@ describe("API client", () => {
     ).rejects.toEqual(new ApiError("Unknown document ID", 422));
   });
 
+  it("turns validation details into a readable message", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        createResponse(
+          {
+            detail: [
+              {
+                loc: ["body", "top_k"],
+                msg: "Input should be less than or equal to 100",
+              },
+            ],
+          },
+          422,
+        ),
+      ),
+    );
+
+    await expect(searchDocuments({ query: "example query" })).rejects.toEqual(
+      new ApiError("top_k: Input should be less than or equal to 100", 422),
+    );
+  });
+
   it("returns a useful message when the backend cannot be reached", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed")));
 

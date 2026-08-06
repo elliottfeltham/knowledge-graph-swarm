@@ -10,6 +10,9 @@ from agents import DocumentAgent, GraphUpdateConfig, load_agents, save_agents
 from agents.graph_statistics import calculate_graph_statistics
 from agents.graph_update import make_edge_key, update_graph_after_retrieval
 from common import (
+    DOCUMENTS_PATH,
+    EMBEDDINGS_PATH,
+    IDS_PATH,
     MODEL_NAME,
     build_faiss_index,
     encode_query,
@@ -32,6 +35,22 @@ class AgentGraphRuntime:
 
     @classmethod
     def load(cls, agent_graph_path: Path = AGENT_GRAPH_PATH) -> "AgentGraphRuntime":
+        required_files = [
+            DOCUMENTS_PATH,
+            EMBEDDINGS_PATH,
+            IDS_PATH,
+            agent_graph_path,
+        ]
+        missing_files = [path for path in required_files if not path.exists()]
+
+        if missing_files:
+            missing_paths = "\n".join(f"- {path}" for path in missing_files)
+            raise FileNotFoundError(
+                "The graph system has not been prepared. Missing required files:\n"
+                f"{missing_paths}\n"
+                "Follow the data preparation steps in the README before starting the API."
+            )
+
         documents = load_documents()
         embeddings, document_ids = load_embeddings()
         index = build_faiss_index(embeddings)

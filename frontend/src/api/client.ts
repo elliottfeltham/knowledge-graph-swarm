@@ -27,6 +27,30 @@ export class ApiError extends Error {
 }
 
 
+interface ValidationError {
+  loc?: Array<string | number>;
+  msg?: string;
+}
+
+
+function getErrorMessage(detail: unknown): string | null {
+  if (typeof detail === "string") {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    const error = detail[0] as ValidationError | undefined;
+
+    if (error?.msg) {
+      const field = error.loc?.at(-1);
+      return typeof field === "string" ? `${field}: ${error.msg}` : error.msg;
+    }
+  }
+
+  return null;
+}
+
+
 async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
   let response: Response;
 
@@ -42,10 +66,11 @@ async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
     let message = `Request failed with status ${response.status}.`;
 
     try {
-      const errorBody = (await response.json()) as { detail?: string };
+      const errorBody = (await response.json()) as { detail?: unknown };
+      const detailMessage = getErrorMessage(errorBody.detail);
 
-      if (errorBody.detail) {
-        message = errorBody.detail;
+      if (detailMessage) {
+        message = detailMessage;
       }
     } catch {
       // Keep the status-based message if the response does not contain JSON.

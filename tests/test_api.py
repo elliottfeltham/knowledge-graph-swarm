@@ -299,6 +299,9 @@ def test_reset_graph_returns_rebuilt_statistics(api_client) -> None:
     [
         {"query": "   "},
         {"query": "example query", "top_k": 0},
+        {"query": "example query", "top_k": 101},
+        {"query": "example query", "seed_k": 101},
+        {"query": "example query", "graph_weight": 1.1},
     ],
 )
 def test_search_rejects_invalid_requests(api_client, request_body) -> None:
