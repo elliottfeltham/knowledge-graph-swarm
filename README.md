@@ -1,6 +1,6 @@
 # An Emergent Knowledge Graph Using Swarm Intelligence
 
-This is an emergent knowledge graph that uses swarm intelligence to organise itself. The system currently has a command-line interface and a FastAPI backend, with a 3D visualisation planned for the frontend.
+This is an emergent knowledge graph that uses swarm intelligence to organise itself. The system has a command-line interface, a FastAPI backend, and a React frontend with an interactive 3D graph.
 
 This is a work-in-progress MSc dissertation project.
 
@@ -157,6 +157,17 @@ The current endpoints are:
 `GET /graph/stats`: returns the current graph statistics.
 
 `POST /graph/reset`: rebuilds and saves the original weak nearest-neighbour graph. This can be used after testing adaptive search to return the graph to its initial state.
+
+## Frontend
+
+Start the backend, then run the frontend from the `frontend/` directory:
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:5174` to search the current HotpotQA corpus and explore the graph. A read-only search highlights the retrieved document agents without changing their relationships. Adaptive search saves graph updates and briefly highlights retrieved documents, strengthened relationships, newly created relationships, and pruned relationships in the graph view.
 
 ## Data And Outputs
 

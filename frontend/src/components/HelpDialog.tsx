@@ -103,7 +103,7 @@ function HelpDialog({ onClose }: HelpDialogProps) {
 						<dt>Standard search</dt>
 						<dd>
 							Retrieves documents without changing the graph. This
-							is the default behavior. This is useful for seeing
+							is the default behaviour. This is useful for seeing
 							how well the current graph retrieves documents.
 						</dd>
 					</div>
@@ -112,6 +112,22 @@ function HelpDialog({ onClose }: HelpDialogProps) {
 						<dd>
 							Retrieves documents and updates their relationships
 							so the graph can adapt to repeated use.
+						</dd>
+					</div>
+					<div>
+						<dt>Graph interaction</dt>
+						<dd>
+							Select a document node to view its text and connection
+							count. Hover over a node to highlight its relationships.
+						</dd>
+					</div>
+					<div>
+						<dt>Graph updates</dt>
+						<dd>
+							During adaptive search, highlighted colours show
+							strengthened, created and pruned relationships. These
+							changes are saved until the graph is reset using Graph
+							Statistics.
 						</dd>
 					</div>
 					<div>
