@@ -13,6 +13,8 @@ QUERIES_PATH = PROJECT_ROOT / "data" / "processed" / "queries.jsonl"
 QRELS_PATH = PROJECT_ROOT / "data" / "processed" / "qrels.jsonl"
 EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_embeddings.npy"
 IDS_PATH = PROJECT_ROOT / "data" / "embeddings" / "document_ids.json"
+QUERY_EMBEDDINGS_PATH = PROJECT_ROOT / "data" / "embeddings" / "query_embeddings.npy"
+QUERY_IDS_PATH = PROJECT_ROOT / "data" / "embeddings" / "query_ids.json"
 STATIC_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "static_graph_edges.jsonl"
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
@@ -62,6 +64,21 @@ def load_embeddings() -> tuple[np.ndarray, list[str]]:
         )
 
     return embeddings, document_ids
+
+
+def load_query_embeddings() -> tuple[np.ndarray, list[str]]:
+    embeddings = np.load(QUERY_EMBEDDINGS_PATH).astype("float32")
+
+    with open(QUERY_IDS_PATH, "r", encoding="utf-8") as file:
+        query_ids = json.load(file)
+
+    if len(query_ids) != embeddings.shape[0]:
+        raise ValueError(
+            f"Query ID count ({len(query_ids)}) does not match "
+            f"embedding count ({embeddings.shape[0]})"
+        )
+
+    return embeddings, query_ids
 
 """Builds a FAISS index from the provided embeddings."""
 def build_faiss_index(embeddings: np.ndarray) -> faiss.Index:

@@ -10,12 +10,16 @@ DOCUMENTS_PATH = PROJECT_ROOT / "data" / "processed" / "documents.jsonl"
 EMBEDDINGS_DIR = PROJECT_ROOT / "data" / "embeddings"
 EMBEDDINGS_PATH = EMBEDDINGS_DIR / "document_embeddings.npy"
 IDS_PATH = EMBEDDINGS_DIR / "document_ids.json"
+QUERIES_PATH = PROJECT_ROOT / "data" / "processed" / "queries.jsonl"
+QUERY_EMBEDDINGS_PATH = EMBEDDINGS_DIR / "query_embeddings.npy"
+QUERY_IDS_PATH = EMBEDDINGS_DIR / "query_ids.json"
 
 
-def create_document_embeddings() -> None:
+def create_embeddings() -> None:
     EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
 
     documents = read_jsonl(DOCUMENTS_PATH)
+    queries = read_jsonl(QUERIES_PATH)
 
     doc_ids = []
     texts = []
@@ -44,9 +48,27 @@ def create_document_embeddings() -> None:
     print(f"Saved document IDs to {IDS_PATH}")
     print(f"Embedding shape: {embeddings.shape}")
 
+    query_ids = [query["query_id"] for query in queries]
+    query_texts = [query["query"] for query in queries]
+    query_embeddings = model.encode(
+        query_texts,
+        batch_size=32,
+        show_progress_bar=True,
+        normalize_embeddings=True,
+    )
+
+    np.save(QUERY_EMBEDDINGS_PATH, query_embeddings.astype("float32"))
+
+    with open(QUERY_IDS_PATH, "w", encoding="utf-8") as file:
+        json.dump(query_ids, file, indent=2)
+
+    print(f"Saved query embeddings to {QUERY_EMBEDDINGS_PATH}")
+    print(f"Saved query IDs to {QUERY_IDS_PATH}")
+    print(f"Query embedding shape: {query_embeddings.shape}")
+
 
 def main() -> None:
-    create_document_embeddings()
+    create_embeddings()
 
 
 if __name__ == "__main__":

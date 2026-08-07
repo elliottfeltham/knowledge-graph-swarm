@@ -5,10 +5,12 @@ from common import (
     IDS_PATH,
     QRELS_PATH,
     QUERIES_PATH,
+    QUERY_EMBEDDINGS_PATH,
+    QUERY_IDS_PATH,
     load_embeddings,
 )
 from data.load_dataset import prepare_dataset
-from embeddings.embed_documents import create_document_embeddings
+from embeddings.embed_documents import create_embeddings
 from graph.build_static_graph import OUTPUT_PATH as STATIC_GRAPH_PATH
 from graph.build_static_graph import build_static_graph, save_edges
 from graph.initialize_agent_graph import OUTPUT_PATH as AGENT_GRAPH_PATH
@@ -27,8 +29,8 @@ def prepare_system() -> None:
     print_stage(1, "Preparing the HotpotQA dataset")
     prepare_dataset()
 
-    print_stage(2, "Creating document embeddings")
-    create_document_embeddings()
+    print_stage(2, "Creating document and query embeddings")
+    create_embeddings()
 
     embeddings, document_ids = load_embeddings()
 
@@ -55,6 +57,8 @@ def prepare_system() -> None:
     print(f"Relevance judgements: {QRELS_PATH}")
     print(f"Embeddings: {EMBEDDINGS_PATH}")
     print(f"Document IDs: {IDS_PATH}")
+    print(f"Query embeddings: {QUERY_EMBEDDINGS_PATH}")
+    print(f"Query IDs: {QUERY_IDS_PATH}")
     print(f"Static graph: {STATIC_GRAPH_PATH}")
     print(f"Agent graph: {AGENT_GRAPH_PATH}")
 

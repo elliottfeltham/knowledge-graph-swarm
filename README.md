@@ -41,6 +41,14 @@ To run a quick frozen evaluation across FAISS, the static graph, and the agent g
 PYTHONPATH=src python src/evaluation/evaluate_baselines.py --limit 10
 ```
 
+To run the main evaluation across three fixed query splits:
+
+```bash
+PYTHONPATH=src python src/run_experiments.py
+```
+
+This compares FAISS, the static graph, the initial agent graph, and the adapted agent graph. Results are saved to `results/main_evaluation.json`.
+
 To simulate user queries and compare the agent graph before and after adaptation:
 
 ```bash
