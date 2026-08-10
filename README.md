@@ -1,16 +1,15 @@
 # An Emergent Knowledge Graph Using Swarm Intelligence
 
-This is an emergent knowledge graph that uses swarm intelligence to organise itself. The system has a command-line interface, a FastAPI backend, and a React frontend with an interactive 3D graph.
+This project investigates whether document retrieval can be improved by allowing a knowledge graph to self-organise through use. Each document is represented by an agent with mutable weighted relationships to other documents. When documents are retrieved together, their relationship can strengthen or form, while relationships that are no longer useful decay and may eventually be removed through pruning. Over time, these local update rules allow the graph’s structure to adapt to changing retrieval patterns.
 
-This is a work-in-progress MSc dissertation project.
+The system includes a command-line interface, a FastAPI backend and a React frontend with an interactive 3D graph.
+
+## Requirements
+
+- Python 3 and `pip`
+- Node.js and `npm` for the frontend
 
 ## Setup
-
-Install the project and dependencies with `pip install -r requirements.txt` from the repository root.
-
-## Quick Demo
-
-These commands rebuild the small HotpotQA dataset, create the graphs, and run the current agent graph retrieval system.
 
 On macOS or Linux:
 
@@ -18,8 +17,6 @@ On macOS or Linux:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-PYTHONPATH=src python src/prepare_system.py
-PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
 ```
 
 On Windows PowerShell:
@@ -29,168 +26,131 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 $env:PYTHONPATH = "src"
-python src/prepare_system.py
-python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
 ```
 
-The final command should return `Arthur's Magazine` and `First for Women` near the top of the results.
+## Running The Application
 
-To run a quick frozen evaluation across FAISS, the static graph, and the agent graph:
+Prepare the dataset and graphs before starting the application.
 
-```bash
-PYTHONPATH=src python src/evaluation/evaluate_baselines.py --limit 10
-```
-
-To run the main evaluation across three fixed query splits:
-
-```bash
-PYTHONPATH=src python src/run_experiments.py
-```
-
-This compares FAISS, the static graph, the initial agent graph, and the adapted agent graph. Results are saved to `results/main_evaluation.json`.
-
-To compare adaptive retrieval with pruning enabled and disabled:
-
-```bash
-PYTHONPATH=src python src/run_experiments.py --pruning-ablation
-```
-
-The pruning comparison is saved to `results/pruning_ablation.json`.
-
-To turn the saved experiment results into CSV tables and figures:
-
-```bash
-PYTHONPATH=src python src/evaluation/create_results_report.py
-```
-
-The generated report files are saved under `results/report/`.
-
-To simulate user queries and compare the agent graph before and after adaptation:
-
-```bash
-PYTHONPATH=src python src/evaluation/simulate_user_workflow.py --adaptation-queries 100 --evaluation-queries 100 --disable-pruning
-```
-
-This copies the current agent graph into `results/`, adapts the copy, and leaves the main saved graph unchanged.
-The summary also reports graph statistics such as edge count, average degree, average edge weight, and the largest changed edges.
-
-To see the adaptive update mode, run:
-
-```bash
-PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?" --adaptive --disable-pruning
-```
-
-This runs the same retrieval, then strengthens edges between the returned documents and saves the updated agent graph.
-
-## Evaluation Pipeline
-
-This is the pipeline so far for evaluating FAISS, the static graph baseline, and the agent graph retrieval system.
-
-1. Build the processed dataset with [src/data/load_dataset.py](src/data/load_dataset.py).
-2. Generate document embeddings with [src/embeddings/embed_documents.py](src/embeddings/embed_documents.py).
-3. Build the static nearest-neighbour graph with [src/graph/build_static_graph.py](src/graph/build_static_graph.py).
-4. Run a single-query FAISS baseline with [src/retrieval/faiss_baseline.py](src/retrieval/faiss_baseline.py).
-5. Run the graph-augmented baseline with [src/retrieval/static_graph_baseline.py](src/retrieval/static_graph_baseline.py).
-6. Evaluate FAISS, the static graph, and the agent graph over the query set with [src/evaluation/evaluate_baselines.py](src/evaluation/evaluate_baselines.py).
-
-## Agent Graph Pipeline
-
-The agent graph is the first version of the adaptive system. Each document is loaded into a `DocumentAgent` object, and the agent's connections are saved to disk as JSONL so the graph can be inspected and loaded again later.
-
-At runtime, the Python object is the document agent. The JSONL file is only the saved representation of those agents.
-
-For now, the agent graph can be built directly from the current processed documents and embeddings:
-
-```bash
-PYTHONPATH=src .venv/bin/python src/graph/initialize_agent_graph.py
-```
-
-This creates:
-
-```text
-data/processed/document_agents.jsonl
-```
-
-The generated file is ignored by Git because it can be recreated from the processed documents and embeddings. The full dataset, embedding, and graph preparation pipeline can be run with:
+On macOS or Linux:
 
 ```bash
 PYTHONPATH=src python src/prepare_system.py
 ```
 
-## Agent Graph Retrieval
+On Windows PowerShell:
 
-The agent graph retrieval script uses FAISS to find the first set of related document agents, then lets activation spread once through their graph connections.
-
-By default, this is a read-only retrieval step. It uses the saved agent graph but does not strengthen, decay or prune any connections.
-
-Internally, the retrieval code now uses an `AgentGraphRuntime` object to load the documents, embeddings, FAISS index, embedding model, and agent graph once. This is the bridge toward the later API and frontend.
-
-```bash
-PYTHONPATH=src .venv/bin/python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
+```powershell
+python src/prepare_system.py
 ```
 
-Arguments:
+This downloads the small HotpotQA dataset, creates document and query embeddings, and builds both the static and adaptive graphs. An internet connection is required the first time it runs.
 
-`--query`: the search query to run. This is required.
+Start the backend from the repository root.
 
-`--top-k`: controls how many ranked documents are returned. The default is `10`. A smaller value, such as `5`, is useful for quick inspection. A larger value, such as `20`, shows more of the graph-influenced ranking.
-
-`--seed-k`: controls how many FAISS results are used as the starting agents. The default is `5`. A smaller value, such as `3`, keeps the search focused on the closest semantic matches. A larger value, such as `10`, lets more documents spread activation into the graph.
-
-`--graph-weight`: controls how much influence neighbouring agents have on the final ranking. The default is `0.3`. `0.0` ignores the graph, `0.3` uses the graph gently, and `1.0` gives graph connections a much stronger effect.
-
-`--adaptive`: updates and saves the agent graph after retrieval. This strengthens edges between documents retrieved together, decays unused edges, and prunes weak edges.
-
-`--disable-pruning`: skips pruning during adaptive updates. This is useful while testing the adaptive system without immediately removing weak initial edges.
-
-To run an adaptive query without pruning:
+On macOS or Linux:
 
 ```bash
-PYTHONPATH=src .venv/bin/python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?" --adaptive --disable-pruning
+PYTHONPATH=src python -m uvicorn api.main:app --port 8000
 ```
 
-## Backend API
-
-The FastAPI backend loads the documents, embeddings, model, and agent graph once when the server starts. It then keeps this runtime in memory so each request can reuse it.
-
-On macOS or Linux, start the backend with:
-
-```bash
-PYTHONPATH=src .venv/bin/python -m uvicorn api.main:app --port 8000
-```
-
-On Windows PowerShell, start it with:
+On Windows PowerShell:
 
 ```powershell
 $env:PYTHONPATH = "src"
-.\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000
+python -m uvicorn api.main:app --port 8000
 ```
 
-Once the server has started, open `http://127.0.0.1:8000/docs` to try the endpoints through FastAPI's interactive documentation.
-
-The current endpoints are:
-
-`GET /health`: checks that the API and agent graph runtime have loaded.
-
-`POST /search`: runs a read-only search without changing the graph.
-
-`POST /adaptive-search`: runs a search, updates the graph relationships, and saves the changes.
-
-`GET /graph/stats`: returns the current graph statistics.
-
-`POST /graph/reset`: rebuilds and saves the original weak nearest-neighbour graph. This can be used after testing adaptive search to return the graph to its initial state.
-
-## Frontend
-
-Start the backend, then run the frontend from the `frontend/` directory:
+In a second terminal, start the frontend:
 
 ```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5174` to search the current HotpotQA corpus and explore the graph. A read-only search highlights the retrieved document agents without changing their relationships. Adaptive search saves graph updates and briefly highlights retrieved documents, strengthened relationships, newly created relationships, and pruned relationships in the graph view.
+Open `http://localhost:5174` in a browser. The interface includes example HotpotQA questions that can be used to try the current corpus.
 
-## Data And Outputs
+Standard search retrieves documents without changing the graph.
+Adaptive search saves changes to relationships between the retrieved document agents.
+The Graph Statistics panel shows the current graph structure and can reset it to the original nearest-neighbour graph after testing.
 
-Generated documents, embeddings, graph edges, and results are written under `data/` and `results/` and are ignored by Git.
+The focused graph is intended for exploring local document relationships. The full graph shows the complete corpus in an observation-only view.
+
+## Command-Line Demo
+
+A search can also be run directly from the repository root:
+
+```bash
+PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?"
+```
+
+The command should return `Arthur's Magazine` and `First for Women` near the top of the results.
+
+Add `--adaptive` to update the graph after retrieval:
+
+```bash
+PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py --query "Which magazine was started first Arthur's Magazine or First for Women?" --adaptive --disable-pruning
+```
+
+## Running The Evaluation
+
+The complete dissertation experiment can be reproduced with one command:
+
+```bash
+PYTHONPATH=src python src/run_full_evaluation.py
+```
+
+This prepares the system, runs the main evaluation, compares pruning enabled and disabled, and creates the final CSV tables and figures. The experiment uses three fixed query splits with seeds `10`, `20` and `30`. Outputs are saved under `results/`.
+
+If you prepared the system while running the application, reuse those files with:
+
+```bash
+PYTHONPATH=src python src/run_full_evaluation.py --skip-preparation
+```
+
+The stages can also be run separately when only one part of the evaluation is needed:
+
+```text
+PYTHONPATH=src python src/run_experiments.py
+PYTHONPATH=src python src/run_experiments.py --pruning-ablation
+PYTHONPATH=src python src/evaluation/create_results_report.py
+```
+
+Evaluation uses held-out queries and copied graph files. It does not modify the graph used by the interactive application.
+
+## Running The Tests
+
+Run the Python tests from the repository root:
+
+```bash
+PYTHONPATH=src python -m pytest
+```
+
+Run the frontend tests and production build from the `frontend/` directory:
+
+```bash
+cd frontend
+npm run test
+npm run build
+```
+
+## How The System Works
+
+Each document is loaded as a `DocumentAgent`. Its weighted edges represent relationships with other document agents, while the JSONL graph file is the saved version of that state.
+
+Retrieval starts with FAISS semantic search. The highest-ranked documents become seed agents and spread activation once through their neighbours. The semantic score and neighbour activation are then combined to produce the final ranking.
+
+Read-only retrieval leaves the graph unchanged. Adaptive retrieval strengthens or creates relationships between documents retrieved together, decays unused relationships and optionally prunes weak ones. Evaluation queries are always frozen so that measuring the system does not change the graph being measured.
+
+The `AgentGraphRuntime` loads the documents, embeddings, FAISS index, embedding model and document agents once. The command-line interface and FastAPI backend both use this shared runtime.
+
+## Backend API
+
+FastAPI's interactive documentation is available at `http://127.0.0.1:8000/docs` while the backend is running. It lists the search, adaptive search, graph, document, statistics and reset endpoints together with their request and response formats.
+
+## Current Scope
+
+The current implementation uses a prepared subset of HotpotQA. It supports frozen and adaptive retrieval, repeatable comparison with FAISS and a static graph, and interactive graph visualisation. A document ingestion pipeline and evaluation on additional datasets are possible future extensions.
+
+Generated documents, embeddings, graph files and experiment results are written under `data/` and `results/`. These files are ignored by Git because they can be recreated from the preparation and evaluation scripts.
