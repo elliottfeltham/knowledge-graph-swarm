@@ -31,6 +31,7 @@ from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrie
 
 DEFAULT_SEEDS = [10, 20, 30]
 RESULTS_PATH = PROJECT_ROOT / "results" / "main_evaluation.json"
+PRUNING_ABLATION_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
 METRIC_NAMES = ["recall_at_5", "recall_at_10", "mrr", "retrieval_latency_ms"]
 
 
@@ -121,8 +122,9 @@ def evaluate_seed(
     top_k: int,
     seed_k: int,
     graph_weight: float,
+    pruning_enabled: bool,
+    seed_directory: Path,
 ) -> dict:
-    seed_directory = PROJECT_ROOT / "results" / "main_evaluation" / f"seed_{seed}"
     initial_graph_path = seed_directory / "initial_graph.jsonl"
     adapted_graph_path = seed_directory / "adapted_graph.jsonl"
 
@@ -153,7 +155,7 @@ def evaluate_seed(
         update_summary = update_graph_after_retrieval(
             agents=adapted_agents,
             retrieved_doc_ids=retrieved_doc_ids,
-            config=GraphUpdateConfig(),
+            config=GraphUpdateConfig(enable_pruning=pruning_enabled),
         )
 
         for key in update_totals:
@@ -223,6 +225,7 @@ def evaluate_seed(
 
     return {
         "seed": seed,
+        "pruning_enabled": pruning_enabled,
         "adaptation_query_ids": [row["query_id"] for row in adaptation_queries],
         "evaluation_query_ids": [row["query_id"] for row in evaluation_queries],
         "paths": {
@@ -259,6 +262,21 @@ def print_results(aggregate: dict) -> None:
         print(f"Latency:   {metrics['retrieval_latency_ms']['mean']:.2f} ms")
 
 
+def print_pruning_ablation(conditions: dict) -> None:
+    print("\nPruning ablation results")
+    print("=" * 80)
+
+    for condition_name, condition in conditions.items():
+        metrics = condition["aggregate"]
+        print(f"\n{condition_name.replace('_', ' ')}")
+        print(f"Recall@5:  {metrics['recall_at_5']['mean']:.4f} "
+              f"(+/- {metrics['recall_at_5']['standard_deviation']:.4f})")
+        print(f"Recall@10: {metrics['recall_at_10']['mean']:.4f} "
+              f"(+/- {metrics['recall_at_10']['standard_deviation']:.4f})")
+        print(f"MRR:       {metrics['mrr']['mean']:.4f} "
+              f"(+/- {metrics['mrr']['standard_deviation']:.4f})")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Run the main dissertation retrieval evaluation."
@@ -269,7 +287,12 @@ def main() -> None:
     parser.add_argument("--seed-k", type=int, default=5)
     parser.add_argument("--graph-weight", type=float, default=0.3)
     parser.add_argument("--seeds", type=int, nargs="+", default=DEFAULT_SEEDS)
-    parser.add_argument("--output-path", type=Path, default=RESULTS_PATH)
+    parser.add_argument(
+        "--pruning-ablation",
+        action="store_true",
+        help="Compare adaptive retrieval with pruning enabled and disabled.",
+    )
+    parser.add_argument("--output-path", type=Path, default=None)
     args = parser.parse_args()
 
     print("Loading evaluation data...")
@@ -316,26 +339,77 @@ def main() -> None:
     index = build_faiss_index(embeddings)
 
     application_graph_checksum = file_checksum(AGENT_GRAPH_PATH)
-    seed_results = []
+    if args.pruning_ablation:
+        pruning_conditions = {
+            "pruning_enabled": True,
+            "pruning_disabled": False,
+        }
+        conditions = {}
 
-    for seed in args.seeds:
-        print(f"\nRunning seed {seed}...")
-        adaptation_queries, evaluation_queries = query_splits[seed]
-        seed_results.append(
-            evaluate_seed(
-                seed=seed,
-                adaptation_queries=adaptation_queries,
-                evaluation_queries=evaluation_queries,
-                query_embeddings=query_embeddings,
-                qrels=qrels,
-                index=index,
-                document_ids=document_ids,
-                static_graph=static_graph,
-                top_k=args.top_k,
-                seed_k=args.seed_k,
-                graph_weight=args.graph_weight,
+        for condition_name, pruning_enabled in pruning_conditions.items():
+            seed_results = []
+
+            for seed in args.seeds:
+                print(f"\nRunning {condition_name}, seed {seed}...")
+                adaptation_queries, evaluation_queries = query_splits[seed]
+                seed_results.append(
+                    evaluate_seed(
+                        seed=seed,
+                        adaptation_queries=adaptation_queries,
+                        evaluation_queries=evaluation_queries,
+                        query_embeddings=query_embeddings,
+                        qrels=qrels,
+                        index=index,
+                        document_ids=document_ids,
+                        static_graph=static_graph,
+                        top_k=args.top_k,
+                        seed_k=args.seed_k,
+                        graph_weight=args.graph_weight,
+                        pruning_enabled=pruning_enabled,
+                        seed_directory=(
+                            PROJECT_ROOT
+                            / "results"
+                            / "pruning_ablation"
+                            / condition_name
+                            / f"seed_{seed}"
+                        ),
+                    )
+                )
+
+            conditions[condition_name] = {
+                "seed_results": seed_results,
+                "aggregate": aggregate_seed_results(seed_results)[
+                    "adapted_agent_graph"
+                ],
+            }
+    else:
+        seed_results = []
+
+        for seed in args.seeds:
+            print(f"\nRunning seed {seed}...")
+            adaptation_queries, evaluation_queries = query_splits[seed]
+            seed_results.append(
+                evaluate_seed(
+                    seed=seed,
+                    adaptation_queries=adaptation_queries,
+                    evaluation_queries=evaluation_queries,
+                    query_embeddings=query_embeddings,
+                    qrels=qrels,
+                    index=index,
+                    document_ids=document_ids,
+                    static_graph=static_graph,
+                    top_k=args.top_k,
+                    seed_k=args.seed_k,
+                    graph_weight=args.graph_weight,
+                    pruning_enabled=True,
+                    seed_directory=(
+                        PROJECT_ROOT
+                        / "results"
+                        / "main_evaluation"
+                        / f"seed_{seed}"
+                    ),
+                )
             )
-        )
 
     application_graph_unchanged = graph_file_is_unchanged(
         AGENT_GRAPH_PATH,
@@ -347,26 +421,42 @@ def main() -> None:
             "Evaluation unexpectedly modified the application agent graph"
         )
 
-    aggregate = aggregate_seed_results(seed_results)
-    results = {
-        "settings": {
-            "seeds": args.seeds,
-            "adaptation_queries": args.adaptation_queries,
-            "evaluation_queries": args.evaluation_queries,
-            "top_k": args.top_k,
-            "seed_k": args.seed_k,
-            "graph_weight": args.graph_weight,
-            "pruning_enabled": True,
-        },
-        "application_agent_graph": str(AGENT_GRAPH_PATH),
-        "application_graph_unchanged": application_graph_unchanged,
-        "seed_results": seed_results,
-        "aggregate": aggregate,
+    settings = {
+        "seeds": args.seeds,
+        "adaptation_queries": args.adaptation_queries,
+        "evaluation_queries": args.evaluation_queries,
+        "top_k": args.top_k,
+        "seed_k": args.seed_k,
+        "graph_weight": args.graph_weight,
     }
-    save_results(args.output_path, results)
-    print_results(aggregate)
+
+    if args.pruning_ablation:
+        output_path = args.output_path or PRUNING_ABLATION_PATH
+        results = {
+            "settings": settings,
+            "application_agent_graph": str(AGENT_GRAPH_PATH),
+            "application_graph_unchanged": application_graph_unchanged,
+            "conditions": conditions,
+        }
+        print_pruning_ablation(conditions)
+    else:
+        output_path = args.output_path or RESULTS_PATH
+        aggregate = aggregate_seed_results(seed_results)
+        results = {
+            "settings": {
+                **settings,
+                "pruning_enabled": True,
+            },
+            "application_agent_graph": str(AGENT_GRAPH_PATH),
+            "application_graph_unchanged": application_graph_unchanged,
+            "seed_results": seed_results,
+            "aggregate": aggregate,
+        }
+        print_results(aggregate)
+
+    save_results(output_path, results)
     print(f"\nApplication graph unchanged: {application_graph_unchanged}")
-    print(f"Results saved to: {args.output_path}")
+    print(f"Results saved to: {output_path}")
 
 
 if __name__ == "__main__":

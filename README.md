@@ -49,6 +49,14 @@ PYTHONPATH=src python src/run_experiments.py
 
 This compares FAISS, the static graph, the initial agent graph, and the adapted agent graph. Results are saved to `results/main_evaluation.json`.
 
+To compare adaptive retrieval with pruning enabled and disabled:
+
+```bash
+PYTHONPATH=src python src/run_experiments.py --pruning-ablation
+```
+
+The pruning comparison is saved to `results/pruning_ablation.json`.
+
 To simulate user queries and compare the agent graph before and after adaptation:
 
 ```bash
