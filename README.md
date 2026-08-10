@@ -57,6 +57,14 @@ PYTHONPATH=src python src/run_experiments.py --pruning-ablation
 
 The pruning comparison is saved to `results/pruning_ablation.json`.
 
+To turn the saved experiment results into CSV tables and figures:
+
+```bash
+PYTHONPATH=src python src/evaluation/create_results_report.py
+```
+
+The generated report files are saved under `results/report/`.
+
 To simulate user queries and compare the agent graph before and after adaptation:
 
 ```bash
