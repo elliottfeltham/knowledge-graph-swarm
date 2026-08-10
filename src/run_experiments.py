@@ -6,6 +6,10 @@ from pathlib import Path
 from statistics import mean, stdev
 
 from agents import GraphUpdateConfig, load_agents, save_agents
+from agents.graph_statistics import (
+    calculate_graph_deltas,
+    calculate_graph_statistics,
+)
 from agents.graph_update import update_graph_after_retrieval
 from common import (
     PROJECT_ROOT,
@@ -131,6 +135,7 @@ def evaluate_seed(
     initial_agents = create_initial_evaluation_graph(initial_graph_path)
     copy_agent_graph(initial_graph_path, adapted_graph_path)
     adapted_agents = load_agents(adapted_graph_path)
+    graph_before = calculate_graph_statistics(initial_agents)
 
     update_totals = {
         "strengthened_edges": 0,
@@ -162,6 +167,11 @@ def evaluate_seed(
             update_totals[key] += update_summary[key]
 
     save_agents(adapted_graph_path, adapted_agents)
+    graph_after = calculate_graph_statistics(adapted_agents)
+    graph_deltas = calculate_graph_deltas(
+        before_stats=graph_before,
+        after_stats=graph_after,
+    )
 
     system_rows = {
         "faiss": [],
@@ -233,6 +243,9 @@ def evaluate_seed(
             "adapted_graph": str(adapted_graph_path),
         },
         "updates": update_totals,
+        "graph_before": graph_before,
+        "graph_after": graph_after,
+        "graph_deltas": graph_deltas,
         "systems": {
             system_name: summarise_query_metrics(rows)
             for system_name, rows in system_rows.items()
