@@ -6,13 +6,20 @@ from run_experiments import aggregate_seed_results, split_queries
 def test_query_split_is_reproducible_and_keeps_sets_separate() -> None:
     queries = [{"query_id": str(index)} for index in range(10)]
 
-    first_split = split_queries(queries, seed=10, adaptation_count=4, evaluation_count=3)
-    second_split = split_queries(queries, seed=10, adaptation_count=4, evaluation_count=3)
+    first_split = split_queries(
+        queries, seed=10, adaptation_count=4, validation_count=3, evaluation_count=2
+    )
+    second_split = split_queries(
+        queries, seed=10, adaptation_count=4, validation_count=3, evaluation_count=2
+    )
 
     assert first_split == second_split
     adaptation_ids = {row["query_id"] for row in first_split[0]}
-    evaluation_ids = {row["query_id"] for row in first_split[1]}
+    validation_ids = {row["query_id"] for row in first_split[1]}
+    evaluation_ids = {row["query_id"] for row in first_split[2]}
+    assert adaptation_ids.isdisjoint(validation_ids)
     assert adaptation_ids.isdisjoint(evaluation_ids)
+    assert validation_ids.isdisjoint(evaluation_ids)
 
 
 def test_seed_results_are_aggregated_with_mean_and_standard_deviation() -> None:

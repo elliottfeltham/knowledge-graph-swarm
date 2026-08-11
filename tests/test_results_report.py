@@ -19,7 +19,13 @@ def test_build_retrieval_rows_formats_aggregate_results() -> None:
                 "recall_at_10": metric(0.8),
                 "mrr": metric(0.9),
                 "retrieval_latency_ms": metric(0.2),
-            }
+            },
+            "optimised_adapted_agent_graph": {
+                "recall_at_5": metric(0.75),
+                "recall_at_10": metric(0.85),
+                "mrr": metric(0.92),
+                "retrieval_latency_ms": metric(0.3),
+            },
         }
     }
 
@@ -28,6 +34,7 @@ def test_build_retrieval_rows_formats_aggregate_results() -> None:
     assert rows[0]["system"] == "FAISS"
     assert rows[0]["recall_at_10_mean"] == 0.8
     assert rows[0]["mrr_std"] == 0.1
+    assert rows[1]["system"] == "Optimised adapted graph"
 
 
 def test_build_pruning_rows_averages_graph_statistics() -> None:

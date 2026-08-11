@@ -20,8 +20,10 @@ PARAMETER_TUNING_FIGURE_PATH = REPORT_DIRECTORY / "parameter_tuning.png"
 SYSTEM_LABELS = {
     "faiss": "FAISS",
     "static_graph": "Static graph",
-    "initial_agent_graph": "Initial agent graph",
-    "adapted_agent_graph": "Adapted agent graph",
+    "original_initial_agent_graph": "Original initial graph",
+    "original_adapted_agent_graph": "Original adapted graph",
+    "optimised_initial_agent_graph": "Optimised initial graph",
+    "optimised_adapted_agent_graph": "Optimised adapted graph",
 }
 
 METRICS = [
@@ -198,7 +200,7 @@ def save_retrieval_comparison(results: dict, path: Path) -> None:
     systems = list(results["aggregate"])
     x_positions = list(range(len(systems)))
     bar_width = 0.22
-    figure, axis = plt.subplots(figsize=(9, 5.2))
+    figure, axis = plt.subplots(figsize=(12, 5.5))
 
     for metric_index, (metric_name, metric_label) in enumerate(METRICS):
         values = [results["aggregate"][system][metric_name]["mean"] for system in systems]
@@ -223,7 +225,12 @@ def save_retrieval_comparison(results: dict, path: Path) -> None:
     axis.set_title("Retrieval performance by system")
     axis.set_ylabel("Mean score")
     axis.set_ylim(0, 1)
-    axis.set_xticks(x_positions, [SYSTEM_LABELS[system] for system in systems])
+    axis.set_xticks(
+        x_positions,
+        [SYSTEM_LABELS[system] for system in systems],
+        rotation=15,
+        ha="right",
+    )
     axis.grid(axis="y", alpha=0.2)
     axis.legend(frameon=False, ncol=3, loc="upper center")
     figure.tight_layout()
@@ -232,10 +239,15 @@ def save_retrieval_comparison(results: dict, path: Path) -> None:
 
 
 def save_adaptation_comparison(results: dict, path: Path) -> None:
-    systems = ["initial_agent_graph", "adapted_agent_graph"]
+    systems = [
+        "original_initial_agent_graph",
+        "original_adapted_agent_graph",
+        "optimised_initial_agent_graph",
+        "optimised_adapted_agent_graph",
+    ]
     x_positions = list(range(len(METRICS)))
-    bar_width = 0.34
-    figure, axis = plt.subplots(figsize=(7.5, 5.2))
+    bar_width = 0.19
+    figure, axis = plt.subplots(figsize=(9, 5.2))
 
     for system_index, system_name in enumerate(systems):
         values = [
@@ -247,7 +259,7 @@ def save_adaptation_comparison(results: dict, path: Path) -> None:
             for metric_name, _ in METRICS
         ]
         positions = [
-            position + (system_index - 0.5) * bar_width
+            position + (system_index - 1.5) * bar_width
             for position in x_positions
         ]
         axis.bar(
@@ -257,7 +269,7 @@ def save_adaptation_comparison(results: dict, path: Path) -> None:
             yerr=errors,
             capsize=3,
             label=SYSTEM_LABELS[system_name],
-            color=COLOURS[system_index + 1],
+            color=COLOURS[system_index],
         )
 
     axis.set_title("Agent graph performance before and after adaptation")
