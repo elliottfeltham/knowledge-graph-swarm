@@ -7,6 +7,7 @@ from pathlib import Path
 from statistics import mean
 
 from agents import GraphUpdateConfig
+from agents.graph_statistics import calculate_graph_statistics
 from agents.graph_update import update_graph_after_retrieval
 from common import (
     PROJECT_ROOT,
@@ -179,13 +180,17 @@ def adapt_graph(
     agents,
     seed_k: int,
     graph_weight: float,
+    update_k: int | None = None,
 ) -> dict:
     totals = {
         "strengthened_edges": 0,
         "created_edges": 0,
         "pruned_edges": 0,
     }
-    update_config = GraphUpdateConfig(enable_pruning=False)
+    update_config = GraphUpdateConfig(
+        enable_pruning=False,
+        update_k=update_k,
+    )
 
     for query in queries:
         retrieved_doc_ids = [
@@ -232,6 +237,7 @@ def evaluate_configuration(
     query_group: int,
     seed_k: int,
     graph_weight: float,
+    update_k: int | None = None,
 ) -> dict:
     seed_results = []
     all_faiss_metrics = []
@@ -252,13 +258,16 @@ def evaluate_configuration(
             faiss_metrics=faiss_metrics,
         )
         adapted_agents = copy.deepcopy(context.initial_agents)
+        graph_before = calculate_graph_statistics(adapted_agents)
         updates = adapt_graph(
             queries=adaptation_queries,
             context=context,
             agents=adapted_agents,
             seed_k=seed_k,
             graph_weight=graph_weight,
+            update_k=update_k,
         )
+        graph_after = calculate_graph_statistics(adapted_agents)
         adapted_rows = evaluate_agent_graph(
             queries=evaluation_queries,
             context=context,
@@ -273,6 +282,8 @@ def evaluate_configuration(
             {
                 "seed": seed,
                 "updates": updates,
+                "graph_before": graph_before,
+                "graph_after": graph_after,
                 "initial": summarise_agent_rows(initial_rows),
                 "adapted": summarise_agent_rows(adapted_rows),
             }

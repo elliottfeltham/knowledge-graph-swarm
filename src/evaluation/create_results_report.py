@@ -16,6 +16,8 @@ PRUNING_RESULTS_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
 REPORT_DIRECTORY = PROJECT_ROOT / "results" / "report"
 PARAMETER_TUNING_CSV_PATH = REPORT_DIRECTORY / "parameter_tuning.csv"
 PARAMETER_TUNING_FIGURE_PATH = REPORT_DIRECTORY / "parameter_tuning.png"
+SELECTIVE_STRENGTHENING_CSV_PATH = REPORT_DIRECTORY / "selective_strengthening.csv"
+SELECTIVE_STRENGTHENING_FIGURE_PATH = REPORT_DIRECTORY / "selective_strengthening.png"
 
 SYSTEM_LABELS = {
     "faiss": "FAISS",
@@ -193,6 +195,57 @@ def save_parameter_tuning_report(results: dict) -> None:
     axes[0].legend(frameon=False, loc="lower right")
     figure.tight_layout()
     figure.savefig(PARAMETER_TUNING_FIGURE_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
+
+def save_selective_strengthening_report(results: dict) -> None:
+    rows = []
+
+    for condition in results["conditions"]:
+        rows.append(
+            {
+                "update_k": condition["update_k"],
+                "query_group": "validation",
+                **condition["validation"]["adapted"],
+            }
+        )
+        rows.append(
+            {
+                "update_k": condition["update_k"],
+                "query_group": "held_out",
+                **condition["held_out"]["adapted"],
+            }
+        )
+
+    save_csv(SELECTIVE_STRENGTHENING_CSV_PATH, rows)
+    configure_plot_style()
+    figure, axes = plt.subplots(1, 2, figsize=(9, 4.5))
+    conditions = sorted(results["conditions"], key=lambda row: row["update_k"])
+    update_counts = [condition["update_k"] for condition in conditions]
+
+    for axis, metric, label in (
+        (axes[0], "recall_at_10", "Recall@10"),
+        (axes[1], "mrr", "MRR"),
+    ):
+        axis.plot(
+            update_counts,
+            [condition["validation"]["adapted"][metric] for condition in conditions],
+            marker="o",
+            label="Validation",
+        )
+        axis.plot(
+            update_counts,
+            [condition["held_out"]["adapted"][metric] for condition in conditions],
+            marker="o",
+            label="Held-out",
+        )
+        axis.set(title=label, xlabel="Documents used for strengthening", ylabel=label)
+        axis.set_xticks(update_counts)
+        axis.grid(alpha=0.2)
+
+    axes[0].legend(frameon=False)
+    figure.tight_layout()
+    figure.savefig(SELECTIVE_STRENGTHENING_FIGURE_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
 
