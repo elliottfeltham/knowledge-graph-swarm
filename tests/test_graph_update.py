@@ -97,3 +97,42 @@ def test_disabling_pruning_returns_no_pruned_updates() -> None:
     assert summary["pruned_edges"] == 0
     assert summary["edge_updates"] == []
     assert "doc-2" in agents["doc-1"].edges
+
+
+@pytest.mark.parametrize(
+    ("update_k", "expected_edges"),
+    [
+        (3, 3),
+        (5, 10),
+        (10, 45),
+        (None, 45),
+    ],
+)
+def test_update_k_limits_strengthening(
+    update_k: int | None,
+    expected_edges: int,
+) -> None:
+    agents = {
+        f"doc-{position}": DocumentAgent(
+            doc_id=f"doc-{position}",
+            title=f"doc-{position}",
+            text="",
+        )
+        for position in range(1, 11)
+    }
+    retrieved_doc_ids = list(agents)
+
+    summary = update_graph_after_retrieval(
+        agents,
+        retrieved_doc_ids,
+        GraphUpdateConfig(update_k=update_k, enable_pruning=False),
+    )
+
+    assert summary["retrieved_documents"] == 10
+    assert summary["strengthened_edges"] == expected_edges
+    assert summary["created_edges"] == expected_edges
+
+
+def test_update_k_must_include_at_least_two_documents() -> None:
+    with pytest.raises(ValueError, match="update_k must be at least 2"):
+        GraphUpdateConfig(update_k=1)

@@ -10,6 +10,11 @@ class GraphUpdateConfig:
     prune_threshold: float = 0.05
     max_edge_weight: float = 1.0
     enable_pruning: bool = True
+    update_k: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.update_k is not None and self.update_k < 2:
+            raise ValueError("update_k must be at least 2")
 
 
 def make_edge_key(source_id: str, target_id: str) -> tuple[str, str]:
@@ -47,6 +52,10 @@ def strengthen_retrieved_edges(
     config: GraphUpdateConfig,
 ) -> list[dict]:
     unique_doc_ids = list(dict.fromkeys(retrieved_doc_ids))
+
+    if config.update_k is not None:
+        unique_doc_ids = unique_doc_ids[:config.update_k]
+
     edge_updates = []
 
     for source_position, source_id in enumerate(unique_doc_ids):
