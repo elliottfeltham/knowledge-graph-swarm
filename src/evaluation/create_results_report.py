@@ -14,6 +14,8 @@ from common import PROJECT_ROOT
 MAIN_RESULTS_PATH = PROJECT_ROOT / "results" / "main_evaluation.json"
 PRUNING_RESULTS_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
 REPORT_DIRECTORY = PROJECT_ROOT / "results" / "report"
+PARAMETER_TUNING_CSV_PATH = REPORT_DIRECTORY / "parameter_tuning.csv"
+PARAMETER_TUNING_FIGURE_PATH = REPORT_DIRECTORY / "parameter_tuning.png"
 
 SYSTEM_LABELS = {
     "faiss": "FAISS",
@@ -136,6 +138,60 @@ def configure_plot_style() -> None:
             "axes.facecolor": "white",
         }
     )
+
+
+def save_parameter_tuning_report(results: dict) -> None:
+    configurations = results["configurations"]
+    rows = []
+
+    for configuration in configurations:
+        for graph_state in ("initial", "adapted"):
+            rows.append(
+                {
+                    "graph_weight": configuration["graph_weight"],
+                    "seed_k": configuration["seed_k"],
+                    "graph_state": graph_state,
+                    **configuration[graph_state],
+                }
+            )
+
+    save_csv(PARAMETER_TUNING_CSV_PATH, rows)
+    configure_plot_style()
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+
+    for seed_k in sorted({row["seed_k"] for row in configurations}):
+        matching = sorted(
+            (row for row in configurations if row["seed_k"] == seed_k),
+            key=lambda row: row["graph_weight"],
+        )
+        weights = [row["graph_weight"] for row in matching]
+
+        for axis, metric, label in (
+            (axes[0], "recall_at_10", "Recall@10"),
+            (axes[1], "mrr", "MRR"),
+        ):
+            axis.plot(
+                weights,
+                [row["adapted"][metric] for row in matching],
+                marker="o",
+                label=f"seed_k={seed_k}",
+            )
+            axis.set(title=f"Adapted graph {label}", xlabel="Graph weight", ylabel=label)
+            axis.grid(alpha=0.2)
+
+    for axis, metric in zip(axes, ("recall_at_10", "mrr")):
+        axis.axhline(
+            results["validation_faiss"][metric],
+            color="#555555",
+            linestyle="--",
+            linewidth=1.2,
+            label="FAISS",
+        )
+
+    axes[0].legend(frameon=False, loc="lower right")
+    figure.tight_layout()
+    figure.savefig(PARAMETER_TUNING_FIGURE_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
 
 
 def save_retrieval_comparison(results: dict, path: Path) -> None:
