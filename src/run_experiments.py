@@ -40,6 +40,11 @@ OPTIMISED_CONFIG = {
     "seed_k": 3,
     "graph_weight": 0.05,
     "pruning_enabled": False,
+    "update_k": 10,
+}
+SELECTIVE_CONFIG = {
+    **OPTIMISED_CONFIG,
+    "update_k": 3,
 }
 RESULTS_PATH = PROJECT_ROOT / "results" / "main_evaluation.json"
 PRUNING_ABLATION_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
@@ -159,6 +164,7 @@ def adapt_graph(
             retrieved_doc_ids=retrieved_doc_ids,
             config=GraphUpdateConfig(
                 enable_pruning=config["pruning_enabled"],
+                update_k=config.get("update_k"),
             ),
         )
 
@@ -221,6 +227,7 @@ def evaluate_final_seed(
     initial_graph_path = seed_directory / "initial_graph.jsonl"
     original_graph_path = seed_directory / "original_adapted_graph.jsonl"
     optimised_graph_path = seed_directory / "optimised_adapted_graph.jsonl"
+    selective_graph_path = seed_directory / "selective_adapted_graph.jsonl"
     initial_agents = create_initial_evaluation_graph(initial_graph_path)
     original_agents, original_adaptation = adapt_graph(
         initial_graph_path,
@@ -241,6 +248,16 @@ def evaluate_final_seed(
         document_ids,
         top_k,
         OPTIMISED_CONFIG,
+    )
+    selective_agents, selective_adaptation = adapt_graph(
+        initial_graph_path,
+        selective_graph_path,
+        adaptation_queries,
+        query_embeddings,
+        index,
+        document_ids,
+        top_k,
+        SELECTIVE_CONFIG,
     )
 
     def retrievals_for_query(query_id: str) -> dict:
@@ -294,6 +311,15 @@ def evaluate_final_seed(
                 OPTIMISED_CONFIG["seed_k"],
                 OPTIMISED_CONFIG["graph_weight"],
             ),
+            "selective_adapted_agent_graph": lambda: agent_graph_retrieve(
+                index,
+                query_embedding,
+                document_ids,
+                selective_agents,
+                top_k,
+                SELECTIVE_CONFIG["seed_k"],
+                SELECTIVE_CONFIG["graph_weight"],
+            ),
         }
 
     return {
@@ -305,10 +331,12 @@ def evaluate_final_seed(
             "initial_graph": str(initial_graph_path),
             "original_adapted_graph": str(original_graph_path),
             "optimised_adapted_graph": str(optimised_graph_path),
+            "selective_adapted_graph": str(selective_graph_path),
         },
         "adaptations": {
             "original": original_adaptation,
             "optimised": optimised_adaptation,
+            "selective": selective_adaptation,
         },
         "systems": evaluate_retrievals(
             evaluation_queries,
@@ -531,6 +559,7 @@ def main() -> None:
                 "static_graph": ORIGINAL_CONFIG,
                 "original_agent_graph": ORIGINAL_CONFIG,
                 "optimised_agent_graph": OPTIMISED_CONFIG,
+                "selective_agent_graph": SELECTIVE_CONFIG,
             },
             "seed_results": seed_results,
             "aggregate": aggregate,

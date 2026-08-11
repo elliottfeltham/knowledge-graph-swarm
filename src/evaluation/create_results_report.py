@@ -25,7 +25,8 @@ SYSTEM_LABELS = {
     "original_initial_agent_graph": "Original initial graph",
     "original_adapted_agent_graph": "Original adapted graph",
     "optimised_initial_agent_graph": "Optimised initial graph",
-    "optimised_adapted_agent_graph": "Optimised adapted graph",
+    "optimised_adapted_agent_graph": "Optimised adapted graph (update_k=10)",
+    "selective_adapted_agent_graph": "Selective adapted graph (update_k=3)",
 }
 
 METRICS = [
@@ -34,7 +35,7 @@ METRICS = [
     ("mrr", "MRR"),
 ]
 
-COLOURS = ["#2878B5", "#E07A2D", "#2A9D8F", "#C44E52"]
+COLOURS = ["#2878B5", "#E07A2D", "#2A9D8F", "#C44E52", "#8172B3"]
 
 
 def load_json(path: Path) -> dict:
@@ -297,10 +298,11 @@ def save_adaptation_comparison(results: dict, path: Path) -> None:
         "original_adapted_agent_graph",
         "optimised_initial_agent_graph",
         "optimised_adapted_agent_graph",
+        "selective_adapted_agent_graph",
     ]
     x_positions = list(range(len(METRICS)))
-    bar_width = 0.19
-    figure, axis = plt.subplots(figsize=(9, 5.2))
+    bar_width = 0.16
+    figure, axis = plt.subplots(figsize=(10, 6.2))
 
     for system_index, system_name in enumerate(systems):
         values = [
@@ -312,7 +314,7 @@ def save_adaptation_comparison(results: dict, path: Path) -> None:
             for metric_name, _ in METRICS
         ]
         positions = [
-            position + (system_index - 1.5) * bar_width
+            position + (system_index - 2) * bar_width
             for position in x_positions
         ]
         axis.bar(
@@ -330,7 +332,12 @@ def save_adaptation_comparison(results: dict, path: Path) -> None:
     axis.set_ylim(0, 1)
     axis.set_xticks(x_positions, [label for _, label in METRICS])
     axis.grid(axis="y", alpha=0.2)
-    axis.legend(frameon=False)
+    axis.legend(
+        frameon=False,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.1),
+        ncol=2,
+    )
     figure.tight_layout()
     figure.savefig(path, dpi=200, bbox_inches="tight")
     plt.close(figure)
