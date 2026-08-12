@@ -130,19 +130,19 @@ PYTHONPATH=src python src/evaluation/evaluate_selective_strengthening.py
 
 ## Final Results
 
-The final comparison evaluates 900 held-out query runs across the three seeds. Values below are the mean scores across those seeds.
+The final comparison evaluates 900 query runs across the three seeds. Values below are the mean scores across those seeds.
 
-| System | Recall@5 | Recall@10 | MRR |
-| --- | ---: | ---: | ---: |
-| FAISS | 0.7322 | 0.8106 | 0.8943 |
-| Static graph | 0.7322 | 0.8217 | 0.8421 |
-| Original initial graph | 0.7322 | 0.8217 | 0.8836 |
-| Original adapted graph | 0.7322 | 0.8133 | 0.8921 |
-| Optimised initial graph | **0.7483** | **0.8244** | 0.8951 |
-| Optimised adapted graph (`update_k=10`) | 0.7406 | 0.8228 | 0.8952 |
-| Selective adapted graph (`update_k=3`) | 0.7478 | **0.8244** | **0.8956** |
+| System                                  |   Recall@5 |  Recall@10 |        MRR |
+| --------------------------------------- | ---------: | ---------: | ---------: |
+| FAISS                                   |     0.7322 |     0.8106 |     0.8943 |
+| Static graph                            |     0.7322 |     0.8217 |     0.8421 |
+| Original initial graph                  |     0.7322 |     0.8217 |     0.8836 |
+| Original adapted graph                  |     0.7322 |     0.8133 |     0.8921 |
+| Optimised initial graph                 | **0.7483** | **0.8244** |     0.8951 |
+| Optimised adapted graph (`update_k=10`) |     0.7406 |     0.8228 |     0.8952 |
+| Selective adapted graph (`update_k=3`)  |     0.7478 | **0.8244** | **0.8956** |
 
-Parameter optimisation produced most of the improvement over FAISS. Strengthening relationships across all ten retrieved documents reduced recall, while selective strengthening preserved the optimised graph's Recall@10 and produced a small improvement in MRR. The results therefore support graph-assisted retrieval, while showing that the current adaptation method provides only a marginal additional gain.
+Parameter optimisation produced most of the improvement over FAISS. Strengthening relationships across all ten retrieved documents reduced recall, while selective strengthening of the top three retrieved documents only preserved the optimised graph's Recall@10 and produced a small improvement in MRR. The results therefore support graph-assisted retrieval, while showing that the current adaptation method provides only a marginal additional gain.
 
 ## Running The Tests
 
