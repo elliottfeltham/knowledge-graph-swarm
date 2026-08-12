@@ -49,8 +49,8 @@ function SearchPanel({
   const [query, setQuery] = useState("");
   const [adaptive, setAdaptive] = useState(false);
   const [topK, setTopK] = useState(10);
-  const [seedK, setSeedK] = useState(5);
-  const [graphWeight, setGraphWeight] = useState(0.3);
+  const [seedK, setSeedK] = useState(3);
+  const [graphWeight, setGraphWeight] = useState(0.05);
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [lastSearchSettings, setLastSearchSettings] = useState<{
     topK: number;
@@ -228,7 +228,7 @@ function SearchPanel({
                   type="number"
                   min="0"
                   max="1"
-                  step="0.1"
+                  step="0.05"
                   required
                   value={graphWeight}
                   onChange={(event) =>

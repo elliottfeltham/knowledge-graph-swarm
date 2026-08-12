@@ -144,6 +144,27 @@ def test_adaptive_search_updates_and_saves_the_graph() -> None:
     runtime.save_graph.assert_called_once_with()
 
 
+def test_adaptive_search_uses_selective_updates_by_default() -> None:
+    agents = {
+        doc_id: DocumentAgent(doc_id=doc_id, title=doc_id, text="")
+        for doc_id in ("a", "b", "c", "d")
+    }
+    runtime = create_runtime(agents)
+    runtime.search = Mock(
+        return_value=(
+            [{"doc_id": doc_id} for doc_id in agents],
+            5.0,
+        )
+    )
+    runtime.save_graph = Mock()
+
+    _, _, summary = runtime.adaptive_search("example query")
+
+    assert summary["retrieved_documents"] == 4
+    assert summary["strengthened_edges"] == 3
+    assert agents["d"].edges == {}
+
+
 def test_reset_replaces_and_saves_the_initial_graph(monkeypatch) -> None:
     current_agents = {
         "a": DocumentAgent(doc_id="a", title="Document A", text=""),

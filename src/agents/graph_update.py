@@ -9,8 +9,8 @@ class GraphUpdateConfig:
     decay_rate: float = 0.995
     prune_threshold: float = 0.05
     max_edge_weight: float = 1.0
-    enable_pruning: bool = True
-    update_k: int | None = None
+    enable_pruning: bool = False
+    update_k: int | None = 3
 
     def __post_init__(self) -> None:
         if self.update_k is not None and self.update_k < 2:

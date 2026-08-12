@@ -212,8 +212,8 @@ def main() -> None:
     parser.add_argument("--adaptation-queries", type=int, default=100)
     parser.add_argument("--evaluation-queries", type=int, default=100)
     parser.add_argument("--top-k", type=int, default=10)
-    parser.add_argument("--seed-k", type=int, default=5)
-    parser.add_argument("--graph-weight", type=float, default=0.3)
+    parser.add_argument("--seed-k", type=int, default=3)
+    parser.add_argument("--graph-weight", type=float, default=0.05)
     parser.add_argument(
         "--changed-edges",
         type=int,
@@ -221,9 +221,9 @@ def main() -> None:
         help="Number of largest edge changes to save in the simulation summary.",
     )
     parser.add_argument(
-        "--disable-pruning",
+        "--enable-pruning",
         action="store_true",
-        help="Skip pruning during adaptive graph updates.",
+        help="Enable pruning during adaptive graph updates.",
     )
 
     args = parser.parse_args()
@@ -272,7 +272,7 @@ def main() -> None:
     )
     before_latency_ms = (time.perf_counter() - start_time) * 1000
 
-    update_config = GraphUpdateConfig(enable_pruning=not args.disable_pruning)
+    update_config = GraphUpdateConfig(enable_pruning=args.enable_pruning)
 
     print("Simulating user queries...")
     update_totals = simulate_user_queries(
@@ -336,7 +336,7 @@ def main() -> None:
             "seed_k": args.seed_k,
             "graph_weight": args.graph_weight,
             "changed_edges": args.changed_edges,
-            "pruning_enabled": not args.disable_pruning,
+            "pruning_enabled": args.enable_pruning,
         },
         "paths": {
             "application_agent_graph": str(AGENT_GRAPH_PATH),

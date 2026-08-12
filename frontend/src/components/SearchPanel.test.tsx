@@ -76,13 +76,13 @@ describe("SearchPanel", () => {
     expect(screen.getByText("Retrieval score")).toBeInTheDocument();
     expect(screen.getByText("1 of 10 requested")).toBeInTheDocument();
     expect(
-      screen.getByText(/The 5 seeds produced 1 unique candidate/),
+      screen.getByText(/The 3 seeds produced 1 unique candidate/),
     ).toBeInTheDocument();
     expect(searchDocuments).toHaveBeenCalledWith({
       query: "example query",
       top_k: 10,
-      seed_k: 5,
-      graph_weight: 0.3,
+      seed_k: 3,
+      graph_weight: 0.05,
     });
     expect(adaptiveSearchDocuments).not.toHaveBeenCalled();
     expect(handleSearchComplete).toHaveBeenCalledWith(searchResponse);

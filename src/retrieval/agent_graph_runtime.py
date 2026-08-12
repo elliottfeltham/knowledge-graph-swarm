@@ -71,8 +71,8 @@ class AgentGraphRuntime:
         self,
         query: str,
         top_k: int = 10,
-        seed_k: int = 5,
-        graph_weight: float = 0.3,
+        seed_k: int = 3,
+        graph_weight: float = 0.05,
     ) -> tuple[list[dict], float]:
         start_time = time.perf_counter()
 
@@ -96,8 +96,8 @@ class AgentGraphRuntime:
         self,
         query: str,
         top_k: int = 10,
-        seed_k: int = 5,
-        graph_weight: float = 0.3,
+        seed_k: int = 3,
+        graph_weight: float = 0.05,
         update_config: GraphUpdateConfig | None = None,
     ) -> tuple[list[dict], float, dict]:
         results, latency_ms = self.search(
@@ -107,6 +107,9 @@ class AgentGraphRuntime:
             graph_weight=graph_weight,
         )
         retrieved_doc_ids = [result["doc_id"] for result in results]
+
+        if update_config is None:
+            update_config = GraphUpdateConfig()
 
         update_summary = update_graph_after_retrieval(
             agents=self.agents,

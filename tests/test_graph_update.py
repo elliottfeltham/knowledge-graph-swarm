@@ -66,7 +66,11 @@ def test_update_reports_pruned_edge_with_its_decayed_weight() -> None:
     summary = update_graph_after_retrieval(
         agents,
         ["doc-3"],
-        GraphUpdateConfig(decay_rate=0.5, prune_threshold=0.03),
+        GraphUpdateConfig(
+            decay_rate=0.5,
+            prune_threshold=0.03,
+            enable_pruning=True,
+        ),
     )
 
     assert summary["strengthened_edges"] == 0

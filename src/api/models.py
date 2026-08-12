@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field, field_validator
 class SearchRequest(BaseModel):
     query: str = Field(max_length=1_000)
     top_k: int = Field(default=10, ge=1, le=100)
-    seed_k: int = Field(default=5, ge=1, le=100)
-    graph_weight: float = Field(default=0.3, ge=0, le=1)
+    seed_k: int = Field(default=3, ge=1, le=100)
+    graph_weight: float = Field(default=0.05, ge=0, le=1)
 
     @field_validator("query")
     @classmethod

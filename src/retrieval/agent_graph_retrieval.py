@@ -63,8 +63,8 @@ def agent_graph_retrieve(
 def search(
     query: str,
     top_k: int = 10,
-    seed_k: int = 5,
-    graph_weight: float = 0.3,
+    seed_k: int = 3,
+    graph_weight: float = 0.05,
 ) -> tuple[list[dict], float]:
     from retrieval.agent_graph_runtime import AgentGraphRuntime
 
@@ -81,8 +81,8 @@ def search(
 def adaptive_search(
     query: str,
     top_k: int = 10,
-    seed_k: int = 5,
-    graph_weight: float = 0.3,
+    seed_k: int = 3,
+    graph_weight: float = 0.05,
     update_config: GraphUpdateConfig | None = None,
     agent_graph_path: Path = AGENT_GRAPH_PATH,
 ) -> tuple[list[dict], float, dict]:
@@ -106,13 +106,13 @@ def main() -> None:
     parser.add_argument(
         "--seed-k",
         type=int,
-        default=5,
+        default=3,
         help="Number of FAISS seed documents to activate.",
     )
     parser.add_argument(
         "--graph-weight",
         type=float,
-        default=0.3,
+        default=0.05,
         help="How strongly graph neighbours affect final ranking.",
     )
     parser.add_argument(
@@ -121,9 +121,9 @@ def main() -> None:
         help="Update and save the agent graph after retrieval.",
     )
     parser.add_argument(
-        "--disable-pruning",
+        "--enable-pruning",
         action="store_true",
-        help="Skip pruning during adaptive graph updates.",
+        help="Enable pruning during adaptive graph updates.",
     )
 
     args = parser.parse_args()
@@ -131,7 +131,10 @@ def main() -> None:
     update_summary = None
 
     if args.adaptive:
-        update_config = GraphUpdateConfig(enable_pruning=not args.disable_pruning)
+        update_config = GraphUpdateConfig(
+            enable_pruning=args.enable_pruning,
+            update_k=3,
+        )
         results, latency_ms, update_summary = adaptive_search(
             query=args.query,
             top_k=args.top_k,

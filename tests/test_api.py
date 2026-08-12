@@ -151,6 +151,20 @@ def test_search_returns_results_and_forwards_arguments(api_client) -> None:
     assert fake_runtime.search_arguments == request_body
 
 
+def test_search_uses_selected_retrieval_defaults(api_client) -> None:
+    client, fake_runtime = api_client
+
+    response = client.post("/search", json={"query": "example query"})
+
+    assert response.status_code == 200
+    assert fake_runtime.search_arguments == {
+        "query": "example query",
+        "top_k": 10,
+        "seed_k": 3,
+        "graph_weight": 0.05,
+    }
+
+
 def test_adaptive_search_returns_update_summary(api_client) -> None:
     client, fake_runtime = api_client
     request_body = {
