@@ -51,6 +51,10 @@ PRUNING_ABLATION_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
 METRIC_NAMES = ["recall_at_5", "recall_at_10", "mrr", "retrieval_latency_ms"]
 
 
+def project_relative_path(path: Path) -> str:
+    return str(path.relative_to(PROJECT_ROOT))
+
+
 def split_queries(
     queries: list[dict],
     seed: int,
@@ -328,10 +332,10 @@ def evaluate_final_seed(
         "validation_query_ids": [row["query_id"] for row in validation_queries],
         "evaluation_query_ids": [row["query_id"] for row in evaluation_queries],
         "paths": {
-            "initial_graph": str(initial_graph_path),
-            "original_adapted_graph": str(original_graph_path),
-            "optimised_adapted_graph": str(optimised_graph_path),
-            "selective_adapted_graph": str(selective_graph_path),
+            "initial_graph": project_relative_path(initial_graph_path),
+            "original_adapted_graph": project_relative_path(original_graph_path),
+            "optimised_adapted_graph": project_relative_path(optimised_graph_path),
+            "selective_adapted_graph": project_relative_path(selective_graph_path),
         },
         "adaptations": {
             "original": original_adaptation,
@@ -574,7 +578,7 @@ def main() -> None:
     if not application_graph_unchanged:
         raise RuntimeError("Evaluation modified the application agent graph")
 
-    results["application_agent_graph"] = str(AGENT_GRAPH_PATH)
+    results["application_agent_graph"] = project_relative_path(AGENT_GRAPH_PATH)
     results["application_graph_unchanged"] = application_graph_unchanged
     save_results(output_path, results)
     print(f"\nApplication graph unchanged: {application_graph_unchanged}")

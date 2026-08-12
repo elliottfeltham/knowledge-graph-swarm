@@ -1,6 +1,12 @@
+from pathlib import Path
+
 import pytest
 
-from run_experiments import aggregate_seed_results, split_queries
+from run_experiments import (
+    aggregate_seed_results,
+    project_relative_path,
+    split_queries,
+)
 
 
 def test_query_split_is_reproducible_and_keeps_sets_separate() -> None:
@@ -43,3 +49,11 @@ def test_seed_results_are_aggregated_with_mean_and_standard_deviation() -> None:
 
     assert aggregate["faiss"]["recall_at_5"]["mean"] == pytest.approx(0.5)
     assert aggregate["faiss"]["recall_at_5"]["standard_deviation"] == pytest.approx(0.1)
+
+
+def test_result_paths_are_saved_relative_to_the_project() -> None:
+    path = project_relative_path(
+        Path(__file__).resolve().parents[1] / "results" / "example.json"
+    )
+
+    assert path == "results/example.json"
