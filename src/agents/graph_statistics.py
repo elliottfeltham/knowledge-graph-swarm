@@ -33,7 +33,6 @@ def calculate_graph_statistics(agents: dict[str, DocumentAgent]) -> dict:
         "max_edge_weight": max(edge_weights) if edge_weights else 0.0,
     }
 
-
 def calculate_graph_deltas(before_stats: dict, after_stats: dict) -> dict:
     return {
         "agents": after_stats["agents"] - before_stats["agents"],
@@ -42,58 +41,4 @@ def calculate_graph_deltas(before_stats: dict, after_stats: dict) -> dict:
         "average_edge_weight": after_stats["average_edge_weight"] - before_stats["average_edge_weight"],
         "min_edge_weight": after_stats["min_edge_weight"] - before_stats["min_edge_weight"],
         "max_edge_weight": after_stats["max_edge_weight"] - before_stats["max_edge_weight"],
-    }
-
-
-def compare_edge_snapshots(
-    before_snapshot: dict[tuple[str, str], float],
-    after_snapshot: dict[tuple[str, str], float],
-    changed_edge_limit: int,
-) -> dict:
-    new_edges = 0
-    removed_edges = 0
-    strengthened_edges = 0
-    weakened_edges = 0
-    changed_edges = []
-
-    edge_keys = set(before_snapshot) | set(after_snapshot)
-
-    for source_id, target_id in edge_keys:
-        edge_key = (source_id, target_id)
-        before_weight = before_snapshot.get(edge_key, 0.0)
-        after_weight = after_snapshot.get(edge_key, 0.0)
-        weight_delta = after_weight - before_weight
-
-        if edge_key not in before_snapshot:
-            new_edges += 1
-        elif edge_key not in after_snapshot:
-            removed_edges += 1
-        elif weight_delta > 0:
-            strengthened_edges += 1
-        elif weight_delta < 0:
-            weakened_edges += 1
-
-        if weight_delta != 0:
-            changed_edges.append(
-                {
-                    "source_id": source_id,
-                    "target_id": target_id,
-                    "before_weight": before_weight,
-                    "after_weight": after_weight,
-                    "delta": weight_delta,
-                }
-            )
-
-    top_changed_edges = sorted(
-        changed_edges,
-        key=lambda edge: abs(edge["delta"]),
-        reverse=True,
-    )[:changed_edge_limit]
-
-    return {
-        "new_edges": new_edges,
-        "removed_edges": removed_edges,
-        "strengthened_edges": strengthened_edges,
-        "weakened_edges": weakened_edges,
-        "top_changed_edges": top_changed_edges,
     }

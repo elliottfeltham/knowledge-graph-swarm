@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import faiss
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from agents import DocumentAgent, GraphUpdateConfig, load_agents, save_agents
@@ -26,7 +25,6 @@ from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrie
 @dataclass
 class AgentGraphRuntime:
     documents: dict[str, dict]
-    embeddings: np.ndarray
     document_ids: list[str]
     index: faiss.Index
     model: SentenceTransformer
@@ -59,7 +57,6 @@ class AgentGraphRuntime:
 
         return cls(
             documents=documents,
-            embeddings=embeddings,
             document_ids=document_ids,
             index=index,
             model=model,
@@ -173,7 +170,6 @@ class AgentGraphRuntime:
                         "source": source_id,
                         "target": target_id,
                         "weight": edge.weight,
-                        "activation_count": edge.activation_count,
                     }
                 )
                 added_edges.add(edge_key)

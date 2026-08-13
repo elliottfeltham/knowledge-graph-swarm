@@ -190,7 +190,6 @@ describe("GraphWorkspace", () => {
           source: "document-1",
           target: "document-2",
           weight: 0.2,
-          activation_count: 0,
         },
       ],
       total_nodes: 2,
@@ -235,7 +234,6 @@ describe("GraphWorkspace", () => {
         source: "document-1",
         target: `document-${index + 2}`,
         weight: index / 10_001,
-        activation_count: 0,
       })),
       total_nodes: 1,
       total_edges: 10_001,
@@ -390,10 +388,12 @@ describe("GraphWorkspace", () => {
     expect(await screen.findByLabelText("Graph animation legend")).toHaveTextContent(
       "Retrieved document",
     );
-    expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
-      "data-animation-active",
-      "true",
-    );
+    await waitFor(() => {
+      expect(screen.getByTestId("graph-canvas")).toHaveAttribute(
+        "data-animation-active",
+        "true",
+      );
+    });
   });
 
   it("passes adaptive edge changes to the graph animation", async () => {

@@ -70,7 +70,6 @@ interface GraphCanvasNode extends GraphNode, SimulationNode {}
 interface AnimatedGraphEdge extends GraphEdge {
   animationChangeType?: GraphEdgeChangeType;
   edgeKey: string;
-  temporary?: boolean;
 }
 
 const GRAPH_ANIMATION_DURATION_MS = 3_000;
@@ -171,10 +170,8 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
             source: update.source,
             target: update.target,
             weight: update.previous_weight,
-            activation_count: 0,
             edgeKey,
             animationChangeType: "pruned",
-            temporary: true,
           });
         }
       }

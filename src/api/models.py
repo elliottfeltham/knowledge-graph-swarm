@@ -68,7 +68,6 @@ class GraphEdge(BaseModel):
     source: str
     target: str
     weight: float
-    activation_count: int
 
 
 class GraphResponse(BaseModel):

@@ -6,20 +6,13 @@ from dataclasses import dataclass, field
 @dataclass
 class AgentEdge:
     weight: float
-    activation_count: int = 0
 
     def to_dict(self) -> dict:
-        return {
-            "weight": self.weight,
-            "activation_count": self.activation_count,
-        }
+        return {"weight": self.weight}
 
     @classmethod
     def from_dict(cls, data: dict) -> "AgentEdge":
-        return cls(
-            weight=float(data["weight"]),
-            activation_count=int(data.get("activation_count", 0)),
-        )
+        return cls(weight=float(data["weight"]))
 
 
 @dataclass

@@ -5,15 +5,11 @@ from pathlib import Path
 import faiss
 import numpy as np
 
-from agents import DocumentAgent, GraphUpdateConfig, load_agents
+from agents import DocumentAgent, GraphUpdateConfig
 from common import PROJECT_ROOT
 
 
 AGENT_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "document_agents.jsonl"
-
-
-def load_agent_graph(path: Path = AGENT_GRAPH_PATH) -> dict[str, DocumentAgent]:
-    return load_agents(path)
 
 
 def calculate_neighbour_activation(

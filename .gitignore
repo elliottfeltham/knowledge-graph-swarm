@@ -15,10 +15,8 @@ data/embeddings/*
 results/*
 
 # Keep folder structure
-!data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/embeddings/.gitkeep
-!results/.gitkeep
 
 # Keep final evaluation outputs
 !results/main_evaluation.json

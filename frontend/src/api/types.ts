@@ -76,7 +76,6 @@ export interface GraphEdge {
   source: string;
   target: string;
   weight: number;
-  activation_count: number;
 }
 
 export interface GraphResponse {

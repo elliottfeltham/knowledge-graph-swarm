@@ -19,8 +19,9 @@ STATIC_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "static_graph_edges.js
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
-"""Reads the JSONL file and returns each row as a dictionary in a list."""
+
 def read_jsonl(path: Path) -> list[dict]:
+    """Read a JSONL file into a list of dictionaries."""
     rows = []
 
     with open(path, "r", encoding="utf-8") as file:
@@ -30,19 +31,18 @@ def read_jsonl(path: Path) -> list[dict]:
 
     return rows
 
-"""Builds a dictionary from document IDs to their corresponding document data."""
 def load_documents() -> dict[str, dict]:
+    """Load processed documents indexed by document ID."""
     documents = read_jsonl(DOCUMENTS_PATH)
     return {document["doc_id"]: document for document in documents}
 
 
-"""Loads the queries from the JSONL file."""
 def load_queries() -> list[dict]:
     return read_jsonl(QUERIES_PATH)
 
 
-"""Loads the query relevance judgments from the JSONL file."""
 def load_qrels() -> dict[str, set[str]]:
+    """Load relevant document IDs for each query."""
     qrels = defaultdict(set)
 
     for row in read_jsonl(QRELS_PATH):
@@ -50,8 +50,8 @@ def load_qrels() -> dict[str, set[str]]:
 
     return qrels
 
-"""Loads the embeddings from a numpy file and their corresponding document IDs from a JSON file."""
 def load_embeddings() -> tuple[np.ndarray, list[str]]:
+    """Load document embeddings and their corresponding IDs."""
     embeddings = np.load(EMBEDDINGS_PATH).astype("float32")
 
     with open(IDS_PATH, "r", encoding="utf-8") as file:
@@ -80,7 +80,6 @@ def load_query_embeddings() -> tuple[np.ndarray, list[str]]:
 
     return embeddings, query_ids
 
-"""Builds a FAISS index from the provided embeddings."""
 def build_faiss_index(embeddings: np.ndarray) -> faiss.Index:
     embedding_dimensions = embeddings.shape[1]
 
@@ -90,8 +89,8 @@ def build_faiss_index(embeddings: np.ndarray) -> faiss.Index:
     return index
 
 
-"""Loads the static graph from the JSONL file."""
 def load_static_graph() -> dict[str, dict[str, float]]:
+    """Load the undirected static graph as an adjacency dictionary."""
     graph = defaultdict(dict)
 
     for row in read_jsonl(STATIC_GRAPH_PATH):
@@ -104,11 +103,10 @@ def load_static_graph() -> dict[str, dict[str, float]]:
 
     return graph
 
-"""Encodes a query using the provided model."""
 def encode_query(model, query: str) -> np.ndarray:
     return model.encode([query], normalize_embeddings=True).astype("float32")
 
-"""Retrieves documents using the FAISS index based on the query embedding."""
+
 def faiss_retrieve(
     index: faiss.Index,
     query_embedding: np.ndarray,
@@ -124,7 +122,6 @@ def faiss_retrieve(
 
     return retrieved
 
-"""Retrieves documents using the static graph based on the query embedding."""
 def static_graph_retrieve(
     index: faiss.Index,
     query_embedding: np.ndarray,
@@ -157,9 +154,6 @@ def static_graph_retrieve(
     return [(doc_id, float(score)) for doc_id, score in ranked_doc_ids[:top_k]]
 
 
-# Evaluation Metrics
-
-"""Calculates the recall at k for a single query."""
 def recall_at_k(retrieved_doc_ids: list[str], relevant_doc_ids: set[str], k: int) -> float:
     if not relevant_doc_ids:
         return 0.0
@@ -170,7 +164,6 @@ def recall_at_k(retrieved_doc_ids: list[str], relevant_doc_ids: set[str], k: int
     return hits / len(relevant_doc_ids)
 
 
-"""Calculates the mean reciprocal rank for a single query."""
 def mean_reciprocal_rank(retrieved_doc_ids: list[str], relevant_doc_ids: set[str]) -> float:
     for rank, doc_id in enumerate(retrieved_doc_ids, start=1):
         if doc_id in relevant_doc_ids:
@@ -178,7 +171,6 @@ def mean_reciprocal_rank(retrieved_doc_ids: list[str], relevant_doc_ids: set[str
 
     return 0.0
 
-"""Calculates the average of a list of float values."""
 def average(values: list[float]) -> float:
     if not values:
         return 0.0
