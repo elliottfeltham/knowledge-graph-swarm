@@ -8,6 +8,8 @@ class SearchRequest(BaseModel):
     top_k: int = Field(default=10, ge=1, le=100)
     seed_k: int = Field(default=3, ge=1, le=100)
     graph_weight: float = Field(default=0.05, ge=0, le=1)
+    update_k: int = Field(default=3, ge=2, le=100)
+    enable_pruning: bool = False
 
     @field_validator("query")
     @classmethod
@@ -42,6 +44,7 @@ class GraphEdgeUpdate(BaseModel):
 
 class GraphUpdateSummary(BaseModel):
     retrieved_documents: int
+    updated_documents: int
     strengthened_edges: int
     created_edges: int
     pruned_edges: int

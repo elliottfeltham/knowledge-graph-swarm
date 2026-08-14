@@ -240,7 +240,7 @@
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 10px;
   padding-top: 12px;
 }
@@ -268,6 +268,10 @@
 .settings-grid input:focus {
   border-color: #5aaeb3;
   box-shadow: 0 0 0 2px rgb(90 174 179 / 16%);
+}
+
+.pruning-control {
+  margin-top: 12px;
 }
 
 .search-error {

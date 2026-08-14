@@ -8,6 +8,8 @@ export interface SearchRequest {
   top_k?: number;
   seed_k?: number;
   graph_weight?: number;
+  update_k?: number;
+  enable_pruning?: boolean;
 }
 
 export interface SearchResult {
@@ -36,6 +38,7 @@ export interface GraphEdgeUpdate {
 
 export interface GraphUpdateSummary {
   retrieved_documents: number;
+  updated_documents: number;
   strengthened_edges: number;
   created_edges: number;
   pruned_edges: number;

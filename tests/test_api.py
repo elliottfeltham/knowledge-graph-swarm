@@ -57,15 +57,25 @@ class FakeAgentGraphRuntime:
         }
         return [SEARCH_RESULT], 12.5
 
-    def adaptive_search(self, query: str, top_k: int, seed_k: int, graph_weight: float):
+    def adaptive_search(
+        self,
+        query: str,
+        top_k: int,
+        seed_k: int,
+        graph_weight: float,
+        update_config,
+    ):
         self.adaptive_search_arguments = {
             "query": query,
             "top_k": top_k,
             "seed_k": seed_k,
             "graph_weight": graph_weight,
+            "update_k": update_config.update_k,
+            "enable_pruning": update_config.enable_pruning,
         }
         update_summary = {
             "retrieved_documents": 1,
+            "updated_documents": 1,
             "strengthened_edges": 1,
             "created_edges": 0,
             "pruned_edges": 0,
@@ -172,6 +182,8 @@ def test_adaptive_search_returns_update_summary(api_client) -> None:
         "top_k": 6,
         "seed_k": 3,
         "graph_weight": 0.4,
+        "update_k": 6,
+        "enable_pruning": True,
     }
 
     response = client.post("/adaptive-search", json=request_body)
@@ -184,6 +196,7 @@ def test_adaptive_search_returns_update_summary(api_client) -> None:
         "results": [SEARCH_RESULT],
         "update_summary": {
             "retrieved_documents": 1,
+            "updated_documents": 1,
             "strengthened_edges": 1,
             "created_edges": 0,
             "pruned_edges": 0,
@@ -316,6 +329,8 @@ def test_reset_graph_returns_rebuilt_statistics(api_client) -> None:
         {"query": "example query", "top_k": 101},
         {"query": "example query", "seed_k": 101},
         {"query": "example query", "graph_weight": 1.1},
+        {"query": "example query", "update_k": 1},
+        {"query": "example query", "update_k": 101},
     ],
 )
 def test_search_rejects_invalid_requests(api_client, request_body) -> None:

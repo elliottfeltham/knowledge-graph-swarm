@@ -161,6 +161,7 @@ def test_adaptive_search_uses_selective_updates_by_default() -> None:
     _, _, summary = runtime.adaptive_search("example query")
 
     assert summary["retrieved_documents"] == 4
+    assert summary["updated_documents"] == 3
     assert summary["strengthened_edges"] == 3
     assert agents["d"].edges == {}
 

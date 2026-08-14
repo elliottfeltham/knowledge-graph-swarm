@@ -7,7 +7,6 @@ import {
   Search,
   SlidersHorizontal,
   X,
-  Zap,
 } from "lucide-react";
 
 import {
@@ -51,6 +50,8 @@ function SearchPanel({
   const [topK, setTopK] = useState(10);
   const [seedK, setSeedK] = useState(3);
   const [graphWeight, setGraphWeight] = useState(0.05);
+  const [updateK, setUpdateK] = useState(3);
+  const [pruningEnabled, setPruningEnabled] = useState(false);
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [lastSearchSettings, setLastSearchSettings] = useState<{
     topK: number;
@@ -93,7 +94,11 @@ function SearchPanel({
 
     try {
       const nextResponse = adaptive
-        ? await adaptiveSearchDocuments(request)
+        ? await adaptiveSearchDocuments({
+            ...request,
+            update_k: updateK,
+            enable_pruning: pruningEnabled,
+          })
         : await searchDocuments(request);
 
       setResponse(nextResponse);
@@ -208,7 +213,13 @@ function SearchPanel({
                   max="100"
                   required
                   value={topK}
-                  onChange={(event) => setTopK(Number(event.target.value))}
+                  onChange={(event) => {
+                    const nextTopK = Number(event.target.value);
+                    setTopK(nextTopK);
+                    setUpdateK((current) =>
+                      Math.min(current, Math.max(2, nextTopK)),
+                    );
+                  }}
                 />
               </label>
               <label>
@@ -236,7 +247,39 @@ function SearchPanel({
                   }
                 />
               </label>
+              {adaptive && (
+                <label>
+                  <span title="Use 3 for selective strengthening or 10 for the original setup">
+                    Documents updated
+                  </span>
+                  <input
+                    type="number"
+                    min="2"
+                    max={Math.max(2, topK)}
+                    required
+                    value={updateK}
+                    onChange={(event) =>
+                      setUpdateK(Number(event.target.value))
+                    }
+                  />
+                </label>
+              )}
             </div>
+            {adaptive && (
+              <label className="toggle-control pruning-control">
+                <input
+                  type="checkbox"
+                  checked={pruningEnabled}
+                  onChange={(event) =>
+                    setPruningEnabled(event.target.checked)
+                  }
+                />
+                <span className="toggle-track" aria-hidden="true">
+                  <span className="toggle-thumb" />
+                </span>
+                <span>Enable pruning</span>
+              </label>
+            )}
           </details>
         </div>
       </form>
@@ -255,13 +298,15 @@ function SearchPanel({
           role="status"
         >
           <div className="update-heading">
-            <Zap size={15} aria-hidden="true" />
             <span>Graph updated</span>
           </div>
           <dl>
             <div>
-              <dt>Documents</dt>
-              <dd>{updateSummary.retrieved_documents}</dd>
+              <dt>Updated</dt>
+              <dd>
+                {updateSummary.updated_documents ??
+                  updateSummary.retrieved_documents}
+              </dd>
             </div>
             <div>
               <dt>Strengthened</dt>

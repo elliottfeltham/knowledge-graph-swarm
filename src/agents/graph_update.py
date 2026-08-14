@@ -163,9 +163,15 @@ def update_graph_after_retrieval(
         update["change_type"] == "created"
         for update in strengthened_updates
     )
+    unique_retrieved_documents = len(dict.fromkeys(retrieved_doc_ids))
+    updated_documents = unique_retrieved_documents
+
+    if config.update_k is not None:
+        updated_documents = min(updated_documents, config.update_k)
 
     return {
         "retrieved_documents": len(retrieved_doc_ids),
+        "updated_documents": updated_documents,
         "strengthened_edges": len(strengthened_edges),
         "created_edges": created_edges,
         "pruned_edges": len(pruned_updates),

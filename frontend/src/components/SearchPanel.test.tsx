@@ -94,6 +94,7 @@ describe("SearchPanel", () => {
       adaptive: true,
       update_summary: {
         retrieved_documents: 1,
+        updated_documents: 10,
         strengthened_edges: 3,
         created_edges: 1,
         pruned_edges: 0,
@@ -106,13 +107,27 @@ describe("SearchPanel", () => {
       target: { value: "adaptive query" },
     });
     fireEvent.click(screen.getByRole("checkbox", { name: "Adaptive search" }));
+    fireEvent.click(screen.getByText("Retrieval settings"));
+    fireEvent.change(screen.getByLabelText("Documents updated"), {
+      target: { value: "10" },
+    });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Enable pruning" }));
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
     expect(await screen.findByText("Graph updated")).toBeInTheDocument();
     const updateSummary = screen.getByLabelText("Graph update summary");
+    expect(within(updateSummary).getByText("Updated")).toBeInTheDocument();
+    expect(within(updateSummary).getByText("10")).toBeInTheDocument();
     expect(within(updateSummary).getByText("Created")).toBeInTheDocument();
-    expect(within(updateSummary).getAllByText("1")).toHaveLength(2);
-    expect(adaptiveSearchDocuments).toHaveBeenCalledOnce();
+    expect(within(updateSummary).getByText("1")).toBeInTheDocument();
+    expect(adaptiveSearchDocuments).toHaveBeenCalledWith({
+      query: "adaptive query",
+      top_k: 10,
+      seed_k: 3,
+      graph_weight: 0.05,
+      update_k: 10,
+      enable_pruning: true,
+    });
     expect(searchDocuments).not.toHaveBeenCalled();
   });
 

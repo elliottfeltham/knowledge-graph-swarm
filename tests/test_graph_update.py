@@ -133,6 +133,7 @@ def test_update_k_limits_strengthening(
     )
 
     assert summary["retrieved_documents"] == 10
+    assert summary["updated_documents"] == (update_k or 10)
     assert summary["strengthened_edges"] == expected_edges
     assert summary["created_edges"] == expected_edges
 

@@ -11,6 +11,7 @@ from api.models import (
     SearchResponse,
     SubgraphRequest,
 )
+from agents.graph_update import GraphUpdateConfig
 from retrieval.agent_graph_runtime import AgentGraphRuntime
 
 
@@ -81,6 +82,10 @@ def adaptive_search(request: SearchRequest) -> AdaptiveSearchResponse:
         top_k=request.top_k,
         seed_k=request.seed_k,
         graph_weight=request.graph_weight,
+        update_config=GraphUpdateConfig(
+            update_k=request.update_k,
+            enable_pruning=request.enable_pruning,
+        ),
     )
 
     return AdaptiveSearchResponse(

@@ -430,6 +430,7 @@ describe("GraphWorkspace", () => {
         ],
         update_summary: {
           retrieved_documents: 2,
+          updated_documents: 2,
           strengthened_edges: 1,
           created_edges: 1,
           pruned_edges: 0,
