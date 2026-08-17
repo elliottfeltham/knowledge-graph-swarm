@@ -29,8 +29,7 @@ SYSTEM_LABELS = {
     "original_initial_agent_graph": "Original initial graph",
     "original_adapted_agent_graph": "Original adapted graph",
     "optimised_initial_agent_graph": "Optimised initial graph",
-    "optimised_adapted_agent_graph": "Optimised adapted graph (update_k=10)",
-    "selective_adapted_agent_graph": "Selective adapted graph (update_k=3)",
+    "optimised_adapted_agent_graph": "Optimised adapted graph",
 }
 
 METRICS = [
@@ -410,10 +409,9 @@ def save_adaptation_comparison(results: dict, path: Path) -> None:
         "original_adapted_agent_graph",
         "optimised_initial_agent_graph",
         "optimised_adapted_agent_graph",
-        "selective_adapted_agent_graph",
     ]
     x_positions = list(range(len(METRICS)))
-    bar_width = 0.16
+    bar_width = 0.18
     figure, axis = plt.subplots(figsize=(10, 6.2))
 
     for system_index, system_name in enumerate(systems):
@@ -426,7 +424,7 @@ def save_adaptation_comparison(results: dict, path: Path) -> None:
             for metric_name, _ in METRICS
         ]
         positions = [
-            position + (system_index - 2) * bar_width
+            position + (system_index - 1.5) * bar_width
             for position in x_positions
         ]
         axis.bar(

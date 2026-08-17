@@ -17,8 +17,3 @@ OPTIMISED_CONFIG = {
     "strengthen_amount": STRENGTHEN_AMOUNT,
     "decay_rate": DECAY_RATE,
 }
-
-SELECTIVE_CONFIG = {
-    **OPTIMISED_CONFIG,
-    "update_k": 3,
-}

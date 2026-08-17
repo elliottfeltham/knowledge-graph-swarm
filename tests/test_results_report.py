@@ -34,7 +34,7 @@ def test_build_retrieval_rows_formats_aggregate_results() -> None:
     assert rows[0]["system"] == "FAISS"
     assert rows[0]["recall_at_10_mean"] == 0.8
     assert rows[0]["mrr_std"] == 0.1
-    assert rows[1]["system"] == "Optimised adapted graph (update_k=10)"
+    assert rows[1]["system"] == "Optimised adapted graph"
 
 
 def test_build_pruning_rows_averages_graph_statistics() -> None:

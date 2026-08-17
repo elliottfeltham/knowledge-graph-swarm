@@ -75,7 +75,7 @@ Standard search retrieves documents without changing the graph.
 Adaptive search saves changes to relationships between the retrieved document agents.
 The Graph Statistics panel shows the current graph structure and can reset it to the original nearest-neighbour graph after testing.
 
-The interface uses the configuration selected during validation: three FAISS seeds, a graph weight of `0.05`, selective strengthening of the top three retrieved documents, and pruning disabled.
+The interface uses the configuration selected during validation: three FAISS seed documents, a graph weight of `0.05`, strengthening of the top three retrieved documents by `0.01`, a decay rate of `0.995`, and pruning disabled. The initial graph connects each document to its five nearest neighbours with an edge-weight scale of `0.2`.
 
 The focused graph is intended for exploring local document relationships. The full graph shows the complete corpus in an observation-only view.
 
@@ -121,28 +121,39 @@ PYTHONPATH=src python src/evaluation/create_results_report.py
 
 Evaluation uses held-out queries and copied graph files. It does not modify the graph used by the interactive application.
 
-The parameter and selective-strengthening experiments can be reproduced separately:
+The parameter searches can be reproduced separately:
 
 ```text
+PYTHONPATH=src python src/evaluation/tune_graph_initialisation.py
+PYTHONPATH=src python src/evaluation/tune_graph_updates.py
 PYTHONPATH=src python src/evaluation/tune_retrieval_parameters.py
 PYTHONPATH=src python src/evaluation/evaluate_selective_strengthening.py
 ```
+
+These searches use the adaptation and validation queries to select the graph
+initialisation, update and retrieval settings. The final 300 evaluation queries
+remain unseen until the final comparison is run.
 
 ## Final Results
 
 The final comparison evaluates 900 query runs across the three seeds. Values below are the mean scores across those seeds.
 
-| System                                  |   Recall@5 |  Recall@10 |        MRR |
-| --------------------------------------- | ---------: | ---------: | ---------: |
-| FAISS                                   |     0.7322 |     0.8106 |     0.8943 |
-| Static graph                            |     0.7322 |     0.8217 |     0.8421 |
-| Original initial graph                  |     0.7322 |     0.8217 |     0.8836 |
-| Original adapted graph                  |     0.7322 |     0.8133 |     0.8921 |
-| Optimised initial graph                 | **0.7483** | **0.8244** |     0.8951 |
-| Optimised adapted graph (`update_k=10`) |     0.7406 |     0.8228 |     0.8952 |
-| Selective adapted graph (`update_k=3`)  |     0.7478 | **0.8244** | **0.8956** |
+| System                  |   Recall@5 |  Recall@10 |        MRR |
+| ----------------------- | ---------: | ---------: | ---------: |
+| FAISS                   |     0.7322 |     0.8106 |     0.8943 |
+| Static graph            |     0.7322 |     0.8217 |     0.8421 |
+| Original initial graph  |     0.7322 |     0.8217 |     0.8836 |
+| Original adapted graph  |     0.7322 |     0.8133 |     0.8921 |
+| Optimised initial graph | **0.7483** | **0.8244** |     0.8951 |
+| Optimised adapted graph | **0.7483** | **0.8244** | **0.8957** |
 
-Parameter optimisation produced most of the improvement over FAISS. Strengthening relationships across all ten retrieved documents reduced recall, while selective strengthening of the top three retrieved documents only preserved the optimised graph's Recall@10 and produced a small improvement in MRR. The results therefore support graph-assisted retrieval, while showing that the current adaptation method provides only a marginal additional gain.
+The optimised adapted graph achieved the strongest overall result. It improved
+Recall@5 by 0.0161 and Recall@10 by 0.0138 over FAISS, while also producing a
+small MRR improvement. Most of the gain came from the optimised graph and
+retrieval settings. Adaptation preserved those recall scores and slightly
+improved MRR, whereas the original update configuration reduced Recall@10.
+This shows that adaptive graph retrieval can improve on FAISS, but that its
+benefit depends on controlling how strongly and how widely the graph is updated.
 
 ## Running The Tests
 
@@ -178,4 +189,4 @@ FastAPI's interactive documentation is available at `http://127.0.0.1:8000/docs`
 
 The current implementation uses a prepared subset of HotpotQA. It supports frozen and adaptive retrieval, repeatable comparison with FAISS and a static graph, and interactive graph visualisation. A document ingestion pipeline and evaluation on additional datasets are possible future extensions.
 
-Generated documents, embeddings, graph files and experiment results are written under `data/` and `results/`. These files are ignored by Git because they can be recreated from the preparation and evaluation scripts.
+Generated documents, embeddings and working graph files under `data/` are ignored by Git because they can be recreated. The final evaluation results and report figures under `results/` are included in the repository so they can be inspected without rerunning the experiment. Running the evaluation recreates these files locally.
