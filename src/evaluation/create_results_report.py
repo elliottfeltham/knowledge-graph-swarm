@@ -18,6 +18,8 @@ PARAMETER_TUNING_CSV_PATH = REPORT_DIRECTORY / "parameter_tuning.csv"
 PARAMETER_TUNING_FIGURE_PATH = REPORT_DIRECTORY / "parameter_tuning.png"
 SELECTIVE_STRENGTHENING_CSV_PATH = REPORT_DIRECTORY / "selective_strengthening.csv"
 SELECTIVE_STRENGTHENING_FIGURE_PATH = REPORT_DIRECTORY / "selective_strengthening.png"
+GRAPH_INITIALISATION_CSV_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.csv"
+GRAPH_INITIALISATION_FIGURE_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.png"
 
 SYSTEM_LABELS = {
     "faiss": "FAISS",
@@ -196,6 +198,67 @@ def save_parameter_tuning_report(results: dict) -> None:
     axes[0].legend(frameon=False, loc="lower right")
     figure.tight_layout()
     figure.savefig(PARAMETER_TUNING_FIGURE_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
+
+def save_graph_initialisation_report(results: dict) -> None:
+    configurations = results["configurations"]
+    rows = [
+        {
+            "neighbours_per_document": configuration["neighbours_per_document"],
+            "initial_weight_scale": configuration["initial_weight_scale"],
+            **configuration["initial_graph_statistics"],
+            "initial_recall_at_5": configuration["initial"]["recall_at_5"],
+            "initial_recall_at_10": configuration["initial"]["recall_at_10"],
+            "initial_mrr": configuration["initial"]["mrr"],
+            "adapted_recall_at_5": configuration["adapted"]["recall_at_5"],
+            "adapted_recall_at_10": configuration["adapted"]["recall_at_10"],
+            "adapted_mrr": configuration["adapted"]["mrr"],
+        }
+        for configuration in configurations
+    ]
+
+    save_csv(GRAPH_INITIALISATION_CSV_PATH, rows)
+    configure_plot_style()
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+
+    for neighbour_count in sorted(
+        {row["neighbours_per_document"] for row in configurations}
+    ):
+        matching = sorted(
+            (
+                row
+                for row in configurations
+                if row["neighbours_per_document"] == neighbour_count
+            ),
+            key=lambda row: row["initial_weight_scale"],
+        )
+        scales = [row["initial_weight_scale"] for row in matching]
+
+        for axis, metric, label in (
+            (axes[0], "recall_at_10", "Recall@10"),
+            (axes[1], "mrr", "MRR"),
+        ):
+            axis.plot(
+                scales,
+                [row["adapted"][metric] for row in matching],
+                marker="o",
+                label=f"{neighbour_count} neighbours",
+            )
+            axis.set(
+                title=f"Adapted graph {label}",
+                xlabel="Initial weight scale",
+                ylabel=label,
+            )
+            axis.grid(alpha=0.2)
+
+    axes[0].legend(frameon=False)
+    figure.tight_layout()
+    figure.savefig(
+        GRAPH_INITIALISATION_FIGURE_PATH,
+        dpi=200,
+        bbox_inches="tight",
+    )
     plt.close(figure)
 
 
