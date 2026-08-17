@@ -15,6 +15,7 @@ from evaluation.create_results_report import save_parameter_tuning_report
 from evaluation.experiment_config import (
     DECAY_RATE,
     DEFAULT_SEEDS,
+    OPTIMISED_CONFIG,
     STRENGTHEN_AMOUNT,
 )
 from evaluation.experiment_helpers import (
@@ -135,7 +136,7 @@ def main() -> None:
                     strengthen_amount=STRENGTHEN_AMOUNT,
                     decay_rate=DECAY_RATE,
                     enable_pruning=False,
-                    update_k=args.top_k,
+                    update_k=OPTIMISED_CONFIG["update_k"],
                 ),
             )
             validation_faiss = evaluation["faiss"]
@@ -169,7 +170,7 @@ def main() -> None:
             "pruning_enabled": False,
             "strengthen_amount": STRENGTHEN_AMOUNT,
             "decay_rate": DECAY_RATE,
-            "update_k": args.top_k,
+            "update_k": OPTIMISED_CONFIG["update_k"],
         },
         "selection_rule": "Highest validation Recall@10, then MRR, then lower graph weight.",
         "application_graph_unchanged": application_graph_unchanged,

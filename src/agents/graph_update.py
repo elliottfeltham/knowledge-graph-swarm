@@ -6,7 +6,7 @@ from agents.document_agent import DocumentAgent
 @dataclass
 class GraphUpdateConfig:
     strengthen_amount: float = 0.01
-    decay_rate: float = 0.995
+    decay_rate: float = 1.0
     prune_threshold: float = 0.05
     max_edge_weight: float = 1.0
     enable_pruning: bool = False

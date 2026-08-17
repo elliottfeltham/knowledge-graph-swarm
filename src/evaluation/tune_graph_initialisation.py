@@ -2,6 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
+from agents import GraphUpdateConfig
 from agents.graph_statistics import calculate_graph_statistics
 from common import (
     PROJECT_ROOT,
@@ -12,7 +13,7 @@ from common import (
     load_query_embeddings,
 )
 from evaluation.create_results_report import save_graph_initialisation_report
-from evaluation.experiment_config import DEFAULT_SEEDS
+from evaluation.experiment_config import DEFAULT_SEEDS, OPTIMISED_CONFIG
 from evaluation.experiment_helpers import (
     EvaluationContext,
     evaluate_configuration,
@@ -143,9 +144,14 @@ def main() -> None:
             context=context,
             query_splits=query_splits,
             query_group=1,
-            seed_k=3,
-            graph_weight=0.05,
-            update_k=3,
+            seed_k=OPTIMISED_CONFIG["seed_k"],
+            graph_weight=OPTIMISED_CONFIG["graph_weight"],
+            update_config=GraphUpdateConfig(
+                strengthen_amount=OPTIMISED_CONFIG["strengthen_amount"],
+                decay_rate=OPTIMISED_CONFIG["decay_rate"],
+                enable_pruning=False,
+                update_k=OPTIMISED_CONFIG["update_k"],
+            ),
         )
         validation_faiss = evaluation["faiss"]
         configurations.append(
@@ -175,9 +181,11 @@ def main() -> None:
             "validation_queries": args.validation_queries,
             "reserved_evaluation_queries": args.evaluation_queries,
             "top_k": args.top_k,
-            "seed_k": 3,
-            "graph_weight": 0.05,
-            "update_k": 3,
+            "seed_k": OPTIMISED_CONFIG["seed_k"],
+            "graph_weight": OPTIMISED_CONFIG["graph_weight"],
+            "update_k": OPTIMISED_CONFIG["update_k"],
+            "strengthen_amount": OPTIMISED_CONFIG["strengthen_amount"],
+            "decay_rate": OPTIMISED_CONFIG["decay_rate"],
             "neighbour_counts": args.neighbour_counts,
             "initial_weight_scales": args.weight_scales,
             "pruning_enabled": False,

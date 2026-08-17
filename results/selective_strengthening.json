@@ -7,10 +7,12 @@
     ],
     "adaptation_queries": 100,
     "validation_queries": 100,
-    "held_out_evaluation_queries": 300,
+    "reserved_evaluation_queries": 300,
     "top_k": 10,
     "seed_k": 3,
     "graph_weight": 0.05,
+    "strengthen_amount": 0.01,
+    "decay_rate": 1.0,
     "pruning_enabled": false,
     "update_counts": [
       3,
@@ -35,10 +37,10 @@
           "queries_evaluated": 300,
           "recall_at_5": 0.7216666666666667,
           "recall_at_10": 0.815,
-          "mrr": 0.881712962962963,
+          "mrr": 0.8833796296296297,
           "queries_improved": 44,
-          "queries_unchanged": 216,
-          "queries_worsened": 40
+          "queries_unchanged": 217,
+          "queries_worsened": 39
         },
         "adapted": {
           "queries_evaluated": 300,
@@ -61,26 +63,26 @@
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
               "undirected_edges": 17465,
               "average_degree": 7.09382615759545,
-              "average_edge_weight": 0.05379731227496226,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.15719473552777732
+              "average_edge_weight": 0.044014260708313095,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.1052421247959137
             },
             "initial": {
               "queries_evaluated": 100,
               "recall_at_5": 0.745,
               "recall_at_10": 0.815,
-              "mrr": 0.9015277777777778,
+              "mrr": 0.9065277777777778,
               "queries_improved": 12,
-              "queries_unchanged": 70,
-              "queries_worsened": 18
+              "queries_unchanged": 71,
+              "queries_worsened": 17
             },
             "adapted": {
               "queries_evaluated": 100,
@@ -103,17 +105,17 @@
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
               "undirected_edges": 17458,
               "average_degree": 7.090982940698619,
-              "average_edge_weight": 0.05381906122116812,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.18050298574258364
+              "average_edge_weight": 0.04403190876793952,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.1052421247959137
             },
             "initial": {
               "queries_evaluated": 100,
@@ -145,17 +147,17 @@
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
               "undirected_edges": 17455,
               "average_degree": 7.089764419171406,
-              "average_edge_weight": 0.05382817803016249,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.16413577215100314
+              "average_edge_weight": 0.044039476555181215,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.10802363514900208
             },
             "initial": {
               "queries_evaluated": 100,
@@ -174,160 +176,6 @@
               "queries_improved": 18,
               "queries_unchanged": 71,
               "queries_worsened": 11
-            }
-          }
-        ]
-      },
-      "held_out": {
-        "faiss": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7322222222222222,
-          "recall_at_10": 0.8105555555555556,
-          "mrr": 0.894255291005291
-        },
-        "initial": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7483333333333333,
-          "recall_at_10": 0.8244444444444444,
-          "mrr": 0.8951419753086419,
-          "queries_improved": 118,
-          "queries_unchanged": 681,
-          "queries_worsened": 101
-        },
-        "adapted": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7477777777777778,
-          "recall_at_10": 0.8244444444444444,
-          "mrr": 0.895641975308642,
-          "queries_improved": 118,
-          "queries_unchanged": 682,
-          "queries_worsened": 100
-        },
-        "seed_results": [
-          {
-            "seed": 10,
-            "updates": {
-              "strengthened_edges": 300,
-              "created_edges": 139,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 17465,
-              "average_degree": 7.09382615759545,
-              "average_edge_weight": 0.05379731227496226,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.15719473552777732
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7483333333333333,
-              "recall_at_10": 0.8316666666666667,
-              "mrr": 0.8887962962962963,
-              "queries_improved": 40,
-              "queries_unchanged": 228,
-              "queries_worsened": 32
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7466666666666667,
-              "recall_at_10": 0.8316666666666667,
-              "mrr": 0.8887962962962963,
-              "queries_improved": 40,
-              "queries_unchanged": 228,
-              "queries_worsened": 32
-            }
-          },
-          {
-            "seed": 20,
-            "updates": {
-              "strengthened_edges": 300,
-              "created_edges": 132,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 17458,
-              "average_degree": 7.090982940698619,
-              "average_edge_weight": 0.05381906122116812,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.18050298574258364
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7466666666666667,
-              "recall_at_10": 0.825,
-              "mrr": 0.9025648148148148,
-              "queries_improved": 42,
-              "queries_unchanged": 226,
-              "queries_worsened": 32
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7466666666666667,
-              "recall_at_10": 0.825,
-              "mrr": 0.9023981481481481,
-              "queries_improved": 42,
-              "queries_unchanged": 226,
-              "queries_worsened": 32
-            }
-          },
-          {
-            "seed": 30,
-            "updates": {
-              "strengthened_edges": 300,
-              "created_edges": 129,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 17455,
-              "average_degree": 7.089764419171406,
-              "average_edge_weight": 0.05382817803016249,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.16413577215100314
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.75,
-              "recall_at_10": 0.8166666666666667,
-              "mrr": 0.8940648148148148,
-              "queries_improved": 36,
-              "queries_unchanged": 227,
-              "queries_worsened": 37
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.75,
-              "recall_at_10": 0.8166666666666667,
-              "mrr": 0.8957314814814815,
-              "queries_improved": 36,
-              "queries_unchanged": 228,
-              "queries_worsened": 36
             }
           }
         ]
@@ -355,10 +203,10 @@
           "queries_evaluated": 300,
           "recall_at_5": 0.7216666666666667,
           "recall_at_10": 0.815,
-          "mrr": 0.881712962962963,
+          "mrr": 0.8833796296296297,
           "queries_improved": 44,
-          "queries_unchanged": 216,
-          "queries_worsened": 40
+          "queries_unchanged": 217,
+          "queries_worsened": 39
         },
         "adapted": {
           "queries_evaluated": 300,
@@ -374,33 +222,33 @@
             "seed": 10,
             "updates": {
               "strengthened_edges": 1000,
-              "created_edges": 400,
+              "created_edges": 399,
               "pruned_edges": 0
             },
             "graph_before": {
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
-              "undirected_edges": 17726,
-              "average_degree": 7.199837530463038,
-              "average_edge_weight": 0.054569665011415566,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.18001510210359611
+              "undirected_edges": 17725,
+              "average_degree": 7.199431356620634,
+              "average_edge_weight": 0.04376355787140695,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.10686508178710938
             },
             "initial": {
               "queries_evaluated": 100,
               "recall_at_5": 0.745,
               "recall_at_10": 0.815,
-              "mrr": 0.9015277777777778,
+              "mrr": 0.9065277777777778,
               "queries_improved": 12,
-              "queries_unchanged": 70,
-              "queries_worsened": 18
+              "queries_unchanged": 71,
+              "queries_worsened": 17
             },
             "adapted": {
               "queries_evaluated": 100,
@@ -423,17 +271,17 @@
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
               "undirected_edges": 17703,
               "average_degree": 7.190495532087733,
-              "average_edge_weight": 0.054641244402646096,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.18050298574258364
+              "average_edge_weight": 0.043817944036077965,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.1052421247959137
             },
             "initial": {
               "queries_evaluated": 100,
@@ -458,24 +306,24 @@
             "seed": 30,
             "updates": {
               "strengthened_edges": 1000,
-              "created_edges": 386,
+              "created_edges": 387,
               "pruned_edges": 0
             },
             "graph_before": {
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
-              "undirected_edges": 17712,
-              "average_degree": 7.1941510966693745,
-              "average_edge_weight": 0.05461306713783027,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.17108804841077935
+              "undirected_edges": 17713,
+              "average_degree": 7.194557270511779,
+              "average_edge_weight": 0.04379320630444804,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.10857544302940368
             },
             "initial": {
               "queries_evaluated": 100,
@@ -494,160 +342,6 @@
               "queries_improved": 18,
               "queries_unchanged": 71,
               "queries_worsened": 11
-            }
-          }
-        ]
-      },
-      "held_out": {
-        "faiss": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7322222222222222,
-          "recall_at_10": 0.8105555555555556,
-          "mrr": 0.894255291005291
-        },
-        "initial": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7483333333333333,
-          "recall_at_10": 0.8244444444444444,
-          "mrr": 0.8951419753086419,
-          "queries_improved": 118,
-          "queries_unchanged": 681,
-          "queries_worsened": 101
-        },
-        "adapted": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.745,
-          "recall_at_10": 0.8244444444444444,
-          "mrr": 0.8955321869488536,
-          "queries_improved": 118,
-          "queries_unchanged": 682,
-          "queries_worsened": 100
-        },
-        "seed_results": [
-          {
-            "seed": 10,
-            "updates": {
-              "strengthened_edges": 1000,
-              "created_edges": 400,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 17726,
-              "average_degree": 7.199837530463038,
-              "average_edge_weight": 0.054569665011415566,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.18001510210359611
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7483333333333333,
-              "recall_at_10": 0.8316666666666667,
-              "mrr": 0.8887962962962963,
-              "queries_improved": 40,
-              "queries_unchanged": 228,
-              "queries_worsened": 32
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7433333333333333,
-              "recall_at_10": 0.8316666666666667,
-              "mrr": 0.8887962962962963,
-              "queries_improved": 40,
-              "queries_unchanged": 228,
-              "queries_worsened": 32
-            }
-          },
-          {
-            "seed": 20,
-            "updates": {
-              "strengthened_edges": 1000,
-              "created_edges": 377,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 17703,
-              "average_degree": 7.190495532087733,
-              "average_edge_weight": 0.054641244402646096,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.18050298574258364
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7466666666666667,
-              "recall_at_10": 0.825,
-              "mrr": 0.9025648148148148,
-              "queries_improved": 42,
-              "queries_unchanged": 226,
-              "queries_worsened": 32
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7433333333333333,
-              "recall_at_10": 0.825,
-              "mrr": 0.9022076719576719,
-              "queries_improved": 42,
-              "queries_unchanged": 226,
-              "queries_worsened": 32
-            }
-          },
-          {
-            "seed": 30,
-            "updates": {
-              "strengthened_edges": 1000,
-              "created_edges": 386,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 17712,
-              "average_degree": 7.1941510966693745,
-              "average_edge_weight": 0.05461306713783027,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.17108804841077935
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.75,
-              "recall_at_10": 0.8166666666666667,
-              "mrr": 0.8940648148148148,
-              "queries_improved": 36,
-              "queries_unchanged": 227,
-              "queries_worsened": 37
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7483333333333333,
-              "recall_at_10": 0.8166666666666667,
-              "mrr": 0.8955925925925926,
-              "queries_improved": 36,
-              "queries_unchanged": 228,
-              "queries_worsened": 36
             }
           }
         ]
@@ -675,58 +369,58 @@
           "queries_evaluated": 300,
           "recall_at_5": 0.7216666666666667,
           "recall_at_10": 0.815,
-          "mrr": 0.881712962962963,
+          "mrr": 0.8833796296296297,
           "queries_improved": 44,
-          "queries_unchanged": 216,
-          "queries_worsened": 40
+          "queries_unchanged": 217,
+          "queries_worsened": 39
         },
         "adapted": {
           "queries_evaluated": 300,
-          "recall_at_5": 0.7183333333333333,
-          "recall_at_10": 0.8116666666666666,
-          "mrr": 0.8829166666666667,
+          "recall_at_5": 0.7216666666666667,
+          "recall_at_10": 0.8133333333333334,
+          "mrr": 0.8832129629629629,
           "queries_improved": 44,
-          "queries_unchanged": 216,
-          "queries_worsened": 40
+          "queries_unchanged": 217,
+          "queries_worsened": 39
         },
         "seed_results": [
           {
             "seed": 10,
             "updates": {
               "strengthened_edges": 4491,
-              "created_edges": 2798,
+              "created_edges": 2871,
               "pruned_edges": 0
             },
             "graph_before": {
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
-              "undirected_edges": 20124,
-              "average_degree": 8.173842404549147,
-              "average_edge_weight": 0.05492558406415643,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.22333393508454685
+              "undirected_edges": 20197,
+              "average_degree": 8.20349309504468,
+              "average_edge_weight": 0.04013561733280627,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.1152421247959137
             },
             "initial": {
               "queries_evaluated": 100,
               "recall_at_5": 0.745,
               "recall_at_10": 0.815,
-              "mrr": 0.9015277777777778,
+              "mrr": 0.9065277777777778,
               "queries_improved": 12,
-              "queries_unchanged": 70,
-              "queries_worsened": 18
+              "queries_unchanged": 71,
+              "queries_worsened": 17
             },
             "adapted": {
               "queries_evaluated": 100,
-              "recall_at_5": 0.74,
+              "recall_at_5": 0.745,
               "recall_at_10": 0.81,
-              "mrr": 0.9051388888888889,
+              "mrr": 0.9060277777777778,
               "queries_improved": 12,
               "queries_unchanged": 71,
               "queries_worsened": 17
@@ -736,24 +430,24 @@
             "seed": 20,
             "updates": {
               "strengthened_edges": 4474,
-              "created_edges": 2692,
+              "created_edges": 2729,
               "pruned_edges": 0
             },
             "graph_before": {
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
-              "undirected_edges": 20018,
-              "average_degree": 8.130787977254265,
-              "average_edge_weight": 0.05517961139301814,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.20465546703732226
+              "undirected_edges": 20055,
+              "average_degree": 8.145816409423233,
+              "average_edge_weight": 0.04041132202795752,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.11264125823974609
             },
             "initial": {
               "queries_evaluated": 100,
@@ -767,35 +461,35 @@
             "adapted": {
               "queries_evaluated": 100,
               "recall_at_5": 0.69,
-              "recall_at_10": 0.78,
+              "recall_at_10": 0.785,
               "mrr": 0.8327777777777777,
               "queries_improved": 14,
-              "queries_unchanged": 74,
-              "queries_worsened": 12
+              "queries_unchanged": 75,
+              "queries_worsened": 11
             }
           },
           {
             "seed": 30,
             "updates": {
               "strengthened_edges": 4500,
-              "created_edges": 2766,
+              "created_edges": 2800,
               "pruned_edges": 0
             },
             "graph_before": {
               "agents": 4924,
               "undirected_edges": 17326,
               "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
             },
             "graph_after": {
               "agents": 4924,
-              "undirected_edges": 20092,
-              "average_degree": 8.160844841592201,
-              "average_edge_weight": 0.055028242555136025,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.21251359687017385
+              "undirected_edges": 20126,
+              "average_degree": 8.174654752233955,
+              "average_edge_weight": 0.040281678588427315,
+              "min_edge_weight": 0.01,
+              "max_edge_weight": 0.11716389775276184
             },
             "initial": {
               "queries_evaluated": 100,
@@ -808,7 +502,7 @@
             },
             "adapted": {
               "queries_evaluated": 100,
-              "recall_at_5": 0.725,
+              "recall_at_5": 0.73,
               "recall_at_10": 0.845,
               "mrr": 0.9108333333333334,
               "queries_improved": 18,
@@ -818,168 +512,14 @@
           }
         ]
       },
-      "held_out": {
-        "faiss": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7322222222222222,
-          "recall_at_10": 0.8105555555555556,
-          "mrr": 0.894255291005291
-        },
-        "initial": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7483333333333333,
-          "recall_at_10": 0.8244444444444444,
-          "mrr": 0.8951419753086419,
-          "queries_improved": 118,
-          "queries_unchanged": 681,
-          "queries_worsened": 101
-        },
-        "adapted": {
-          "queries_evaluated": 900,
-          "recall_at_5": 0.7405555555555555,
-          "recall_at_10": 0.8227777777777777,
-          "mrr": 0.8952037037037037,
-          "queries_improved": 120,
-          "queries_unchanged": 677,
-          "queries_worsened": 103
-        },
-        "seed_results": [
-          {
-            "seed": 10,
-            "updates": {
-              "strengthened_edges": 4491,
-              "created_edges": 2798,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 20124,
-              "average_degree": 8.173842404549147,
-              "average_edge_weight": 0.05492558406415643,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.22333393508454685
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7483333333333333,
-              "recall_at_10": 0.8316666666666667,
-              "mrr": 0.8887962962962963,
-              "queries_improved": 40,
-              "queries_unchanged": 228,
-              "queries_worsened": 32
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7383333333333333,
-              "recall_at_10": 0.8316666666666667,
-              "mrr": 0.8887962962962963,
-              "queries_improved": 41,
-              "queries_unchanged": 226,
-              "queries_worsened": 33
-            }
-          },
-          {
-            "seed": 20,
-            "updates": {
-              "strengthened_edges": 4474,
-              "created_edges": 2692,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 20018,
-              "average_degree": 8.130787977254265,
-              "average_edge_weight": 0.05517961139301814,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.20465546703732226
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7466666666666667,
-              "recall_at_10": 0.825,
-              "mrr": 0.9025648148148148,
-              "queries_improved": 42,
-              "queries_unchanged": 226,
-              "queries_worsened": 32
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.7383333333333333,
-              "recall_at_10": 0.8216666666666667,
-              "mrr": 0.9016388888888889,
-              "queries_improved": 42,
-              "queries_unchanged": 225,
-              "queries_worsened": 33
-            }
-          },
-          {
-            "seed": 30,
-            "updates": {
-              "strengthened_edges": 4500,
-              "created_edges": 2766,
-              "pruned_edges": 0
-            },
-            "graph_before": {
-              "agents": 4924,
-              "undirected_edges": 17326,
-              "average_degree": 7.037367993501219,
-              "average_edge_weight": 0.088388440871602,
-              "min_edge_weight": 0.035891056060791016,
-              "max_edge_weight": 0.19855754375457765
-            },
-            "graph_after": {
-              "agents": 4924,
-              "undirected_edges": 20092,
-              "average_degree": 8.160844841592201,
-              "average_edge_weight": 0.055028242555136025,
-              "min_edge_weight": 0.021741740696058567,
-              "max_edge_weight": 0.21251359687017385
-            },
-            "initial": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.75,
-              "recall_at_10": 0.8166666666666667,
-              "mrr": 0.8940648148148148,
-              "queries_improved": 36,
-              "queries_unchanged": 227,
-              "queries_worsened": 37
-            },
-            "adapted": {
-              "queries_evaluated": 300,
-              "recall_at_5": 0.745,
-              "recall_at_10": 0.815,
-              "mrr": 0.8951759259259259,
-              "queries_improved": 37,
-              "queries_unchanged": 226,
-              "queries_worsened": 37
-            }
-          }
-        ]
-      },
       "adaptation": {
         "updates": {
           "strengthened_edges": 13465,
-          "created_edges": 8256,
+          "created_edges": 8400,
           "pruned_edges": 0
         },
-        "final_undirected_edges": 20078.0,
-        "final_average_degree": 8.155158407798538
+        "final_undirected_edges": 20126.0,
+        "final_average_degree": 8.174654752233955
       }
     }
   ]
