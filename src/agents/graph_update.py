@@ -48,18 +48,13 @@ def strengthen_edge(
 
 def strengthen_retrieved_edges(
     agents: dict[str, DocumentAgent],
-    retrieved_doc_ids: list[str],
+    updated_doc_ids: list[str],
     config: GraphUpdateConfig,
 ) -> list[dict]:
-    unique_doc_ids = list(dict.fromkeys(retrieved_doc_ids))
-
-    if config.update_k is not None:
-        unique_doc_ids = unique_doc_ids[:config.update_k]
-
     edge_updates = []
 
-    for source_position, source_id in enumerate(unique_doc_ids):
-        for target_id in unique_doc_ids[source_position + 1:]:
+    for source_position, source_id in enumerate(updated_doc_ids):
+        for target_id in updated_doc_ids[source_position + 1:]:
             edge_updates.append(
                 strengthen_edge(
                     agents=agents,
@@ -72,18 +67,24 @@ def strengthen_retrieved_edges(
     return edge_updates
 
 
-def decay_unused_edges(
+def decay_local_edges(
     agents: dict[str, DocumentAgent],
+    updated_doc_ids: list[str],
     strengthened_edges: set[tuple[str, str]],
     config: GraphUpdateConfig,
-) -> None:
+) -> set[tuple[str, str]]:
+    updated_doc_id_set = set(updated_doc_ids)
     decayed_edges = set()
 
-    for source_id, agent in agents.items():
-        for target_id, edge in agent.edges.items():
+    for source_id in updated_doc_ids:
+        for target_id, edge in list(agents[source_id].edges.items()):
             edge_key = make_edge_key(source_id, target_id)
 
-            if edge_key in strengthened_edges or edge_key in decayed_edges:
+            if (
+                target_id in updated_doc_id_set
+                or edge_key in strengthened_edges
+                or edge_key in decayed_edges
+            ):
                 continue
 
             decayed_weight = edge.weight * config.decay_rate
@@ -93,25 +94,21 @@ def decay_unused_edges(
 
             decayed_edges.add(edge_key)
 
+    return decayed_edges
+
 
 def prune_weak_edges(
     agents: dict[str, DocumentAgent],
+    candidate_edges: set[tuple[str, str]],
     config: GraphUpdateConfig,
 ) -> list[dict]:
-    checked_edges = set()
     edges_to_remove = []
 
-    for source_id, agent in agents.items():
-        for target_id, edge in agent.edges.items():
-            edge_key = make_edge_key(source_id, target_id)
+    for source_id, target_id in sorted(candidate_edges):
+        edge = agents[source_id].edges.get(target_id)
 
-            if edge_key in checked_edges:
-                continue
-
-            checked_edges.add(edge_key)
-
-            if edge.weight < config.prune_threshold:
-                edges_to_remove.append((source_id, target_id, edge.weight))
+        if edge is not None and edge.weight < config.prune_threshold:
+            edges_to_remove.append((source_id, target_id, edge.weight))
 
     for source_id, target_id, _ in edges_to_remove:
         agents[source_id].edges.pop(target_id, None)
@@ -137,17 +134,23 @@ def update_graph_after_retrieval(
     if config is None:
         config = GraphUpdateConfig()
 
+    updated_doc_ids = list(dict.fromkeys(retrieved_doc_ids))
+
+    if config.update_k is not None:
+        updated_doc_ids = updated_doc_ids[:config.update_k]
+
     strengthened_updates = strengthen_retrieved_edges(
         agents=agents,
-        retrieved_doc_ids=retrieved_doc_ids,
+        updated_doc_ids=updated_doc_ids,
         config=config,
     )
     strengthened_edges = {
         make_edge_key(update["source"], update["target"])
         for update in strengthened_updates
     }
-    decay_unused_edges(
+    decayed_edges = decay_local_edges(
         agents=agents,
+        updated_doc_ids=updated_doc_ids,
         strengthened_edges=strengthened_edges,
         config=config,
     )
@@ -156,6 +159,7 @@ def update_graph_after_retrieval(
     if config.enable_pruning:
         pruned_updates = prune_weak_edges(
             agents=agents,
+            candidate_edges=decayed_edges,
             config=config,
         )
 
@@ -163,15 +167,9 @@ def update_graph_after_retrieval(
         update["change_type"] == "created"
         for update in strengthened_updates
     )
-    unique_retrieved_documents = len(dict.fromkeys(retrieved_doc_ids))
-    updated_documents = unique_retrieved_documents
-
-    if config.update_k is not None:
-        updated_documents = min(updated_documents, config.update_k)
-
     return {
         "retrieved_documents": len(retrieved_doc_ids),
-        "updated_documents": updated_documents,
+        "updated_documents": len(updated_doc_ids),
         "strengthened_edges": len(strengthened_edges),
         "created_edges": created_edges,
         "pruned_edges": len(pruned_updates),

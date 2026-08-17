@@ -61,7 +61,7 @@ def test_update_reports_strengthened_and_created_edges() -> None:
 
 def test_update_reports_pruned_edge_with_its_decayed_weight() -> None:
     agents = create_agents()
-    add_undirected_edge(agents, "doc-1", "doc-2", 0.04)
+    add_undirected_edge(agents, "doc-1", "doc-3", 0.04)
 
     summary = update_graph_after_retrieval(
         agents,
@@ -79,18 +79,18 @@ def test_update_reports_pruned_edge_with_its_decayed_weight() -> None:
     assert summary["edge_updates"] == [
         {
             "source": "doc-1",
-            "target": "doc-2",
+            "target": "doc-3",
             "previous_weight": 0.02,
             "new_weight": None,
             "change_type": "pruned",
         }
     ]
-    assert "doc-2" not in agents["doc-1"].edges
+    assert "doc-3" not in agents["doc-1"].edges
 
 
 def test_disabling_pruning_returns_no_pruned_updates() -> None:
     agents = create_agents()
-    add_undirected_edge(agents, "doc-1", "doc-2", 0.01)
+    add_undirected_edge(agents, "doc-1", "doc-3", 0.01)
 
     summary = update_graph_after_retrieval(
         agents,
@@ -100,7 +100,48 @@ def test_disabling_pruning_returns_no_pruned_updates() -> None:
 
     assert summary["pruned_edges"] == 0
     assert summary["edge_updates"] == []
-    assert "doc-2" in agents["doc-1"].edges
+    assert "doc-3" in agents["doc-1"].edges
+
+
+def test_only_edges_connected_to_updated_documents_decay() -> None:
+    agents = {
+        doc_id: DocumentAgent(doc_id=doc_id, title=doc_id, text="")
+        for doc_id in ("doc-1", "doc-2", "doc-3", "doc-4")
+    }
+    add_undirected_edge(agents, "doc-1", "doc-3", 0.4)
+    add_undirected_edge(agents, "doc-3", "doc-4", 0.4)
+
+    update_graph_after_retrieval(
+        agents,
+        ["doc-1", "doc-2"],
+        GraphUpdateConfig(decay_rate=0.5, enable_pruning=False),
+    )
+
+    assert agents["doc-1"].edges["doc-3"].weight == pytest.approx(0.2)
+    assert agents["doc-3"].edges["doc-4"].weight == pytest.approx(0.4)
+
+
+def test_pruning_does_not_remove_unrelated_weak_edges() -> None:
+    agents = {
+        doc_id: DocumentAgent(doc_id=doc_id, title=doc_id, text="")
+        for doc_id in ("doc-1", "doc-2", "doc-3", "doc-4")
+    }
+    add_undirected_edge(agents, "doc-1", "doc-3", 0.04)
+    add_undirected_edge(agents, "doc-3", "doc-4", 0.01)
+
+    summary = update_graph_after_retrieval(
+        agents,
+        ["doc-1", "doc-2"],
+        GraphUpdateConfig(
+            decay_rate=0.5,
+            prune_threshold=0.03,
+            enable_pruning=True,
+        ),
+    )
+
+    assert summary["pruned_edges"] == 1
+    assert "doc-3" not in agents["doc-1"].edges
+    assert agents["doc-3"].edges["doc-4"].weight == pytest.approx(0.01)
 
 
 @pytest.mark.parametrize(
