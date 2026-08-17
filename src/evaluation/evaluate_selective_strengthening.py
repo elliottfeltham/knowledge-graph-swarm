@@ -2,6 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
+from agents import GraphUpdateConfig
 from common import (
     PROJECT_ROOT,
     build_faiss_index,
@@ -10,7 +11,12 @@ from common import (
     load_queries,
     load_query_embeddings,
 )
-from evaluation.experiment_config import DEFAULT_SEEDS
+from evaluation.experiment_config import (
+    DECAY_RATE,
+    DEFAULT_SEEDS,
+    OPTIMISED_CONFIG,
+    STRENGTHEN_AMOUNT,
+)
 from evaluation.experiment_helpers import (
     EvaluationContext,
     evaluate_configuration,
@@ -18,6 +24,7 @@ from evaluation.experiment_helpers import (
 )
 from evaluation.create_results_report import save_selective_strengthening_report
 from evaluation.graph_state import file_checksum, graph_file_is_unchanged
+from graph.config import INITIAL_WEIGHT_SCALE, NEIGHBOURS_PER_DOCUMENT
 from graph.initialize_agent_graph import build_initial_agent_graph
 from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH
 
@@ -61,13 +68,10 @@ def print_summary(results: dict) -> None:
 
     for condition in results["conditions"]:
         validation = condition["validation"]["adapted"]
-        held_out = condition["held_out"]["adapted"]
         print(
             f"update_k={condition['update_k']}: "
             f"validation R@10 {validation['recall_at_10']:.4f}, "
-            f"MRR {validation['mrr']:.4f} | "
-            f"held-out R@10 {held_out['recall_at_10']:.4f}, "
-            f"MRR {held_out['mrr']:.4f}"
+            f"MRR {validation['mrr']:.4f}"
         )
 
     print(f"Selected update_k: {results['selected_update_k']}")
@@ -123,7 +127,10 @@ def main() -> None:
         qrels=qrels,
         index=build_faiss_index(embeddings),
         document_ids=document_ids,
-        initial_agents=build_initial_agent_graph(5, 0.2),
+        initial_agents=build_initial_agent_graph(
+            NEIGHBOURS_PER_DOCUMENT,
+            INITIAL_WEIGHT_SCALE,
+        ),
         top_k=args.top_k,
     )
     application_graph_checksum = file_checksum(AGENT_GRAPH_PATH)
@@ -135,24 +142,20 @@ def main() -> None:
             context=context,
             query_splits=query_splits,
             query_group=1,
-            seed_k=3,
-            graph_weight=0.05,
-            update_k=update_k,
-        )
-        held_out = evaluate_configuration(
-            context=context,
-            query_splits=query_splits,
-            query_group=2,
-            seed_k=3,
-            graph_weight=0.05,
-            update_k=update_k,
+            seed_k=OPTIMISED_CONFIG["seed_k"],
+            graph_weight=OPTIMISED_CONFIG["graph_weight"],
+            update_config=GraphUpdateConfig(
+                strengthen_amount=STRENGTHEN_AMOUNT,
+                decay_rate=DECAY_RATE,
+                enable_pruning=False,
+                update_k=update_k,
+            ),
         )
         conditions.append(
             {
                 "update_k": update_k,
                 "validation": validation,
-                "held_out": held_out,
-                "adaptation": average_graph_summary(held_out["seed_results"]),
+                "adaptation": average_graph_summary(validation["seed_results"]),
             }
         )
 
@@ -169,10 +172,12 @@ def main() -> None:
             "seeds": args.seeds,
             "adaptation_queries": args.adaptation_queries,
             "validation_queries": args.validation_queries,
-            "held_out_evaluation_queries": args.evaluation_queries,
+            "reserved_evaluation_queries": args.evaluation_queries,
             "top_k": args.top_k,
-            "seed_k": 3,
-            "graph_weight": 0.05,
+            "seed_k": OPTIMISED_CONFIG["seed_k"],
+            "graph_weight": OPTIMISED_CONFIG["graph_weight"],
+            "strengthen_amount": STRENGTHEN_AMOUNT,
+            "decay_rate": DECAY_RATE,
             "pruning_enabled": False,
             "update_counts": args.update_counts,
         },

@@ -2,6 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
+from agents import GraphUpdateConfig
 from common import (
     PROJECT_ROOT,
     build_faiss_index,
@@ -11,7 +12,11 @@ from common import (
     load_queries,
 )
 from evaluation.create_results_report import save_parameter_tuning_report
-from evaluation.experiment_config import DEFAULT_SEEDS
+from evaluation.experiment_config import (
+    DECAY_RATE,
+    DEFAULT_SEEDS,
+    STRENGTHEN_AMOUNT,
+)
 from evaluation.experiment_helpers import (
     EvaluationContext,
     evaluate_configuration,
@@ -39,7 +44,7 @@ def select_best_configuration(configurations: list[dict]) -> dict:
     )
 
 
-def print_summary(validation: dict, best: dict, held_out: dict) -> None:
+def print_summary(validation: dict, best: dict) -> None:
     print("\nValidation results")
     print("=" * 60)
     print(
@@ -51,14 +56,6 @@ def print_summary(validation: dict, best: dict, held_out: dict) -> None:
     print(f"Recall@10 {best['adapted']['recall_at_10']:.4f}, "
           f"MRR {best['adapted']['mrr']:.4f}")
 
-    print("\nHeld-out evaluation")
-    print("=" * 60)
-    print(f"FAISS: Recall@10 {held_out['faiss']['recall_at_10']:.4f}, "
-          f"MRR {held_out['faiss']['mrr']:.4f}")
-    print(f"Selected adapted graph: Recall@10 "
-          f"{held_out['adapted']['recall_at_10']:.4f}, "
-          f"MRR {held_out['adapted']['mrr']:.4f}")
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -66,7 +63,7 @@ def main() -> None:
     )
     parser.add_argument("--adaptation-queries", type=int, default=100)
     parser.add_argument("--validation-queries", type=int, default=100)
-    parser.add_argument("--evaluation-queries", type=int, default=100)
+    parser.add_argument("--evaluation-queries", type=int, default=300)
     parser.add_argument("--top-k", type=int, default=10)
     parser.add_argument("--seeds", type=int, nargs="+", default=DEFAULT_SEEDS)
     parser.add_argument(
@@ -134,6 +131,12 @@ def main() -> None:
                 query_group=1,
                 seed_k=seed_k,
                 graph_weight=graph_weight,
+                update_config=GraphUpdateConfig(
+                    strengthen_amount=STRENGTHEN_AMOUNT,
+                    decay_rate=DECAY_RATE,
+                    enable_pruning=False,
+                    update_k=args.top_k,
+                ),
             )
             validation_faiss = evaluation["faiss"]
             configurations.append(
@@ -147,15 +150,6 @@ def main() -> None:
             )
 
     best = select_best_configuration(configurations)
-    print("Evaluating the selected configuration on held-out queries...")
-    held_out = evaluate_configuration(
-        context=context,
-        query_splits=query_splits,
-        query_group=2,
-        seed_k=best["seed_k"],
-        graph_weight=best["graph_weight"],
-    )
-
     application_graph_unchanged = graph_file_is_unchanged(
         AGENT_GRAPH_PATH,
         application_graph_checksum,
@@ -168,11 +162,14 @@ def main() -> None:
             "seeds": args.seeds,
             "adaptation_queries": args.adaptation_queries,
             "validation_queries": args.validation_queries,
-            "held_out_evaluation_queries": args.evaluation_queries,
+            "reserved_evaluation_queries": args.evaluation_queries,
             "top_k": args.top_k,
             "graph_weights": args.graph_weights,
             "seed_counts": args.seed_counts,
             "pruning_enabled": False,
+            "strengthen_amount": STRENGTHEN_AMOUNT,
+            "decay_rate": DECAY_RATE,
+            "update_k": args.top_k,
         },
         "selection_rule": "Highest validation Recall@10, then MRR, then lower graph weight.",
         "application_graph_unchanged": application_graph_unchanged,
@@ -180,7 +177,6 @@ def main() -> None:
         "best_configuration": {
             key: value for key, value in best.items() if key != "seed_results"
         },
-        "held_out_evaluation": held_out,
         "configurations": configurations,
     }
 
@@ -189,7 +185,7 @@ def main() -> None:
         json.dump(results, file, indent=2)
 
     save_parameter_tuning_report(results)
-    print_summary(validation_faiss, best, held_out)
+    print_summary(validation_faiss, best)
     print(f"Application graph unchanged: {application_graph_unchanged}")
     print(f"Results saved to: {args.output_path}")
 

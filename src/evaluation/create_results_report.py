@@ -336,13 +336,6 @@ def save_selective_strengthening_report(results: dict) -> None:
                 **condition["validation"]["adapted"],
             }
         )
-        rows.append(
-            {
-                "update_k": condition["update_k"],
-                "query_group": "held_out",
-                **condition["held_out"]["adapted"],
-            }
-        )
 
     save_csv(SELECTIVE_STRENGTHENING_CSV_PATH, rows)
     configure_plot_style()
@@ -360,17 +353,10 @@ def save_selective_strengthening_report(results: dict) -> None:
             marker="o",
             label="Validation",
         )
-        axis.plot(
-            update_counts,
-            [condition["held_out"]["adapted"][metric] for condition in conditions],
-            marker="o",
-            label="Held-out",
-        )
         axis.set(title=label, xlabel="Documents used for strengthening", ylabel=label)
         axis.set_xticks(update_counts)
         axis.grid(alpha=0.2)
 
-    axes[0].legend(frameon=False)
     figure.tight_layout()
     figure.savefig(SELECTIVE_STRENGTHENING_FIGURE_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
