@@ -1,6 +1,5 @@
 import argparse
 import json
-import random
 import time
 from pathlib import Path
 from statistics import mean, stdev
@@ -27,25 +26,16 @@ from evaluation.graph_state import (
     file_checksum,
     graph_file_is_unchanged,
 )
+from evaluation.experiment_config import (
+    DEFAULT_SEEDS,
+    OPTIMISED_CONFIG,
+    ORIGINAL_CONFIG,
+    SELECTIVE_CONFIG,
+)
+from evaluation.experiment_helpers import split_query_groups as split_queries
 from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrieve
 
 
-DEFAULT_SEEDS = [10, 20, 30]
-ORIGINAL_CONFIG = {
-    "seed_k": 5,
-    "graph_weight": 0.3,
-    "pruning_enabled": True,
-}
-OPTIMISED_CONFIG = {
-    "seed_k": 3,
-    "graph_weight": 0.05,
-    "pruning_enabled": False,
-    "update_k": 10,
-}
-SELECTIVE_CONFIG = {
-    **OPTIMISED_CONFIG,
-    "update_k": 3,
-}
 RESULTS_PATH = PROJECT_ROOT / "results" / "main_evaluation.json"
 PRUNING_ABLATION_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
 METRIC_NAMES = ["recall_at_5", "recall_at_10", "mrr", "retrieval_latency_ms"]
@@ -53,33 +43,6 @@ METRIC_NAMES = ["recall_at_5", "recall_at_10", "mrr", "retrieval_latency_ms"]
 
 def project_relative_path(path: Path) -> str:
     return str(path.relative_to(PROJECT_ROOT))
-
-
-def split_queries(
-    queries: list[dict],
-    seed: int,
-    adaptation_count: int,
-    validation_count: int,
-    evaluation_count: int,
-) -> tuple[list[dict], list[dict], list[dict]]:
-    required_queries = adaptation_count + validation_count + evaluation_count
-
-    if len(queries) < required_queries:
-        raise ValueError(
-            f"Need {required_queries} queries but only found {len(queries)}"
-        )
-
-    shuffled_queries = queries.copy()
-    random.Random(seed).shuffle(shuffled_queries)
-    validation_start = adaptation_count
-    evaluation_start = validation_start + validation_count
-    evaluation_end = evaluation_start + evaluation_count
-
-    return (
-        shuffled_queries[:validation_start],
-        shuffled_queries[validation_start:evaluation_start],
-        shuffled_queries[evaluation_start:evaluation_end],
-    )
 
 
 def calculate_query_metrics(

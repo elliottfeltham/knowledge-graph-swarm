@@ -1,10 +1,10 @@
 import pytest
 
-from evaluation.tune_retrieval_parameters import (
+from evaluation.experiment_helpers import (
     compare_query_metrics,
-    select_best_configuration,
     split_query_groups,
 )
+from evaluation.tune_retrieval_parameters import select_best_configuration
 
 
 def test_query_groups_are_reproducible_and_disjoint() -> None:

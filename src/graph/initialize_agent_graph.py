@@ -5,6 +5,7 @@ import numpy as np
 
 from agents import DocumentAgent, save_agents
 from common import build_faiss_index, load_documents, load_embeddings
+from graph.config import INITIAL_WEIGHT_SCALE, NEIGHBOURS_PER_DOCUMENT
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -101,13 +102,13 @@ def main() -> None:
     parser.add_argument(
         "--k",
         type=int,
-        default=5,
+        default=NEIGHBOURS_PER_DOCUMENT,
         help="Number of nearest neighbours to connect each document to.",
     )
     parser.add_argument(
         "--initial-weight-scale",
         type=float,
-        default=0.2,
+        default=INITIAL_WEIGHT_SCALE,
         help="Multiplier applied to embedding similarity when creating weak initial edges.",
     )
     parser.add_argument(

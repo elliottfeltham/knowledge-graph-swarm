@@ -11,15 +11,14 @@ from common import (
 )
 from data.load_dataset import prepare_dataset
 from embeddings.embed_documents import create_embeddings
+from graph.config import (
+    INITIAL_WEIGHT_SCALE,
+    NEIGHBOURS_PER_DOCUMENT,
+)
 from graph.build_static_graph import OUTPUT_PATH as STATIC_GRAPH_PATH
 from graph.build_static_graph import build_static_graph, save_edges
 from graph.initialize_agent_graph import OUTPUT_PATH as AGENT_GRAPH_PATH
 from graph.initialize_agent_graph import build_initial_agent_graph
-
-
-NEIGHBOURS_PER_DOCUMENT = 5
-INITIAL_WEIGHT_SCALE = 0.2
-
 
 def print_stage(number: int, description: str) -> None:
     print(f"\n[{number}/4] {description}")

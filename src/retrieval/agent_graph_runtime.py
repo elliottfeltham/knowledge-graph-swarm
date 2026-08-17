@@ -18,6 +18,7 @@ from common import (
     load_documents,
     load_embeddings,
 )
+from graph.config import INITIAL_WEIGHT_SCALE, NEIGHBOURS_PER_DOCUMENT
 from graph.initialize_agent_graph import build_initial_agent_graph
 from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrieve
 
@@ -244,8 +245,8 @@ class AgentGraphRuntime:
 
     def reset_graph(
         self,
-        neighbours_per_doc: int = 5,
-        initial_weight_scale: float = 0.2,
+        neighbours_per_doc: int = NEIGHBOURS_PER_DOCUMENT,
+        initial_weight_scale: float = INITIAL_WEIGHT_SCALE,
     ) -> dict:
         self.agents = build_initial_agent_graph(
             neighbours_per_doc=neighbours_per_doc,

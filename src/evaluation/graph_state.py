@@ -3,11 +3,11 @@ import shutil
 from pathlib import Path
 
 from agents import DocumentAgent, save_agents
+from graph.config import (
+    INITIAL_WEIGHT_SCALE,
+    NEIGHBOURS_PER_DOCUMENT,
+)
 from graph.initialize_agent_graph import build_initial_agent_graph
-
-
-NEIGHBOURS_PER_DOCUMENT = 5
-INITIAL_WEIGHT_SCALE = 0.2
 
 
 def file_checksum(path: Path) -> str:

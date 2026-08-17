@@ -2,20 +2,20 @@ from pathlib import Path
 
 import pytest
 
+from evaluation.experiment_helpers import split_query_groups
 from run_experiments import (
     aggregate_seed_results,
     project_relative_path,
-    split_queries,
 )
 
 
 def test_query_split_is_reproducible_and_keeps_sets_separate() -> None:
     queries = [{"query_id": str(index)} for index in range(10)]
 
-    first_split = split_queries(
+    first_split = split_query_groups(
         queries, seed=10, adaptation_count=4, validation_count=3, evaluation_count=2
     )
-    second_split = split_queries(
+    second_split = split_query_groups(
         queries, seed=10, adaptation_count=4, validation_count=3, evaluation_count=2
     )
 
