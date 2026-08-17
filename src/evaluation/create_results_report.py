@@ -20,6 +20,8 @@ SELECTIVE_STRENGTHENING_CSV_PATH = REPORT_DIRECTORY / "selective_strengthening.c
 SELECTIVE_STRENGTHENING_FIGURE_PATH = REPORT_DIRECTORY / "selective_strengthening.png"
 GRAPH_INITIALISATION_CSV_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.csv"
 GRAPH_INITIALISATION_FIGURE_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.png"
+GRAPH_UPDATE_CSV_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.csv"
+GRAPH_UPDATE_FIGURE_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.png"
 
 SYSTEM_LABELS = {
     "faiss": "FAISS",
@@ -259,6 +261,67 @@ def save_graph_initialisation_report(results: dict) -> None:
         dpi=200,
         bbox_inches="tight",
     )
+    plt.close(figure)
+
+
+def save_graph_update_report(results: dict) -> None:
+    configurations = results["configurations"]
+    rows = [
+        {
+            "strengthen_amount": configuration["strengthen_amount"],
+            "decay_rate": configuration["decay_rate"],
+            "recall_at_5": configuration["adapted"]["recall_at_5"],
+            "recall_at_10": configuration["adapted"]["recall_at_10"],
+            "mrr": configuration["adapted"]["mrr"],
+            "final_undirected_edges": mean(
+                result["graph_after"]["undirected_edges"]
+                for result in configuration["seed_results"]
+            ),
+            "final_average_edge_weight": mean(
+                result["graph_after"]["average_edge_weight"]
+                for result in configuration["seed_results"]
+            ),
+        }
+        for configuration in configurations
+    ]
+
+    save_csv(GRAPH_UPDATE_CSV_PATH, rows)
+    configure_plot_style()
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+
+    for strengthen_amount in sorted(
+        {row["strengthen_amount"] for row in configurations}
+    ):
+        matching = sorted(
+            (
+                row
+                for row in configurations
+                if row["strengthen_amount"] == strengthen_amount
+            ),
+            key=lambda row: row["decay_rate"],
+        )
+        decay_rates = [row["decay_rate"] for row in matching]
+
+        for axis, metric, label in (
+            (axes[0], "recall_at_10", "Recall@10"),
+            (axes[1], "mrr", "MRR"),
+        ):
+            axis.plot(
+                decay_rates,
+                [row["adapted"][metric] for row in matching],
+                marker="o",
+                label=f"strengthen={strengthen_amount}",
+            )
+            axis.set(
+                title=f"Adapted graph {label}",
+                xlabel="Decay rate",
+                ylabel=label,
+            )
+            axis.grid(alpha=0.2)
+
+    axes[0].legend(frameon=False, fontsize=8)
+    figure.tight_layout()
+    figure.savefig(GRAPH_UPDATE_FIGURE_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
 

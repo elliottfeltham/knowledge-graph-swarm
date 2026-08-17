@@ -158,16 +158,18 @@ def adapt_graph(
     seed_k: int,
     graph_weight: float,
     update_k: int | None = None,
+    update_config: GraphUpdateConfig | None = None,
 ) -> dict:
     totals = {
         "strengthened_edges": 0,
         "created_edges": 0,
         "pruned_edges": 0,
     }
-    update_config = GraphUpdateConfig(
-        enable_pruning=False,
-        update_k=update_k,
-    )
+    if update_config is None:
+        update_config = GraphUpdateConfig(
+            enable_pruning=False,
+            update_k=update_k,
+        )
 
     for query in queries:
         retrieved_doc_ids = [
@@ -215,6 +217,7 @@ def evaluate_configuration(
     seed_k: int,
     graph_weight: float,
     update_k: int | None = None,
+    update_config: GraphUpdateConfig | None = None,
 ) -> dict:
     seed_results = []
     all_faiss_metrics = []
@@ -240,6 +243,7 @@ def evaluate_configuration(
             seed_k,
             graph_weight,
             update_k,
+            update_config,
         )
         graph_after = calculate_graph_statistics(adapted_agents)
         adapted_rows = evaluate_agent_graph(
