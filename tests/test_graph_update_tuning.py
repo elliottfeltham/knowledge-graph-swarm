@@ -49,4 +49,4 @@ def test_selection_uses_metrics_before_update_tiebreaks() -> None:
     best = select_best_configuration(configurations)
 
     assert best["strengthen_amount"] == 0.01
-    assert best["decay_rate"] == 1.0
+    assert best["decay_rate"] == 0.995

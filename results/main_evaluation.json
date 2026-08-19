@@ -23,13 +23,9 @@
       "seed_k": 3,
       "graph_weight": 0.05,
       "pruning_enabled": false,
-      "update_k": 10
-    },
-    "selective_agent_graph": {
-      "seed_k": 3,
-      "graph_weight": 0.05,
-      "pruning_enabled": false,
-      "update_k": 3
+      "update_k": 3,
+      "strengthen_amount": 0.01,
+      "decay_rate": 0.995
     }
   },
   "seed_results": [
@@ -544,8 +540,7 @@
       "paths": {
         "initial_graph": "results/main_evaluation/seed_10/initial_graph.jsonl",
         "original_adapted_graph": "results/main_evaluation/seed_10/original_adapted_graph.jsonl",
-        "optimised_adapted_graph": "results/main_evaluation/seed_10/optimised_adapted_graph.jsonl",
-        "selective_adapted_graph": "results/main_evaluation/seed_10/selective_adapted_graph.jsonl"
+        "optimised_adapted_graph": "results/main_evaluation/seed_10/optimised_adapted_graph.jsonl"
       },
       "adaptations": {
         "original": {
@@ -555,33 +550,33 @@
             "pruning_enabled": true
           },
           "updates": {
-            "strengthened_edges": 4441,
-            "created_edges": 2848,
-            "pruned_edges": 11168
+            "strengthened_edges": 4500,
+            "created_edges": 2871,
+            "pruned_edges": 3859
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 9006,
-            "average_degree": 3.6580016246953697,
-            "average_edge_weight": 0.06935498493211094,
-            "min_edge_weight": 0.05,
-            "max_edge_weight": 0.20200520883177248
+            "undirected_edges": 16338,
+            "average_degree": 6.6360682372055235,
+            "average_edge_weight": 0.05101792214099975,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.24686508178710936
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": -8320,
-            "average_degree": -3.379366368805849,
-            "average_edge_weight": -0.01903345593949106,
-            "min_edge_weight": 0.014108943939208987,
-            "max_edge_weight": 0.0034476650771948225
+            "undirected_edges": -988,
+            "average_degree": -0.40129975629569525,
+            "average_edge_weight": 0.006823701705198748,
+            "min_edge_weight": 0.0,
+            "max_edge_weight": 0.14758630990982052
           }
         },
         "optimised": {
@@ -589,44 +584,9 @@
             "seed_k": 3,
             "graph_weight": 0.05,
             "pruning_enabled": false,
-            "update_k": 10
-          },
-          "updates": {
-            "strengthened_edges": 4491,
-            "created_edges": 2798,
-            "pruned_edges": 0
-          },
-          "graph_before": {
-            "agents": 4924,
-            "undirected_edges": 17326,
-            "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
-          },
-          "graph_after": {
-            "agents": 4924,
-            "undirected_edges": 20124,
-            "average_degree": 8.173842404549147,
-            "average_edge_weight": 0.05492558406415643,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.22333393508454685
-          },
-          "graph_deltas": {
-            "agents": 0,
-            "undirected_edges": 2798,
-            "average_degree": 1.136474411047928,
-            "average_edge_weight": -0.03346285680744557,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": 0.0247763913299692
-          }
-        },
-        "selective": {
-          "settings": {
-            "seed_k": 3,
-            "graph_weight": 0.05,
-            "pruning_enabled": false,
-            "update_k": 3
+            "update_k": 3,
+            "strengthen_amount": 0.01,
+            "decay_rate": 0.995
           },
           "updates": {
             "strengthened_edges": 300,
@@ -637,25 +597,25 @@
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
             "undirected_edges": 17465,
             "average_degree": 7.09382615759545,
-            "average_edge_weight": 0.05379731227496226,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.15719473552777732
+            "average_edge_weight": 0.04398986559195746,
+            "min_edge_weight": 0.00995,
+            "max_edge_weight": 0.1052421247959137
           },
           "graph_deltas": {
             "agents": 0,
             "undirected_edges": 139,
             "average_degree": 0.056458164094231655,
-            "average_edge_weight": -0.034591128596639736,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": -0.04136280822680033
+            "average_edge_weight": -0.00020435484384354052,
+            "min_edge_weight": -0.007995528030395507,
+            "max_edge_weight": 0.005963352918624876
           }
         }
       },
@@ -665,49 +625,42 @@
           "mean_recall_at_5": 0.7316666666666667,
           "mean_recall_at_10": 0.8166666666666667,
           "mean_mrr": 0.8878095238095238,
-          "mean_retrieval_latency_ms": 0.14508543846507868
+          "mean_retrieval_latency_ms": 0.15236250047261515
         },
         "static_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7316666666666667,
           "mean_recall_at_10": 0.8233333333333334,
           "mean_mrr": 0.8282777777777778,
-          "mean_retrieval_latency_ms": 0.15324124911179146
+          "mean_retrieval_latency_ms": 0.16048500314354897
         },
         "original_initial_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7316666666666667,
           "mean_recall_at_10": 0.8233333333333334,
-          "mean_mrr": 0.8779444444444444,
-          "mean_retrieval_latency_ms": 0.1547989194902281
+          "mean_mrr": 0.8854444444444445,
+          "mean_retrieval_latency_ms": 0.16222108077878752
         },
         "original_adapted_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7316666666666667,
-          "mean_recall_at_10": 0.8183333333333334,
-          "mean_mrr": 0.8856388888888889,
-          "mean_retrieval_latency_ms": 0.15163529586667815
+          "mean_recall_at_10": 0.815,
+          "mean_mrr": 0.8871481481481481,
+          "mean_retrieval_latency_ms": 0.1605643075890839
         },
         "optimised_initial_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7483333333333333,
           "mean_recall_at_10": 0.8316666666666667,
           "mean_mrr": 0.8887962962962963,
-          "mean_retrieval_latency_ms": 0.1466171769425273
+          "mean_retrieval_latency_ms": 0.15405638764301935
         },
         "optimised_adapted_agent_graph": {
           "queries_evaluated": 300,
-          "mean_recall_at_5": 0.7383333333333333,
+          "mean_recall_at_5": 0.7483333333333333,
           "mean_recall_at_10": 0.8316666666666667,
           "mean_mrr": 0.8887962962962963,
-          "mean_retrieval_latency_ms": 0.15126803268988928
-        },
-        "selective_adapted_agent_graph": {
-          "queries_evaluated": 300,
-          "mean_recall_at_5": 0.7466666666666667,
-          "mean_recall_at_10": 0.8316666666666667,
-          "mean_mrr": 0.8887962962962963,
-          "mean_retrieval_latency_ms": 0.1490001411487659
+          "mean_retrieval_latency_ms": 0.1560472371056676
         }
       }
     },
@@ -1222,8 +1175,7 @@
       "paths": {
         "initial_graph": "results/main_evaluation/seed_20/initial_graph.jsonl",
         "original_adapted_graph": "results/main_evaluation/seed_20/original_adapted_graph.jsonl",
-        "optimised_adapted_graph": "results/main_evaluation/seed_20/optimised_adapted_graph.jsonl",
-        "selective_adapted_graph": "results/main_evaluation/seed_20/selective_adapted_graph.jsonl"
+        "optimised_adapted_graph": "results/main_evaluation/seed_20/optimised_adapted_graph.jsonl"
       },
       "adaptations": {
         "original": {
@@ -1233,33 +1185,33 @@
             "pruning_enabled": true
           },
           "updates": {
-            "strengthened_edges": 4459,
-            "created_edges": 2736,
-            "pruned_edges": 11096
+            "strengthened_edges": 4491,
+            "created_edges": 2737,
+            "pruned_edges": 3509
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 8966,
-            "average_degree": 3.6417546709991875,
-            "average_edge_weight": 0.07015432338808063,
-            "min_edge_weight": 0.05,
-            "max_edge_weight": 0.18218463627604087
+            "undirected_edges": 16554,
+            "average_degree": 6.7238017871649065,
+            "average_edge_weight": 0.05128433028681306,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.19786917269229887
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": -8360,
-            "average_degree": -3.3956133225020313,
-            "average_edge_weight": -0.01823411748352137,
-            "min_edge_weight": 0.014108943939208987,
-            "max_edge_weight": -0.016372907478536786
+            "undirected_edges": -772,
+            "average_degree": -0.31356620633631227,
+            "average_edge_weight": 0.007090109851012064,
+            "min_edge_weight": 0.0,
+            "max_edge_weight": 0.09859040081501004
           }
         },
         "optimised": {
@@ -1267,44 +1219,9 @@
             "seed_k": 3,
             "graph_weight": 0.05,
             "pruning_enabled": false,
-            "update_k": 10
-          },
-          "updates": {
-            "strengthened_edges": 4474,
-            "created_edges": 2692,
-            "pruned_edges": 0
-          },
-          "graph_before": {
-            "agents": 4924,
-            "undirected_edges": 17326,
-            "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
-          },
-          "graph_after": {
-            "agents": 4924,
-            "undirected_edges": 20018,
-            "average_degree": 8.130787977254265,
-            "average_edge_weight": 0.05517961139301814,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.20465546703732226
-          },
-          "graph_deltas": {
-            "agents": 0,
-            "undirected_edges": 2692,
-            "average_degree": 1.093419983753046,
-            "average_edge_weight": -0.033208829478583855,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": 0.006097923282744611
-          }
-        },
-        "selective": {
-          "settings": {
-            "seed_k": 3,
-            "graph_weight": 0.05,
-            "pruning_enabled": false,
-            "update_k": 3
+            "update_k": 3,
+            "strengthen_amount": 0.01,
+            "decay_rate": 0.995
           },
           "updates": {
             "strengthened_edges": 300,
@@ -1315,25 +1232,25 @@
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
             "undirected_edges": 17458,
             "average_degree": 7.090982940698619,
-            "average_edge_weight": 0.05381906122116812,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.18050298574258364
+            "average_edge_weight": 0.044006042938855065,
+            "min_edge_weight": 0.00995,
+            "max_edge_weight": 0.1052421247959137
           },
           "graph_deltas": {
             "agents": 0,
             "undirected_edges": 132,
             "average_degree": 0.05361494719740012,
-            "average_edge_weight": -0.03456937965043388,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": -0.018054558011994015
+            "average_edge_weight": -0.0001881774969459335,
+            "min_edge_weight": -0.007995528030395507,
+            "max_edge_weight": 0.005963352918624876
           }
         }
       },
@@ -1343,49 +1260,42 @@
           "mean_recall_at_5": 0.7266666666666667,
           "mean_recall_at_10": 0.8066666666666666,
           "mean_mrr": 0.8997261904761905,
-          "mean_retrieval_latency_ms": 0.14584402864178023
+          "mean_retrieval_latency_ms": 0.15380182536318898
         },
         "static_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7266666666666667,
           "mean_recall_at_10": 0.8216666666666667,
           "mean_mrr": 0.8534206349206349,
-          "mean_retrieval_latency_ms": 0.15410183540855846
+          "mean_retrieval_latency_ms": 0.16320514803131422
         },
         "original_initial_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7266666666666667,
           "mean_recall_at_10": 0.8216666666666667,
-          "mean_mrr": 0.8893095238095238,
-          "mean_retrieval_latency_ms": 0.1579287632678946
+          "mean_mrr": 0.900420634920635,
+          "mean_retrieval_latency_ms": 0.16569248478238782
         },
         "original_adapted_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7266666666666667,
-          "mean_recall_at_10": 0.8066666666666666,
-          "mean_mrr": 0.8982539682539683,
-          "mean_retrieval_latency_ms": 0.1520289907542368
+          "mean_recall_at_10": 0.8133333333333334,
+          "mean_mrr": 0.8995873015873016,
+          "mean_retrieval_latency_ms": 0.1627041632309556
         },
         "optimised_initial_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7466666666666667,
           "mean_recall_at_10": 0.825,
           "mean_mrr": 0.9025648148148148,
-          "mean_retrieval_latency_ms": 0.14838121676196656
+          "mean_retrieval_latency_ms": 0.15627693462496003
         },
         "optimised_adapted_agent_graph": {
           "queries_evaluated": 300,
-          "mean_recall_at_5": 0.7383333333333333,
-          "mean_recall_at_10": 0.8216666666666667,
-          "mean_mrr": 0.9016388888888889,
-          "mean_retrieval_latency_ms": 0.15157891592631736
-        },
-        "selective_adapted_agent_graph": {
-          "queries_evaluated": 300,
           "mean_recall_at_5": 0.7466666666666667,
           "mean_recall_at_10": 0.825,
-          "mean_mrr": 0.9023981481481481,
-          "mean_retrieval_latency_ms": 0.15048331348225474
+          "mean_mrr": 0.9025648148148148,
+          "mean_retrieval_latency_ms": 0.15854790263498822
         }
       }
     },
@@ -1900,8 +1810,7 @@
       "paths": {
         "initial_graph": "results/main_evaluation/seed_30/initial_graph.jsonl",
         "original_adapted_graph": "results/main_evaluation/seed_30/original_adapted_graph.jsonl",
-        "optimised_adapted_graph": "results/main_evaluation/seed_30/optimised_adapted_graph.jsonl",
-        "selective_adapted_graph": "results/main_evaluation/seed_30/selective_adapted_graph.jsonl"
+        "optimised_adapted_graph": "results/main_evaluation/seed_30/optimised_adapted_graph.jsonl"
       },
       "adaptations": {
         "original": {
@@ -1911,33 +1820,33 @@
             "pruning_enabled": true
           },
           "updates": {
-            "strengthened_edges": 4432,
-            "created_edges": 2765,
-            "pruned_edges": 11098
+            "strengthened_edges": 4500,
+            "created_edges": 2787,
+            "pruned_edges": 3784
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 8993,
-            "average_degree": 3.6527213647441106,
-            "average_edge_weight": 0.06972455227125648,
-            "min_edge_weight": 0.05,
-            "max_edge_weight": 0.19674836817257366
+            "undirected_edges": 16329,
+            "average_degree": 6.632412672623883,
+            "average_edge_weight": 0.05124387360187454,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.20408756136894224
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": -8333,
-            "average_degree": -3.384646628757108,
-            "average_edge_weight": -0.018663888600345513,
-            "min_edge_weight": 0.014108943939208987,
-            "max_edge_weight": -0.0018091755820039968
+            "undirected_edges": -997,
+            "average_degree": -0.40495532087733555,
+            "average_edge_weight": 0.00704965316607354,
+            "min_edge_weight": 0.0,
+            "max_edge_weight": 0.10480878949165341
           }
         },
         "optimised": {
@@ -1945,44 +1854,9 @@
             "seed_k": 3,
             "graph_weight": 0.05,
             "pruning_enabled": false,
-            "update_k": 10
-          },
-          "updates": {
-            "strengthened_edges": 4500,
-            "created_edges": 2766,
-            "pruned_edges": 0
-          },
-          "graph_before": {
-            "agents": 4924,
-            "undirected_edges": 17326,
-            "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
-          },
-          "graph_after": {
-            "agents": 4924,
-            "undirected_edges": 20092,
-            "average_degree": 8.160844841592201,
-            "average_edge_weight": 0.055028242555136025,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.21251359687017385
-          },
-          "graph_deltas": {
-            "agents": 0,
-            "undirected_edges": 2766,
-            "average_degree": 1.1234768480909825,
-            "average_edge_weight": -0.03336019831646597,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": 0.013956053115596195
-          }
-        },
-        "selective": {
-          "settings": {
-            "seed_k": 3,
-            "graph_weight": 0.05,
-            "pruning_enabled": false,
-            "update_k": 3
+            "update_k": 3,
+            "strengthen_amount": 0.01,
+            "decay_rate": 0.995
           },
           "updates": {
             "strengthened_edges": 300,
@@ -1993,25 +1867,25 @@
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
             "undirected_edges": 17455,
             "average_degree": 7.089764419171406,
-            "average_edge_weight": 0.05382817803016249,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.16413577215100314
+            "average_edge_weight": 0.044012903786712305,
+            "min_edge_weight": 0.00995,
+            "max_edge_weight": 0.10802363514900208
           },
           "graph_deltas": {
             "agents": 0,
             "undirected_edges": 129,
             "average_degree": 0.052396425670186986,
-            "average_edge_weight": -0.03456026284143951,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": -0.034421771603574514
+            "average_edge_weight": -0.00018131664908869333,
+            "min_edge_weight": -0.007995528030395507,
+            "max_edge_weight": 0.008744863271713255
           }
         }
       },
@@ -2021,49 +1895,42 @@
           "mean_recall_at_5": 0.7383333333333333,
           "mean_recall_at_10": 0.8083333333333333,
           "mean_mrr": 0.8952301587301588,
-          "mean_retrieval_latency_ms": 0.14682471984997392
+          "mean_retrieval_latency_ms": 0.14843347559993467
         },
         "static_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7383333333333333,
           "mean_recall_at_10": 0.82,
           "mean_mrr": 0.8445317460317461,
-          "mean_retrieval_latency_ms": 0.15479737504695854
+          "mean_retrieval_latency_ms": 0.1565176776299874
         },
         "original_initial_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7383333333333333,
           "mean_recall_at_10": 0.82,
-          "mean_mrr": 0.8835873015873016,
-          "mean_retrieval_latency_ms": 0.15813900623470545
+          "mean_mrr": 0.8908095238095238,
+          "mean_retrieval_latency_ms": 0.1584312521542112
         },
         "original_adapted_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.7383333333333333,
-          "mean_recall_at_10": 0.815,
-          "mean_mrr": 0.8923968253968254,
-          "mean_retrieval_latency_ms": 0.15295556435982385
+          "mean_recall_at_10": 0.8183333333333334,
+          "mean_mrr": 0.8907301587301587,
+          "mean_retrieval_latency_ms": 0.1566870929673314
         },
         "optimised_initial_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.75,
           "mean_recall_at_10": 0.8166666666666667,
-          "mean_mrr": 0.8940648148148148,
-          "mean_retrieval_latency_ms": 0.14803167122105756
+          "mean_mrr": 0.8957314814814815,
+          "mean_retrieval_latency_ms": 0.14966792582223812
         },
         "optimised_adapted_agent_graph": {
-          "queries_evaluated": 300,
-          "mean_recall_at_5": 0.745,
-          "mean_recall_at_10": 0.815,
-          "mean_mrr": 0.8951759259259259,
-          "mean_retrieval_latency_ms": 0.1520599921544393
-        },
-        "selective_adapted_agent_graph": {
           "queries_evaluated": 300,
           "mean_recall_at_5": 0.75,
           "mean_recall_at_10": 0.8166666666666667,
           "mean_mrr": 0.8957314814814815,
-          "mean_retrieval_latency_ms": 0.150129454365621
+          "mean_retrieval_latency_ms": 0.15135750717793903
         }
       }
     }
@@ -2083,8 +1950,8 @@
         "standard_deviation": 0.006017849401725904
       },
       "retrieval_latency_ms": {
-        "mean": 0.14591806231894427,
-        "standard_deviation": 0.0008720009592750431
+        "mean": 0.1515326004785796,
+        "standard_deviation": 0.002778730878518703
       }
     },
     "static_graph": {
@@ -2101,8 +1968,8 @@
         "standard_deviation": 0.012749948333138077
       },
       "retrieval_latency_ms": {
-        "mean": 0.15404681985576948,
-        "standard_deviation": 0.000779520374853286
+        "mean": 0.16006927626828352,
+        "standard_deviation": 0.003363062104432372
       }
     },
     "original_initial_agent_graph": {
@@ -2115,12 +1982,12 @@
         "standard_deviation": 0.0016666666666667052
       },
       "mrr": {
-        "mean": 0.8836137566137566,
-        "standard_deviation": 0.005682585867803204
+        "mean": 0.8922248677248678,
+        "standard_deviation": 0.007587751254081171
       },
       "retrieval_latency_ms": {
-        "mean": 0.15695556299760938,
-        "standard_deviation": 0.0018706640371057438
+        "mean": 0.16211493923846218,
+        "standard_deviation": 0.0036317797758208294
       }
     },
     "original_adapted_agent_graph": {
@@ -2129,16 +1996,16 @@
         "standard_deviation": 0.005853140973807043
       },
       "recall_at_10": {
-        "mean": 0.8133333333333334,
-        "standard_deviation": 0.0060092521257733315
+        "mean": 0.8155555555555556,
+        "standard_deviation": 0.002545875386086588
       },
       "mrr": {
-        "mean": 0.8920965608465609,
-        "standard_deviation": 0.006312897587235394
+        "mean": 0.8924885361552028,
+        "standard_deviation": 0.00640328454368377
       },
       "retrieval_latency_ms": {
-        "mean": 0.1522066169935796,
-        "standard_deviation": 0.000677820429151858
+        "mean": 0.15998518792912364,
+        "standard_deviation": 0.0030500521839407924
       }
     },
     "optimised_initial_agent_graph": {
@@ -2151,48 +2018,30 @@
         "standard_deviation": 0.007515416254704829
       },
       "mrr": {
-        "mean": 0.8951419753086419,
-        "standard_deviation": 0.006947174360543493
+        "mean": 0.8956975308641976,
+        "standard_deviation": 0.006884322045924849
       },
       "retrieval_latency_ms": {
-        "mean": 0.14767668830851713,
-        "standard_deviation": 0.0009340603686532197
+        "mean": 0.15333374936340582,
+        "standard_deviation": 0.0033632430630250367
       }
     },
     "optimised_adapted_agent_graph": {
       "recall_at_5": {
-        "mean": 0.7405555555555555,
-        "standard_deviation": 0.00384900179459753
-      },
-      "recall_at_10": {
-        "mean": 0.8227777777777777,
-        "standard_deviation": 0.008388704928078635
-      },
-      "mrr": {
-        "mean": 0.8952037037037037,
-        "standard_deviation": 0.006421341357421524
-      },
-      "retrieval_latency_ms": {
-        "mean": 0.15163564692354864,
-        "standard_deviation": 0.00039901598076734956
-      }
-    },
-    "selective_adapted_agent_graph": {
-      "recall_at_5": {
-        "mean": 0.7477777777777778,
-        "standard_deviation": 0.001924500897298733
+        "mean": 0.7483333333333333,
+        "standard_deviation": 0.0016666666666666496
       },
       "recall_at_10": {
         "mean": 0.8244444444444444,
         "standard_deviation": 0.007515416254704829
       },
       "mrr": {
-        "mean": 0.895641975308642,
-        "standard_deviation": 0.0068013676540945355
+        "mean": 0.8956975308641976,
+        "standard_deviation": 0.006884322045924849
       },
       "retrieval_latency_ms": {
-        "mean": 0.14987096966554722,
-        "standard_deviation": 0.000774635913081668
+        "mean": 0.15531754897286495,
+        "standard_deviation": 0.0036503123545188806
       }
     }
   },

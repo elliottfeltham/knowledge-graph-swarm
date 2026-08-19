@@ -22,6 +22,10 @@ GRAPH_INITIALISATION_CSV_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.
 GRAPH_INITIALISATION_FIGURE_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.png"
 GRAPH_UPDATE_CSV_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.csv"
 GRAPH_UPDATE_FIGURE_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.png"
+ADAPTATION_OVER_TIME_CSV_PATH = REPORT_DIRECTORY / "adaptation_over_time.csv"
+ADAPTATION_OVER_TIME_FIGURE_PATH = REPORT_DIRECTORY / "adaptation_over_time.png"
+REPEATED_ADAPTATION_CSV_PATH = REPORT_DIRECTORY / "repeated_adaptation.csv"
+REPEATED_ADAPTATION_FIGURE_PATH = REPORT_DIRECTORY / "repeated_adaptation.png"
 
 SYSTEM_LABELS = {
     "faiss": "FAISS",
@@ -123,7 +127,11 @@ def save_csv(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w", encoding="utf-8", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(
+            file,
+            fieldnames=list(rows[0]),
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(
             {
@@ -321,6 +329,118 @@ def save_graph_update_report(results: dict) -> None:
     axes[0].legend(frameon=False, fontsize=8)
     figure.tight_layout()
     figure.savefig(GRAPH_UPDATE_FIGURE_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
+
+def save_adaptation_over_time_report(results: dict) -> None:
+    rows = []
+
+    for checkpoint in results["aggregate_checkpoints"]:
+        row = {"adaptation_queries": checkpoint["adaptation_queries"]}
+
+        for field, values in checkpoint["metrics"].items():
+            row[f"{field}_mean"] = values["mean"]
+            row[f"{field}_std"] = values["standard_deviation"]
+
+        for field, values in checkpoint["graph"].items():
+            row[f"graph_{field}_mean"] = values["mean"]
+
+        for field, values in checkpoint["updates"].items():
+            row[f"{field}_mean"] = values["mean"]
+
+        rows.append(row)
+
+    save_csv(ADAPTATION_OVER_TIME_CSV_PATH, rows)
+    configure_plot_style()
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+    x_values = [row["adaptation_queries"] for row in rows]
+
+    for metric, label in METRICS:
+        axes[0].plot(
+            x_values,
+            [row[f"{metric}_mean"] for row in rows],
+            marker="o",
+            label=label,
+        )
+
+    axes[0].set(
+        title="Retrieval during adaptation",
+        xlabel="Adaptation queries",
+        ylabel="Mean score",
+    )
+    axes[0].grid(alpha=0.2)
+    axes[0].legend(frameon=False)
+    axes[1].plot(
+        x_values,
+        [row["graph_average_edge_weight_mean"] for row in rows],
+        marker="o",
+        color=COLOURS[2],
+    )
+    axes[1].set(
+        title="Graph weight during adaptation",
+        xlabel="Adaptation queries",
+        ylabel="Mean edge weight",
+    )
+    axes[1].grid(alpha=0.2)
+    figure.tight_layout()
+    figure.savefig(ADAPTATION_OVER_TIME_FIGURE_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
+
+def save_repeated_adaptation_report(results: dict) -> None:
+    rows = []
+
+    for condition_name, passes in results["aggregate"].items():
+        for pass_result in passes:
+            row = {
+                "condition": condition_name,
+                "pass": pass_result["pass"],
+                "interactions": pass_result["interactions"],
+                "rankings_changed_mean": pass_result["rankings_changed"]["mean"],
+            }
+
+            for field, values in pass_result["metrics"].items():
+                row[f"{field}_mean"] = values["mean"]
+                row[f"{field}_std"] = values["standard_deviation"]
+
+            for field, values in pass_result["graph"].items():
+                row[f"graph_{field}_mean"] = values["mean"]
+
+            for field, values in pass_result["updates"].items():
+                row[f"{field}_mean"] = values["mean"]
+
+            rows.append(row)
+
+    save_csv(REPEATED_ADAPTATION_CSV_PATH, rows)
+    configure_plot_style()
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+
+    for condition_name, passes in results["aggregate"].items():
+        x_values = [row["interactions"] for row in passes]
+        label = condition_name.replace("_", " ").title()
+        axes[0].plot(
+            x_values,
+            [row["metrics"]["recall_at_10"]["mean"] for row in passes],
+            marker="o",
+            label=label,
+        )
+        axes[1].plot(
+            x_values,
+            [row["metrics"]["mrr"]["mean"] for row in passes],
+            marker="o",
+            label=label,
+        )
+
+    for axis, title, label in (
+        (axes[0], "Recall during repeated adaptation", "Recall@10"),
+        (axes[1], "Ranking during repeated adaptation", "MRR"),
+    ):
+        axis.set(title=title, xlabel="Adaptation interactions", ylabel=label)
+        axis.grid(alpha=0.2)
+        axis.legend(frameon=False)
+
+    figure.tight_layout()
+    figure.savefig(REPEATED_ADAPTATION_FIGURE_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
 

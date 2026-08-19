@@ -1,0 +1,1974 @@
+{
+  "settings": {
+    "seeds": [
+      10,
+      20,
+      30
+    ],
+    "adaptation_queries": 100,
+    "evaluation_queries": 100,
+    "reserved_evaluation_queries": 300,
+    "passes": 5,
+    "top_k": 10,
+    "conditions": {
+      "current_strength": {
+        "seed_k": 3,
+        "graph_weight": 0.05,
+        "update_k": 3,
+        "strengthen_amount": 0.01,
+        "decay_rate": 0.995
+      },
+      "stronger_adaptation": {
+        "seed_k": 3,
+        "graph_weight": 0.1,
+        "update_k": 3,
+        "strengthen_amount": 0.05,
+        "decay_rate": 0.995
+      }
+    }
+  },
+  "application_graph_unchanged": true,
+  "seed_results": [
+    {
+      "seed": 10,
+      "conditions": {
+        "current_strength": [
+          {
+            "pass": 0,
+            "interactions": 0,
+            "rankings_changed": 0,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9065277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 71,
+              "queries_worsened": 17
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17326,
+              "average_degree": 7.037367993501219,
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
+            },
+            "updates": {
+              "strengthened_edges": 0,
+              "created_edges": 0,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 1,
+            "interactions": 100,
+            "rankings_changed": 7,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9065277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 71,
+              "queries_worsened": 17
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04398986559195746,
+              "min_edge_weight": 0.00995,
+              "max_edge_weight": 0.1052421247959137
+            },
+            "updates": {
+              "strengthened_edges": 300,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 2,
+            "interactions": 200,
+            "rankings_changed": 8,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9065277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 71,
+              "queries_worsened": 17
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04413731737526855,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.1152421247959137
+            },
+            "updates": {
+              "strengthened_edges": 600,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 3,
+            "interactions": 300,
+            "rankings_changed": 9,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9065277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 71,
+              "queries_worsened": 17
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04428484346464899,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.1252421247959137
+            },
+            "updates": {
+              "strengthened_edges": 900,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 4,
+            "interactions": 400,
+            "rankings_changed": 12,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9065277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 71,
+              "queries_worsened": 17
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04443244338564244,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.13524212479591372
+            },
+            "updates": {
+              "strengthened_edges": 1200,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 5,
+            "interactions": 500,
+            "rankings_changed": 17,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9065277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 71,
+              "queries_worsened": 17
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04458011666724463,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.14524212479591372
+            },
+            "updates": {
+              "strengthened_edges": 1500,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          }
+        ],
+        "stronger_adaptation": [
+          {
+            "pass": 0,
+            "interactions": 0,
+            "rankings_changed": 0,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9015277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 70,
+              "queries_worsened": 18
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17326,
+              "average_degree": 7.037367993501219,
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
+            },
+            "updates": {
+              "strengthened_edges": 0,
+              "created_edges": 0,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 1,
+            "interactions": 100,
+            "rankings_changed": 12,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9015277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 70,
+              "queries_worsened": 18
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04467683953985325,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.1452421247959137
+            },
+            "updates": {
+              "strengthened_edges": 300,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 2,
+            "interactions": 200,
+            "rankings_changed": 14,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9015277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 70,
+              "queries_worsened": 18
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04551103681414631,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.19524212479591369
+            },
+            "updates": {
+              "strengthened_edges": 600,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 3,
+            "interactions": 300,
+            "rankings_changed": 15,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9015277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 70,
+              "queries_worsened": 18
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.046345081079879454,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.24524212479591367
+            },
+            "updates": {
+              "strengthened_edges": 900,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 4,
+            "interactions": 400,
+            "rankings_changed": 17,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9015277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 70,
+              "queries_worsened": 18
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.0471789729991695,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.29524212479591366
+            },
+            "updates": {
+              "strengthened_edges": 1200,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 5,
+            "interactions": 500,
+            "rankings_changed": 18,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.745,
+              "recall_at_10": 0.815,
+              "mrr": 0.9015277777777778,
+              "queries_improved": 12,
+              "queries_unchanged": 70,
+              "queries_worsened": 18
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17465,
+              "average_degree": 7.09382615759545,
+              "average_edge_weight": 0.04801271323190245,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.34524212479591365
+            },
+            "updates": {
+              "strengthened_edges": 1500,
+              "created_edges": 139,
+              "pruned_edges": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20,
+      "conditions": {
+        "current_strength": [
+          {
+            "pass": 0,
+            "interactions": 0,
+            "rankings_changed": 0,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17326,
+              "average_degree": 7.037367993501219,
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
+            },
+            "updates": {
+              "strengthened_edges": 0,
+              "created_edges": 0,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 1,
+            "interactions": 100,
+            "rankings_changed": 4,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.044006042938855065,
+              "min_edge_weight": 0.00995,
+              "max_edge_weight": 0.1052421247959137
+            },
+            "updates": {
+              "strengthened_edges": 300,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 2,
+            "interactions": 200,
+            "rankings_changed": 7,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04415211093503694,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.1152421247959137
+            },
+            "updates": {
+              "strengthened_edges": 600,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 3,
+            "interactions": 300,
+            "rankings_changed": 9,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04429827120789383,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.13290477156639097
+            },
+            "updates": {
+              "strengthened_edges": 900,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 4,
+            "interactions": 400,
+            "rankings_changed": 11,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04444452320239912,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.15290477156639098
+            },
+            "updates": {
+              "strengthened_edges": 1200,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 5,
+            "interactions": 500,
+            "rankings_changed": 14,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04459086636725804,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.172904771566391
+            },
+            "updates": {
+              "strengthened_edges": 1500,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          }
+        ],
+        "stronger_adaptation": [
+          {
+            "pass": 0,
+            "interactions": 0,
+            "rankings_changed": 0,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17326,
+              "average_degree": 7.037367993501219,
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
+            },
+            "updates": {
+              "strengthened_edges": 0,
+              "created_edges": 0,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 1,
+            "interactions": 100,
+            "rankings_changed": 7,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.69,
+              "recall_at_10": 0.785,
+              "mrr": 0.8327777777777777,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04469331524954357,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.172904771566391
+            },
+            "updates": {
+              "strengthened_edges": 300,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 2,
+            "interactions": 200,
+            "rankings_changed": 9,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.685,
+              "recall_at_10": 0.785,
+              "mrr": 0.8319444444444445,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04552647271760081,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.272904771566391
+            },
+            "updates": {
+              "strengthened_edges": 600,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 3,
+            "interactions": 300,
+            "rankings_changed": 11,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.685,
+              "recall_at_10": 0.785,
+              "mrr": 0.8319444444444445,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04635954053771397,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.37290477156639096
+            },
+            "updates": {
+              "strengthened_edges": 900,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 4,
+            "interactions": 400,
+            "rankings_changed": 12,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.685,
+              "recall_at_10": 0.785,
+              "mrr": 0.8319444444444445,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04719251906447954,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.47290477156639094
+            },
+            "updates": {
+              "strengthened_edges": 1200,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 5,
+            "interactions": 500,
+            "rankings_changed": 14,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.685,
+              "recall_at_10": 0.785,
+              "mrr": 0.8319444444444445,
+              "queries_improved": 14,
+              "queries_unchanged": 75,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17458,
+              "average_degree": 7.090982940698619,
+              "average_edge_weight": 0.04802540865167773,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.572904771566391
+            },
+            "updates": {
+              "strengthened_edges": 1500,
+              "created_edges": 132,
+              "pruned_edges": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "seed": 30,
+      "conditions": {
+        "current_strength": [
+          {
+            "pass": 0,
+            "interactions": 0,
+            "rankings_changed": 0,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.73,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17326,
+              "average_degree": 7.037367993501219,
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
+            },
+            "updates": {
+              "strengthened_edges": 0,
+              "created_edges": 0,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 1,
+            "interactions": 100,
+            "rankings_changed": 8,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.73,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.044012903786712305,
+              "min_edge_weight": 0.00995,
+              "max_edge_weight": 0.10802363514900208
+            },
+            "updates": {
+              "strengthened_edges": 300,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 2,
+            "interactions": 200,
+            "rankings_changed": 13,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.73,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.04415828882836167,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.11802363514900208
+            },
+            "updates": {
+              "strengthened_edges": 600,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 3,
+            "interactions": 300,
+            "rankings_changed": 17,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.73,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.044303760679412565,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.12802363514900209
+            },
+            "updates": {
+              "strengthened_edges": 900,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 4,
+            "interactions": 400,
+            "rankings_changed": 19,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.73,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.04444931886626968,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.1380236351490021
+            },
+            "updates": {
+              "strengthened_edges": 1200,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 5,
+            "interactions": 500,
+            "rankings_changed": 22,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.735,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.04459496291823205,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.1480236351490021
+            },
+            "updates": {
+              "strengthened_edges": 1500,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          }
+        ],
+        "stronger_adaptation": [
+          {
+            "pass": 0,
+            "interactions": 0,
+            "rankings_changed": 0,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.73,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17326,
+              "average_degree": 7.037367993501219,
+              "average_edge_weight": 0.044194220435801,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.09927877187728883
+            },
+            "updates": {
+              "strengthened_edges": 0,
+              "created_edges": 0,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 1,
+            "interactions": 100,
+            "rankings_changed": 12,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.73,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.04470027130318322,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.14802363514900208
+            },
+            "updates": {
+              "strengthened_edges": 300,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 2,
+            "interactions": 200,
+            "rankings_changed": 17,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.725,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.0455327955593843,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.19802363514900206
+            },
+            "updates": {
+              "strengthened_edges": 600,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 3,
+            "interactions": 300,
+            "rankings_changed": 20,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.72,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.046365179804607345,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.24802363514900205
+            },
+            "updates": {
+              "strengthened_edges": 900,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 4,
+            "interactions": 400,
+            "rankings_changed": 22,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.72,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.04719742503599719,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.29802363514900204
+            },
+            "updates": {
+              "strengthened_edges": 1200,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          },
+          {
+            "pass": 5,
+            "interactions": 500,
+            "rankings_changed": 24,
+            "metrics": {
+              "queries_evaluated": 100,
+              "recall_at_5": 0.725,
+              "recall_at_10": 0.845,
+              "mrr": 0.9108333333333334,
+              "queries_improved": 18,
+              "queries_unchanged": 71,
+              "queries_worsened": 11
+            },
+            "graph": {
+              "agents": 4924,
+              "undirected_edges": 17455,
+              "average_degree": 7.089764419171406,
+              "average_edge_weight": 0.048029532242881395,
+              "min_edge_weight": 0.017945528030395508,
+              "max_edge_weight": 0.34802363514900203
+            },
+            "updates": {
+              "strengthened_edges": 1500,
+              "created_edges": 129,
+              "pruned_edges": 0
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "aggregate": {
+    "current_strength": [
+      {
+        "pass": 0,
+        "interactions": 0,
+        "rankings_changed": {
+          "mean": 0,
+          "standard_deviation": 0.0
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7216666666666667,
+            "standard_deviation": 0.02843120351538666
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8833796296296297,
+            "standard_deviation": 0.04387533487379978
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72.33333333333333,
+            "standard_deviation": 2.309401076758503
+          },
+          "queries_worsened": {
+            "mean": 13,
+            "standard_deviation": 3.4641016151377544
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17326,
+            "standard_deviation": 0.0
+          },
+          "average_degree": {
+            "mean": 7.037367993501219,
+            "standard_deviation": 0.0
+          },
+          "average_edge_weight": {
+            "mean": 0.044194220435801,
+            "standard_deviation": 0.0
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.09927877187728883,
+            "standard_deviation": 0.0
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 1,
+        "interactions": 100,
+        "rankings_changed": {
+          "mean": 6.333333333333333,
+          "standard_deviation": 2.0816659994661326
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7216666666666667,
+            "standard_deviation": 0.02843120351538666
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8833796296296297,
+            "standard_deviation": 0.04387533487379978
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72.33333333333333,
+            "standard_deviation": 2.309401076758503
+          },
+          "queries_worsened": {
+            "mean": 13,
+            "standard_deviation": 3.4641016151377544
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.044002937439174945,
+            "standard_deviation": 1.1828892618837866e-05
+          },
+          "min_edge_weight": {
+            "mean": 0.00995,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.10616929491360982,
+            "standard_deviation": 0.0016059057511093066
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 300,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 2,
+        "interactions": 200,
+        "rankings_changed": {
+          "mean": 9.333333333333334,
+          "standard_deviation": 3.2145502536643185
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7216666666666667,
+            "standard_deviation": 0.02843120351538666
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8833796296296297,
+            "standard_deviation": 0.04387533487379978
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72.33333333333333,
+            "standard_deviation": 2.309401076758503
+          },
+          "queries_worsened": {
+            "mean": 13,
+            "standard_deviation": 3.4641016151377544
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.04414923904622239,
+            "standard_deviation": 1.0776653944133267e-05
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.11616929491360982,
+            "standard_deviation": 0.0016059057511093066
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 600,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 3,
+        "interactions": 300,
+        "rankings_changed": {
+          "mean": 11.666666666666666,
+          "standard_deviation": 4.618802153517006
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7216666666666667,
+            "standard_deviation": 0.02843120351538666
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8833796296296297,
+            "standard_deviation": 0.04387533487379978
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72.33333333333333,
+            "standard_deviation": 2.309401076758503
+          },
+          "queries_worsened": {
+            "mean": 13,
+            "standard_deviation": 3.4641016151377544
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.04429562511731846,
+            "standard_deviation": 9.732245378256186e-06
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.12872351050376893,
+            "standard_deviation": 0.0038789699684882713
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 900,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 4,
+        "interactions": 400,
+        "rankings_changed": {
+          "mean": 14,
+          "standard_deviation": 4.358898943540674
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7216666666666667,
+            "standard_deviation": 0.02843120351538666
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8833796296296297,
+            "standard_deviation": 0.04387533487379978
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72.33333333333333,
+            "standard_deviation": 2.309401076758503
+          },
+          "queries_worsened": {
+            "mean": 13,
+            "standard_deviation": 3.4641016151377544
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.04444209515143708,
+            "standard_deviation": 8.695805609938113e-06
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.14205684383710226,
+            "standard_deviation": 0.00949696540880232
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 1200,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 5,
+        "interactions": 500,
+        "rankings_changed": {
+          "mean": 17.666666666666668,
+          "standard_deviation": 4.041451884327381
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7233333333333333,
+            "standard_deviation": 0.029297326385411604
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8833796296296297,
+            "standard_deviation": 0.04387533487379978
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72.33333333333333,
+            "standard_deviation": 2.309401076758503
+          },
+          "queries_worsened": {
+            "mean": 13,
+            "standard_deviation": 3.4641016151377544
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.044588648650911576,
+            "standard_deviation": 7.667560983806723e-06
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.1553901771704356,
+            "standard_deviation": 0.015231709116255092
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 1500,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      }
+    ],
+    "stronger_adaptation": [
+      {
+        "pass": 0,
+        "interactions": 0,
+        "rankings_changed": {
+          "mean": 0,
+          "standard_deviation": 0.0
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7216666666666667,
+            "standard_deviation": 0.02843120351538666
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.881712962962963,
+            "standard_deviation": 0.042633761303463046
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72,
+            "standard_deviation": 2.6457513110645907
+          },
+          "queries_worsened": {
+            "mean": 13.333333333333334,
+            "standard_deviation": 4.041451884327381
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17326,
+            "standard_deviation": 0.0
+          },
+          "average_degree": {
+            "mean": 7.037367993501219,
+            "standard_deviation": 0.0
+          },
+          "average_edge_weight": {
+            "mean": 0.044194220435801,
+            "standard_deviation": 0.0
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.09927877187728883,
+            "standard_deviation": 0.0
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 1,
+        "interactions": 100,
+        "rankings_changed": {
+          "mean": 10.333333333333334,
+          "standard_deviation": 2.8867513459481287
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7216666666666667,
+            "standard_deviation": 0.02843120351538666
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.881712962962963,
+            "standard_deviation": 0.042633761303463046
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72,
+            "standard_deviation": 2.6457513110645907
+          },
+          "queries_worsened": {
+            "mean": 13.333333333333334,
+            "standard_deviation": 4.041451884327381
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.04469014203086001,
+            "standard_deviation": 1.2033863502559105e-05
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.1553901771704356,
+            "standard_deviation": 0.01523170911625511
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 300,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 2,
+        "interactions": 200,
+        "rankings_changed": {
+          "mean": 13.333333333333334,
+          "standard_deviation": 4.041451884327381
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7183333333333334,
+            "standard_deviation": 0.030550504633038898
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8814351851851853,
+            "standard_deviation": 0.04311204478274945
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72,
+            "standard_deviation": 2.6457513110645907
+          },
+          "queries_worsened": {
+            "mean": 13.333333333333334,
+            "standard_deviation": 4.041451884327381
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.04552343503037714,
+            "standard_deviation": 1.11929176864005e-05
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.22205684383710225,
+            "standard_deviation": 0.04405755344697788
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 600,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 3,
+        "interactions": 300,
+        "rankings_changed": {
+          "mean": 15.333333333333334,
+          "standard_deviation": 4.509249752822894
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7166666666666667,
+            "standard_deviation": 0.030138568866708508
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8814351851851853,
+            "standard_deviation": 0.04311204478274945
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72,
+            "standard_deviation": 2.6457513110645907
+          },
+          "queries_worsened": {
+            "mean": 13.333333333333334,
+            "standard_deviation": 4.041451884327381
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.04635660047406692,
+            "standard_deviation": 1.0366902363213614e-05
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.2887235105037689,
+            "standard_deviation": 0.07291637494782006
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 900,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 4,
+        "interactions": 400,
+        "rankings_changed": {
+          "mean": 17,
+          "standard_deviation": 5.0
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7166666666666667,
+            "standard_deviation": 0.030138568866708508
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8814351851851853,
+            "standard_deviation": 0.04311204478274945
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72,
+            "standard_deviation": 2.6457513110645907
+          },
+          "queries_worsened": {
+            "mean": 13.333333333333334,
+            "standard_deviation": 4.041451884327381
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.04718963903321541,
+            "standard_deviation": 9.557214596023365e-06
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.35539017717043553,
+            "standard_deviation": 0.10178012636067768
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 1200,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      },
+      {
+        "pass": 5,
+        "interactions": 500,
+        "rankings_changed": {
+          "mean": 18.666666666666668,
+          "standard_deviation": 5.033222956847166
+        },
+        "metrics": {
+          "queries_evaluated": {
+            "mean": 100,
+            "standard_deviation": 0.0
+          },
+          "recall_at_5": {
+            "mean": 0.7183333333333334,
+            "standard_deviation": 0.030550504633038898
+          },
+          "recall_at_10": {
+            "mean": 0.815,
+            "standard_deviation": 0.02999999999999997
+          },
+          "mrr": {
+            "mean": 0.8814351851851853,
+            "standard_deviation": 0.04311204478274945
+          },
+          "queries_improved": {
+            "mean": 14.666666666666666,
+            "standard_deviation": 3.0550504633038935
+          },
+          "queries_unchanged": {
+            "mean": 72,
+            "standard_deviation": 2.6457513110645907
+          },
+          "queries_worsened": {
+            "mean": 13.333333333333334,
+            "standard_deviation": 4.041451884327381
+          }
+        },
+        "graph": {
+          "agents": {
+            "mean": 4924,
+            "standard_deviation": 0.0
+          },
+          "undirected_edges": {
+            "mean": 17459.333333333332,
+            "standard_deviation": 5.131601439446884
+          },
+          "average_degree": {
+            "mean": 7.091524505821825,
+            "standard_deviation": 0.0020843222743484693
+          },
+          "average_edge_weight": {
+            "mean": 0.048022551375487194,
+            "standard_deviation": 8.76600268076988e-06
+          },
+          "min_edge_weight": {
+            "mean": 0.017945528030395508,
+            "standard_deviation": 0.0
+          },
+          "max_edge_weight": {
+            "mean": 0.42205684383710224,
+            "standard_deviation": 0.1306455402037384
+          }
+        },
+        "updates": {
+          "strengthened_edges": {
+            "mean": 1500,
+            "standard_deviation": 0.0
+          },
+          "created_edges": {
+            "mean": 133.33333333333334,
+            "standard_deviation": 5.131601439446884
+          },
+          "pruned_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          }
+        }
+      }
+    ]
+  }
+}

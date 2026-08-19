@@ -13,7 +13,9 @@
       "seed_k": 3,
       "graph_weight": 0.05,
       "pruning_enabled": false,
-      "update_k": 10
+      "update_k": 3,
+      "strengthen_amount": 0.01,
+      "decay_rate": 0.995
     }
   },
   "conditions": {
@@ -23,41 +25,41 @@
           "seed": 10,
           "pruning_enabled": true,
           "updates": {
-            "strengthened_edges": 4328,
-            "created_edges": 2792,
-            "pruned_edges": 11140
+            "strengthened_edges": 300,
+            "created_edges": 142,
+            "pruned_edges": 1574
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 8978,
-            "average_degree": 3.6466287571080422,
-            "average_edge_weight": 0.06917620091659883,
-            "min_edge_weight": 0.05,
-            "max_edge_weight": 0.19085521912877104
+            "undirected_edges": 15894,
+            "average_degree": 6.455727051177904,
+            "average_edge_weight": 0.04442018069995183,
+            "min_edge_weight": 0.01,
+            "max_edge_weight": 0.1052421247959137
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": -8348,
-            "average_degree": -3.3907392363931765,
-            "average_edge_weight": -0.019212239955003166,
-            "min_edge_weight": 0.014108943939208987,
-            "max_edge_weight": -0.007702324625806611
+            "undirected_edges": -1432,
+            "average_degree": -0.5816409423233146,
+            "average_edge_weight": 0.00022596026415083043,
+            "min_edge_weight": -0.007945528030395508,
+            "max_edge_weight": 0.005963352918624876
           },
           "systems": {
             "adapted_agent_graph": {
               "queries_evaluated": 300,
-              "mean_recall_at_5": 0.74,
-              "mean_recall_at_10": 0.8133333333333334,
-              "mean_mrr": 0.8883518518518518,
-              "mean_retrieval_latency_ms": 0.15841527609154582
+              "mean_recall_at_5": 0.745,
+              "mean_recall_at_10": 0.8316666666666667,
+              "mean_mrr": 0.8887962962962963,
+              "mean_retrieval_latency_ms": 0.157016656982402
             }
           }
         },
@@ -65,41 +67,41 @@
           "seed": 20,
           "pruning_enabled": true,
           "updates": {
-            "strengthened_edges": 4410,
-            "created_edges": 2712,
-            "pruned_edges": 11057
+            "strengthened_edges": 300,
+            "created_edges": 132,
+            "pruned_edges": 1507
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 8981,
-            "average_degree": 3.647847278635256,
-            "average_edge_weight": 0.0700096877199075,
-            "min_edge_weight": 0.05,
-            "max_edge_weight": 0.18218463627604087
+            "undirected_edges": 15951,
+            "average_degree": 6.4788789601949635,
+            "average_edge_weight": 0.04440228292879514,
+            "min_edge_weight": 0.01,
+            "max_edge_weight": 0.1052421247959137
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": -8345,
-            "average_degree": -3.389520714865963,
-            "average_edge_weight": -0.018378753151694502,
-            "min_edge_weight": 0.014108943939208987,
-            "max_edge_weight": -0.016372907478536786
+            "undirected_edges": -1375,
+            "average_degree": -0.5584890333062553,
+            "average_edge_weight": 0.00020806249299414048,
+            "min_edge_weight": -0.007945528030395508,
+            "max_edge_weight": 0.005963352918624876
           },
           "systems": {
             "adapted_agent_graph": {
               "queries_evaluated": 300,
-              "mean_recall_at_5": 0.7416666666666667,
-              "mean_recall_at_10": 0.8016666666666666,
-              "mean_mrr": 0.9016851851851851,
-              "mean_retrieval_latency_ms": 0.15038210277756056
+              "mean_recall_at_5": 0.7466666666666667,
+              "mean_recall_at_10": 0.825,
+              "mean_mrr": 0.9008981481481482,
+              "mean_retrieval_latency_ms": 0.1596522230344514
             }
           }
         },
@@ -107,61 +109,61 @@
           "seed": 30,
           "pruning_enabled": true,
           "updates": {
-            "strengthened_edges": 4344,
-            "created_edges": 2702,
-            "pruned_edges": 11040
+            "strengthened_edges": 300,
+            "created_edges": 130,
+            "pruned_edges": 1636
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 8988,
-            "average_degree": 3.650690495532088,
-            "average_edge_weight": 0.06964317825957883,
-            "min_edge_weight": 0.05,
-            "max_edge_weight": 0.21251359687017385
+            "undirected_edges": 15820,
+            "average_degree": 6.425670186839968,
+            "average_edge_weight": 0.04443724982392725,
+            "min_edge_weight": 0.01,
+            "max_edge_weight": 0.10802363514900208
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": -8338,
-            "average_degree": -3.386677497969131,
-            "average_edge_weight": -0.018745262612023167,
-            "min_edge_weight": 0.014108943939208987,
-            "max_edge_weight": 0.013956053115596195
+            "undirected_edges": -1506,
+            "average_degree": -0.6116978066612511,
+            "average_edge_weight": 0.00024302938812625213,
+            "min_edge_weight": -0.007945528030395508,
+            "max_edge_weight": 0.008744863271713255
           },
           "systems": {
             "adapted_agent_graph": {
               "queries_evaluated": 300,
-              "mean_recall_at_5": 0.7483333333333333,
-              "mean_recall_at_10": 0.8,
-              "mean_mrr": 0.8953425925925926,
-              "mean_retrieval_latency_ms": 0.15088166886319718
+              "mean_recall_at_5": 0.75,
+              "mean_recall_at_10": 0.8183333333333334,
+              "mean_mrr": 0.8957314814814815,
+              "mean_retrieval_latency_ms": 0.15747818785409132
             }
           }
         }
       ],
       "aggregate": {
         "recall_at_5": {
-          "mean": 0.7433333333333333,
-          "standard_deviation": 0.00440958551844096
+          "mean": 0.7472222222222222,
+          "standard_deviation": 0.002545875386086576
         },
         "recall_at_10": {
-          "mean": 0.805,
-          "standard_deviation": 0.007264831572567791
+          "mean": 0.825,
+          "standard_deviation": 0.006666666666666654
         },
         "mrr": {
-          "mean": 0.8951265432098765,
-          "standard_deviation": 0.006669291749974151
+          "mean": 0.895141975308642,
+          "standard_deviation": 0.006072424779847381
         },
         "retrieval_latency_ms": {
-          "mean": 0.1532263492441012,
-          "standard_deviation": 0.0045006791642571405
+          "mean": 0.15804902262364823,
+          "standard_deviation": 0.0014074591838771522
         }
       }
     },
@@ -171,41 +173,41 @@
           "seed": 10,
           "pruning_enabled": false,
           "updates": {
-            "strengthened_edges": 4491,
-            "created_edges": 2798,
+            "strengthened_edges": 300,
+            "created_edges": 139,
             "pruned_edges": 0
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 20124,
-            "average_degree": 8.173842404549147,
-            "average_edge_weight": 0.05492558406415643,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.22333393508454685
+            "undirected_edges": 17465,
+            "average_degree": 7.09382615759545,
+            "average_edge_weight": 0.04398986559195746,
+            "min_edge_weight": 0.00995,
+            "max_edge_weight": 0.1052421247959137
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": 2798,
-            "average_degree": 1.136474411047928,
-            "average_edge_weight": -0.03346285680744557,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": 0.0247763913299692
+            "undirected_edges": 139,
+            "average_degree": 0.056458164094231655,
+            "average_edge_weight": -0.00020435484384354052,
+            "min_edge_weight": -0.007995528030395507,
+            "max_edge_weight": 0.005963352918624876
           },
           "systems": {
             "adapted_agent_graph": {
               "queries_evaluated": 300,
-              "mean_recall_at_5": 0.7383333333333333,
+              "mean_recall_at_5": 0.7483333333333333,
               "mean_recall_at_10": 0.8316666666666667,
               "mean_mrr": 0.8887962962962963,
-              "mean_retrieval_latency_ms": 0.15512852386261025
+              "mean_retrieval_latency_ms": 0.16458734093854824
             }
           }
         },
@@ -213,41 +215,41 @@
           "seed": 20,
           "pruning_enabled": false,
           "updates": {
-            "strengthened_edges": 4474,
-            "created_edges": 2692,
+            "strengthened_edges": 300,
+            "created_edges": 132,
             "pruned_edges": 0
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 20018,
-            "average_degree": 8.130787977254265,
-            "average_edge_weight": 0.05517961139301814,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.20465546703732226
+            "undirected_edges": 17458,
+            "average_degree": 7.090982940698619,
+            "average_edge_weight": 0.044006042938855065,
+            "min_edge_weight": 0.00995,
+            "max_edge_weight": 0.1052421247959137
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": 2692,
-            "average_degree": 1.093419983753046,
-            "average_edge_weight": -0.033208829478583855,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": 0.006097923282744611
+            "undirected_edges": 132,
+            "average_degree": 0.05361494719740012,
+            "average_edge_weight": -0.0001881774969459335,
+            "min_edge_weight": -0.007995528030395507,
+            "max_edge_weight": 0.005963352918624876
           },
           "systems": {
             "adapted_agent_graph": {
               "queries_evaluated": 300,
-              "mean_recall_at_5": 0.7383333333333333,
-              "mean_recall_at_10": 0.8216666666666667,
-              "mean_mrr": 0.9016388888888889,
-              "mean_retrieval_latency_ms": 0.16389958250025907
+              "mean_recall_at_5": 0.7466666666666667,
+              "mean_recall_at_10": 0.825,
+              "mean_mrr": 0.9025648148148148,
+              "mean_retrieval_latency_ms": 0.154880549137791
             }
           }
         },
@@ -255,61 +257,61 @@
           "seed": 30,
           "pruning_enabled": false,
           "updates": {
-            "strengthened_edges": 4500,
-            "created_edges": 2766,
+            "strengthened_edges": 300,
+            "created_edges": 129,
             "pruned_edges": 0
           },
           "graph_before": {
             "agents": 4924,
             "undirected_edges": 17326,
             "average_degree": 7.037367993501219,
-            "average_edge_weight": 0.088388440871602,
-            "min_edge_weight": 0.035891056060791016,
-            "max_edge_weight": 0.19855754375457765
+            "average_edge_weight": 0.044194220435801,
+            "min_edge_weight": 0.017945528030395508,
+            "max_edge_weight": 0.09927877187728883
           },
           "graph_after": {
             "agents": 4924,
-            "undirected_edges": 20092,
-            "average_degree": 8.160844841592201,
-            "average_edge_weight": 0.055028242555136025,
-            "min_edge_weight": 0.021741740696058567,
-            "max_edge_weight": 0.21251359687017385
+            "undirected_edges": 17455,
+            "average_degree": 7.089764419171406,
+            "average_edge_weight": 0.044012903786712305,
+            "min_edge_weight": 0.00995,
+            "max_edge_weight": 0.10802363514900208
           },
           "graph_deltas": {
             "agents": 0,
-            "undirected_edges": 2766,
-            "average_degree": 1.1234768480909825,
-            "average_edge_weight": -0.03336019831646597,
-            "min_edge_weight": -0.014149315364732448,
-            "max_edge_weight": 0.013956053115596195
+            "undirected_edges": 129,
+            "average_degree": 0.052396425670186986,
+            "average_edge_weight": -0.00018131664908869333,
+            "min_edge_weight": -0.007995528030395507,
+            "max_edge_weight": 0.008744863271713255
           },
           "systems": {
             "adapted_agent_graph": {
               "queries_evaluated": 300,
-              "mean_recall_at_5": 0.745,
-              "mean_recall_at_10": 0.815,
-              "mean_mrr": 0.8951759259259259,
-              "mean_retrieval_latency_ms": 0.15448191979279122
+              "mean_recall_at_5": 0.75,
+              "mean_recall_at_10": 0.8166666666666667,
+              "mean_mrr": 0.8957314814814815,
+              "mean_retrieval_latency_ms": 0.16407997192194065
             }
           }
         }
       ],
       "aggregate": {
         "recall_at_5": {
-          "mean": 0.7405555555555555,
-          "standard_deviation": 0.00384900179459753
+          "mean": 0.7483333333333333,
+          "standard_deviation": 0.0016666666666666496
         },
         "recall_at_10": {
-          "mean": 0.8227777777777777,
-          "standard_deviation": 0.008388704928078635
+          "mean": 0.8244444444444444,
+          "standard_deviation": 0.007515416254704829
         },
         "mrr": {
-          "mean": 0.8952037037037037,
-          "standard_deviation": 0.006421341357421524
+          "mean": 0.8956975308641976,
+          "standard_deviation": 0.006884322045924849
         },
         "retrieval_latency_ms": {
-          "mean": 0.15783667538522017,
-          "standard_deviation": 0.005260575654808944
+          "mean": 0.1611826206660933,
+          "standard_deviation": 0.005463646675127532
         }
       }
     }

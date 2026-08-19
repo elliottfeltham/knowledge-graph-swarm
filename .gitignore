@@ -21,15 +21,21 @@ results/*
 # Keep final evaluation outputs
 !results/main_evaluation.json
 !results/pruning_ablation.json
+!results/adaptation_over_time.json
+!results/repeated_adaptation.json
 !results/selective_strengthening.json
 !results/report/
 results/report/*
 !results/report/retrieval_results.csv
 !results/report/pruning_ablation.csv
+!results/report/adaptation_over_time.csv
+!results/report/repeated_adaptation.csv
 !results/report/selective_strengthening.csv
 !results/report/retrieval_comparison.png
 !results/report/adaptation_comparison.png
 !results/report/graph_structure.png
+!results/report/adaptation_over_time.png
+!results/report/repeated_adaptation.png
 !results/report/selective_strengthening.png
 
 # Large generated files

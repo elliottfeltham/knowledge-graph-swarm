@@ -48,7 +48,7 @@ def select_best_configuration(configurations: list[dict]) -> dict:
             configuration["adapted"]["mrr"],
             configuration["adapted"]["recall_at_5"],
             -configuration["strengthen_amount"],
-            -abs(1.0 - configuration["decay_rate"]),
+            -abs(0.995 - configuration["decay_rate"]),
         ),
     )
 
@@ -190,7 +190,7 @@ def main() -> None:
         },
         "selection_rule": (
             "Highest validation Recall@10, then MRR, Recall@5, lower "
-            "strengthening amount, and decay rate closest to 1.0."
+            "strengthening amount, and decay rate closest to the original 0.995."
         ),
         "application_graph_unchanged": application_graph_unchanged,
         "validation_faiss": validation_faiss,
