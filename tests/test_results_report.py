@@ -117,3 +117,24 @@ def test_adaptation_report_creates_graph_evolution_figure(tmp_path, monkeypatch)
     assert csv_path.exists()
     assert retrieval_figure.exists()
     assert graph_figure.exists()
+
+
+def test_ranking_impact_figure_is_created(tmp_path) -> None:
+    output_path = tmp_path / "ranking_impact.png"
+    results = {
+        "ranking_impact": {
+            "outcomes": {
+                metric_name: {
+                    "improved": 2,
+                    "unchanged": 7,
+                    "worsened": 1,
+                }
+                for metric_name in ("recall_at_5", "recall_at_10", "mrr")
+            },
+            "mrr_deltas": [-0.5, 0, 0.25],
+        }
+    }
+
+    create_results_report.save_ranking_impact(results, output_path)
+
+    assert output_path.exists()

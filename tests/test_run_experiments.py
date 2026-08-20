@@ -5,6 +5,7 @@ import pytest
 from evaluation.experiment_helpers import split_query_groups
 from run_experiments import (
     aggregate_seed_results,
+    compare_query_metrics,
     project_relative_path,
 )
 
@@ -57,3 +58,30 @@ def test_result_paths_are_saved_relative_to_the_project() -> None:
     )
 
     assert path == "results/example.json"
+
+
+def test_query_comparison_counts_ranking_outcomes() -> None:
+    faiss_rows = [
+        {"recall_at_5": 0.5, "recall_at_10": 1.0, "mrr": 0.5},
+        {"recall_at_5": 1.0, "recall_at_10": 1.0, "mrr": 1.0},
+        {"recall_at_5": 0.5, "recall_at_10": 0.5, "mrr": 0.5},
+    ]
+    graph_rows = [
+        {"recall_at_5": 1.0, "recall_at_10": 1.0, "mrr": 1.0},
+        {"recall_at_5": 1.0, "recall_at_10": 1.0, "mrr": 0.5},
+        {"recall_at_5": 0.0, "recall_at_10": 0.5, "mrr": 0.5},
+    ]
+
+    comparison = compare_query_metrics(faiss_rows, graph_rows)
+
+    assert comparison["outcomes"]["recall_at_5"] == {
+        "improved": 1,
+        "unchanged": 1,
+        "worsened": 1,
+    }
+    assert comparison["outcomes"]["recall_at_10"]["unchanged"] == 3
+    assert comparison["outcomes"]["mrr"] == {
+        "improved": 1,
+        "unchanged": 1,
+        "worsened": 1,
+    }

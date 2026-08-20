@@ -40,6 +40,7 @@ results/report/*
 !results/report/graph_evolution.png
 !results/report/parameter_tuning_heatmap.png
 !results/report/update_dynamics_heatmap.png
+!results/report/ranking_impact.png
 
 # Large generated files
 *.npy

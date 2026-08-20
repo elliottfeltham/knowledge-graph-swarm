@@ -154,6 +154,13 @@ unchanged and MRR also remained at 0.8957. The original update configuration
 reduced Recall@10, showing that stronger or wider graph updates can reinforce
 retrieval noise.
 
+The paired comparison with FAISS helps explain the aggregate improvement. The
+optimised graph improved Recall@5 on 89 query runs and worsened it on 60. For
+Recall@10, it improved 115 query runs and worsened 90. Reciprocal rank changed
+on only 30 of the 900 runs, but the positive changes were larger overall. This
+shows that graph activation mainly acts as a small reranking signal for
+documents with similar semantic scores.
+
 ### Adaptation Over Time
 
 A separate experiment applied 300 adaptation queries and evaluated the graph on
@@ -174,6 +181,7 @@ of contextual reorganisation. Explicit user relevance feedback is a natural
 extension for making future updates more reliable.
 
 The report figures include the [main retrieval comparison](results/report/retrieval_comparison.png),
+[paired ranking impact](results/report/ranking_impact.png),
 [graph evolution over time](results/report/graph_evolution.png),
 [retrieval parameter heatmap](results/report/parameter_tuning_heatmap.png) and
 [update parameter heatmap](results/report/update_dynamics_heatmap.png).

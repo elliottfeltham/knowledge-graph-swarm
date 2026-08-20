@@ -707,6 +707,60 @@ def save_retrieval_comparison(results: dict, path: Path) -> None:
     plt.close(figure)
 
 
+def save_ranking_impact(results: dict, path: Path) -> None:
+    impact = results["ranking_impact"]
+    metric_names = ["recall_at_5", "recall_at_10", "mrr"]
+    labels = ["Recall@5", "Recall@10", "Reciprocal rank"]
+    x_positions = list(range(len(metric_names)))
+    figure, axes = plt.subplots(1, 2, figsize=(11, 4.8))
+    bar_width = 0.24
+
+    for outcome_index, (outcome, label, colour) in enumerate(
+        (
+            ("improved", "Improved", COLOURS[2]),
+            ("unchanged", "Unchanged", "#999999"),
+            ("worsened", "Worsened", COLOURS[3]),
+        )
+    ):
+        positions = [
+            position + (outcome_index - 1) * bar_width
+            for position in x_positions
+        ]
+        values = [
+            impact["outcomes"][metric_name][outcome]
+            for metric_name in metric_names
+        ]
+        axes[0].bar(positions, values, width=bar_width, label=label, color=colour)
+
+    axes[0].set(
+        title="Optimised graph compared with FAISS",
+        ylabel="Query runs",
+        xticks=x_positions,
+    )
+    axes[0].set_xticklabels(labels)
+    axes[0].legend(frameon=False)
+    axes[0].grid(axis="y", alpha=0.2)
+
+    changed_deltas = sorted(
+        delta for delta in impact["mrr_deltas"] if delta != 0
+    )
+    colours = [
+        COLOURS[3] if delta < 0 else COLOURS[2]
+        for delta in changed_deltas
+    ]
+    axes[1].bar(range(len(changed_deltas)), changed_deltas, color=colours, width=1)
+    axes[1].axhline(0, color="#555555", linewidth=0.8)
+    axes[1].set(
+        title="Queries with a changed relevant-document rank",
+        xlabel="Changed query runs, ordered by effect",
+        ylabel="Change in reciprocal rank",
+    )
+    axes[1].grid(axis="y", alpha=0.2)
+    figure.tight_layout()
+    figure.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
+
 def save_adaptation_comparison(results: dict, path: Path) -> None:
     systems = [
         "original_initial_agent_graph",
@@ -815,6 +869,7 @@ def main() -> None:
         REPORT_DIRECTORY / "retrieval_comparison.png",
         REPORT_DIRECTORY / "adaptation_comparison.png",
         REPORT_DIRECTORY / "graph_structure.png",
+        REPORT_DIRECTORY / "ranking_impact.png",
     ]
 
     save_csv(outputs[0], retrieval_rows)
@@ -822,6 +877,7 @@ def main() -> None:
     save_retrieval_comparison(main_results, outputs[2])
     save_adaptation_comparison(main_results, outputs[3])
     save_graph_structure_comparison(pruning_rows, outputs[4])
+    save_ranking_impact(main_results, outputs[5])
 
     print("Created report outputs:")
     for output in outputs:

@@ -67,6 +67,54 @@ def summarise_query_metrics(rows: list[dict]) -> dict:
     }
 
 
+def compare_query_metrics(faiss_rows: list[dict], graph_rows: list[dict]) -> dict:
+    if len(faiss_rows) != len(graph_rows):
+        raise ValueError("Systems must contain the same number of query results")
+
+    outcomes = {}
+
+    for metric_name in ("recall_at_5", "recall_at_10", "mrr"):
+        differences = [
+            graph[metric_name] - faiss[metric_name]
+            for faiss, graph in zip(faiss_rows, graph_rows)
+        ]
+        outcomes[metric_name] = {
+            "improved": sum(difference > 0 for difference in differences),
+            "unchanged": sum(difference == 0 for difference in differences),
+            "worsened": sum(difference < 0 for difference in differences),
+        }
+
+    return {
+        "outcomes": outcomes,
+        "mrr_deltas": [
+            graph["mrr"] - faiss["mrr"]
+            for faiss, graph in zip(faiss_rows, graph_rows)
+        ],
+    }
+
+
+def aggregate_ranking_impact(seed_results: list[dict]) -> dict:
+    outcomes = {
+        metric_name: {
+            outcome: sum(
+                result["faiss_comparison"]["outcomes"][metric_name][outcome]
+                for result in seed_results
+            )
+            for outcome in ("improved", "unchanged", "worsened")
+        }
+        for metric_name in ("recall_at_5", "recall_at_10", "mrr")
+    }
+    return {
+        "systems": ["faiss", "optimised_initial_agent_graph"],
+        "outcomes": outcomes,
+        "mrr_deltas": [
+            delta
+            for result in seed_results
+            for delta in result["faiss_comparison"]["mrr_deltas"]
+        ],
+    }
+
+
 def aggregate_seed_results(seed_results: list[dict]) -> dict:
     aggregate = {}
 
@@ -157,7 +205,8 @@ def evaluate_retrievals(
     query_embeddings: dict[str, object],
     qrels: dict[str, set[str]],
     retrievals_for_query,
-) -> dict:
+    include_query_metrics: bool = False,
+) -> dict | tuple[dict, dict[str, list[dict]]]:
     system_rows = {}
 
     for query in evaluation_queries:
@@ -174,10 +223,15 @@ def evaluate_retrievals(
                 )
             )
 
-    return {
+    summaries = {
         system_name: summarise_query_metrics(rows)
         for system_name, rows in system_rows.items()
     }
+
+    if include_query_metrics:
+        return summaries, system_rows
+
+    return summaries
 
 
 def evaluate_final_seed(
@@ -271,6 +325,14 @@ def evaluate_final_seed(
             ),
         }
 
+    systems, query_metrics = evaluate_retrievals(
+        evaluation_queries,
+        query_embeddings,
+        qrels,
+        retrievals_for_query,
+        include_query_metrics=True,
+    )
+
     return {
         "seed": seed,
         "adaptation_query_ids": [row["query_id"] for row in adaptation_queries],
@@ -285,11 +347,10 @@ def evaluate_final_seed(
             "original": original_adaptation,
             "optimised": optimised_adaptation,
         },
-        "systems": evaluate_retrievals(
-            evaluation_queries,
-            query_embeddings,
-            qrels,
-            retrievals_for_query,
+        "systems": systems,
+        "faiss_comparison": compare_query_metrics(
+            query_metrics["faiss"],
+            query_metrics["optimised_initial_agent_graph"],
         ),
     }
 
@@ -509,6 +570,7 @@ def main() -> None:
             },
             "seed_results": seed_results,
             "aggregate": aggregate,
+            "ranking_impact": aggregate_ranking_impact(seed_results),
         }
         output_path = args.output_path or RESULTS_PATH
         print_results("Final evaluation results", aggregate)
