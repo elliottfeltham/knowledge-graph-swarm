@@ -453,6 +453,10 @@ def save_adaptation_over_time_report(results: dict) -> None:
             row[f"{field}_mean"] = values["mean"]
             row[f"{field}_std"] = values["standard_deviation"]
 
+        for field, values in checkpoint["ranking_changes"].items():
+            row[f"{field}_mean"] = values["mean"]
+            row[f"{field}_std"] = values["standard_deviation"]
+
         for field, values in checkpoint["graph"].items():
             row[f"graph_{field}_mean"] = values["mean"]
 
@@ -463,7 +467,7 @@ def save_adaptation_over_time_report(results: dict) -> None:
 
     save_csv(ADAPTATION_OVER_TIME_CSV_PATH, rows)
     configure_plot_style()
-    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+    figure, axes = plt.subplots(1, 3, figsize=(15, 4.8))
     x_values = [row["adaptation_queries"] for row in rows]
 
     for metric, label in METRICS:
@@ -483,16 +487,37 @@ def save_adaptation_over_time_report(results: dict) -> None:
     axes[0].legend(frameon=False)
     axes[1].plot(
         x_values,
+        [row["top_10_set_change_percentage_mean"] for row in rows],
+        marker="o",
+        label="Different documents",
+        color=COLOURS[1],
+    )
+    axes[1].plot(
+        x_values,
+        [row["top_10_order_change_percentage_mean"] for row in rows],
+        marker="o",
+        label="Different order",
+        color=COLOURS[2],
+    )
+    axes[1].set(
+        title="Ranking changes from checkpoint 0",
+        xlabel="Adaptation queries",
+        ylabel="Evaluation queries changed (%)",
+    )
+    axes[1].grid(alpha=0.2)
+    axes[1].legend(frameon=False)
+    axes[2].plot(
+        x_values,
         [row["graph_average_edge_weight_mean"] for row in rows],
         marker="o",
         color=COLOURS[2],
     )
-    axes[1].set(
+    axes[2].set(
         title="Graph weight during adaptation",
         xlabel="Adaptation queries",
         ylabel="Mean edge weight",
     )
-    axes[1].grid(alpha=0.2)
+    axes[2].grid(alpha=0.2)
     figure.tight_layout()
     figure.savefig(ADAPTATION_OVER_TIME_FIGURE_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)

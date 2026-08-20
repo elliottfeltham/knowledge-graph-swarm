@@ -209,6 +209,11 @@ over FAISS, while unsupervised adaptation is most useful as a conservative form
 of contextual reorganisation. Explicit user relevance feedback is a natural
 extension for making future updates more reliable.
 
+After 300 adaptation queries, 7.17% of held-out top-10 result sets contained
+different documents and 14.83% had a different ordering. Recall@10 and MRR
+remained unchanged, showing that adaptation affected rankings without changing
+the aggregate relevance metrics.
+
 The report figures include the [main retrieval comparison](results/report/retrieval_comparison.png),
 [paired ranking impact](results/report/ranking_impact.png),
 [graph evolution over time](results/report/graph_evolution.png),

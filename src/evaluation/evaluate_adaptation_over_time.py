@@ -52,7 +52,7 @@ def aggregate_checkpoints(seed_results: list[dict]) -> list[dict]:
         matching = [result["checkpoints"][checkpoint_index] for result in seed_results]
         row = {"adaptation_queries": first_checkpoint["adaptation_queries"]}
 
-        for section in ("metrics", "graph", "updates"):
+        for section in ("metrics", "ranking_changes", "graph", "updates"):
             row[section] = {}
 
             for field in matching[0][section]:
@@ -65,6 +65,32 @@ def aggregate_checkpoints(seed_results: list[dict]) -> list[dict]:
         checkpoints.append(row)
 
     return checkpoints
+
+
+def calculate_ranking_changes(
+    initial_rows: list[dict],
+    current_rows: list[dict],
+) -> dict:
+    initial_rankings = {
+        row["query_id"]: row["retrieved_doc_ids"]
+        for row in initial_rows
+    }
+    set_changes = 0
+    order_changes = 0
+
+    for row in current_rows:
+        initial_ranking = initial_rankings[row["query_id"]]
+        current_ranking = row["retrieved_doc_ids"]
+        set_changes += set(initial_ranking) != set(current_ranking)
+        order_changes += initial_ranking != current_ranking
+
+    query_count = len(current_rows)
+    return {
+        "top_10_set_changes": set_changes,
+        "top_10_set_change_percentage": 100 * set_changes / query_count,
+        "top_10_order_changes": order_changes,
+        "top_10_order_change_percentage": 100 * order_changes / query_count,
+    }
 
 
 def evaluate_seed(
@@ -90,6 +116,7 @@ def evaluate_seed(
     }
     checkpoint_results = []
     previous_checkpoint = 0
+    initial_rows = None
 
     for checkpoint in checkpoints:
         query_batch = adaptation_queries[previous_checkpoint:checkpoint]
@@ -113,10 +140,14 @@ def evaluate_seed(
             OPTIMISED_CONFIG["graph_weight"],
             faiss_metrics,
         )
+        if initial_rows is None:
+            initial_rows = rows
+
         checkpoint_results.append(
             {
                 "adaptation_queries": checkpoint,
                 "metrics": summarise_agent_rows(rows),
+                "ranking_changes": calculate_ranking_changes(initial_rows, rows),
                 "graph": calculate_graph_statistics(agents),
                 "updates": update_totals.copy(),
             }

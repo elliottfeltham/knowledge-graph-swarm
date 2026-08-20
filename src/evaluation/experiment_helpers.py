@@ -143,6 +143,7 @@ def evaluate_agent_graph(
         rows.append(
             {
                 "query_id": query_id,
+                "retrieved_doc_ids": retrieved_doc_ids,
                 "metrics": metrics,
                 "outcome": compare_query_metrics(metrics, faiss_metrics[query_id]),
             }

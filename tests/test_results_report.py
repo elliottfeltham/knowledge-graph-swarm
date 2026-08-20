@@ -96,6 +96,12 @@ def test_adaptation_report_creates_graph_evolution_figure(tmp_path, monkeypatch)
                     "recall_at_10": metric(0.8),
                     "mrr": metric(0.9),
                 },
+                "ranking_changes": {
+                    "top_10_set_changes": metric(checkpoint / 5),
+                    "top_10_set_change_percentage": metric(checkpoint / 2),
+                    "top_10_order_changes": metric(checkpoint / 4),
+                    "top_10_order_change_percentage": metric(checkpoint),
+                },
                 "graph": {
                     "undirected_edges": metric(100 + checkpoint),
                     "average_edge_weight": metric(0.1),
