@@ -84,6 +84,8 @@ def adaptive_search(request: SearchRequest) -> AdaptiveSearchResponse:
         graph_weight=request.graph_weight,
         update_config=GraphUpdateConfig(
             update_k=request.update_k,
+            strengthen_amount=request.strengthen_amount,
+            decay_rate=request.decay_rate,
             enable_pruning=request.enable_pruning,
         ),
     )

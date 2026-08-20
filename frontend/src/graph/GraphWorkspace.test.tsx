@@ -433,6 +433,7 @@ describe("GraphWorkspace", () => {
           updated_documents: 2,
           strengthened_edges: 1,
           created_edges: 1,
+          decayed_edges: 0,
           pruned_edges: 0,
           edge_updates: [
             {
@@ -452,7 +453,7 @@ describe("GraphWorkspace", () => {
       "1",
     );
     expect(screen.getByLabelText("Graph animation legend")).toHaveTextContent(
-      "StrengthenedCreatedPruned",
+      "StrengthenedCreatedDecayedPruned",
     );
   });
 });

@@ -75,7 +75,7 @@ Standard search retrieves documents without changing the graph.
 Adaptive search saves changes to relationships between the retrieved document agents.
 The Graph Statistics panel shows the current graph structure and can reset it to the original nearest-neighbour graph after testing.
 
-The interface uses the configuration selected during validation: three FAISS seed documents, a graph weight of `0.05`, strengthening of the top three retrieved documents by `0.01`, a decay rate of `0.995`, and pruning disabled. The initial graph connects each document to its five nearest neighbours with an edge-weight scale of `0.2`.
+The interface uses the configuration selected during validation: three FAISS seed documents, a graph weight of `0.05`, strengthening of the top three retrieved documents by `0.01`, a decay rate of `0.995`, and pruning disabled. The initial graph connects each document to its five nearest neighbours with an edge-weight scale of `0.1`.
 
 The focused graph is intended for exploring local document relationships. The full graph shows the complete corpus in an observation-only view.
 

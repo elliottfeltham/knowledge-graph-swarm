@@ -9,6 +9,8 @@ class SearchRequest(BaseModel):
     seed_k: int = Field(default=3, ge=1, le=100)
     graph_weight: float = Field(default=0.05, ge=0, le=1)
     update_k: int = Field(default=3, ge=2, le=100)
+    strengthen_amount: float = Field(default=0.01, gt=0, le=1)
+    decay_rate: float = Field(default=0.995, ge=0, le=1)
     enable_pruning: bool = False
 
     @field_validator("query")
@@ -39,7 +41,7 @@ class GraphEdgeUpdate(BaseModel):
     target: str
     previous_weight: float
     new_weight: float | None
-    change_type: Literal["strengthened", "created", "pruned"]
+    change_type: Literal["strengthened", "created", "decayed", "pruned"]
 
 
 class GraphUpdateSummary(BaseModel):
@@ -47,6 +49,7 @@ class GraphUpdateSummary(BaseModel):
     updated_documents: int
     strengthened_edges: int
     created_edges: int
+    decayed_edges: int
     pruned_edges: int
     edge_updates: list[GraphEdgeUpdate]
 

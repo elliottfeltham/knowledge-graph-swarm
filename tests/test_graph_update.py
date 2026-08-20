@@ -33,6 +33,7 @@ def test_update_reports_strengthened_and_created_edges() -> None:
 
     assert summary["strengthened_edges"] == 3
     assert summary["created_edges"] == 2
+    assert summary["decayed_edges"] == 0
     assert summary["pruned_edges"] == 0
     assert summary["edge_updates"] == [
         {
@@ -75,6 +76,7 @@ def test_update_reports_pruned_edge_with_its_decayed_weight() -> None:
 
     assert summary["strengthened_edges"] == 0
     assert summary["created_edges"] == 0
+    assert summary["decayed_edges"] == 1
     assert summary["pruned_edges"] == 1
     assert summary["edge_updates"] == [
         {
@@ -99,7 +101,16 @@ def test_disabling_pruning_returns_no_pruned_updates() -> None:
     )
 
     assert summary["pruned_edges"] == 0
-    assert summary["edge_updates"] == []
+    assert summary["decayed_edges"] == 1
+    assert summary["edge_updates"] == [
+        {
+            "source": "doc-1",
+            "target": "doc-3",
+            "previous_weight": 0.01,
+            "new_weight": pytest.approx(0.00995),
+            "change_type": "decayed",
+        }
+    ]
     assert "doc-3" in agents["doc-1"].edges
 
 
@@ -111,7 +122,7 @@ def test_only_edges_connected_to_updated_documents_decay() -> None:
     add_undirected_edge(agents, "doc-1", "doc-3", 0.4)
     add_undirected_edge(agents, "doc-3", "doc-4", 0.4)
 
-    update_graph_after_retrieval(
+    summary = update_graph_after_retrieval(
         agents,
         ["doc-1", "doc-2"],
         GraphUpdateConfig(decay_rate=0.5, enable_pruning=False),
@@ -119,6 +130,14 @@ def test_only_edges_connected_to_updated_documents_decay() -> None:
 
     assert agents["doc-1"].edges["doc-3"].weight == pytest.approx(0.2)
     assert agents["doc-3"].edges["doc-4"].weight == pytest.approx(0.4)
+    assert summary["decayed_edges"] == 1
+    assert summary["edge_updates"][-1] == {
+        "source": "doc-1",
+        "target": "doc-3",
+        "previous_weight": 0.4,
+        "new_weight": pytest.approx(0.2),
+        "change_type": "decayed",
+    }
 
 
 def test_pruning_does_not_remove_unrelated_weak_edges() -> None:
@@ -140,6 +159,7 @@ def test_pruning_does_not_remove_unrelated_weak_edges() -> None:
     )
 
     assert summary["pruned_edges"] == 1
+    assert summary["decayed_edges"] == 1
     assert "doc-3" not in agents["doc-1"].edges
     assert agents["doc-3"].edges["doc-4"].weight == pytest.approx(0.01)
 
@@ -177,6 +197,7 @@ def test_update_k_limits_strengthening(
     assert summary["updated_documents"] == (update_k or 10)
     assert summary["strengthened_edges"] == expected_edges
     assert summary["created_edges"] == expected_edges
+    assert summary["decayed_edges"] == 0
 
 
 def test_update_k_must_include_at_least_two_documents() -> None:

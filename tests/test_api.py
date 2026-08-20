@@ -71,6 +71,8 @@ class FakeAgentGraphRuntime:
             "seed_k": seed_k,
             "graph_weight": graph_weight,
             "update_k": update_config.update_k,
+            "strengthen_amount": update_config.strengthen_amount,
+            "decay_rate": update_config.decay_rate,
             "enable_pruning": update_config.enable_pruning,
         }
         update_summary = {
@@ -78,6 +80,7 @@ class FakeAgentGraphRuntime:
             "updated_documents": 1,
             "strengthened_edges": 1,
             "created_edges": 0,
+            "decayed_edges": 1,
             "pruned_edges": 0,
             "edge_updates": [
                 {
@@ -183,6 +186,8 @@ def test_adaptive_search_returns_update_summary(api_client) -> None:
         "seed_k": 3,
         "graph_weight": 0.4,
         "update_k": 6,
+        "strengthen_amount": 0.05,
+        "decay_rate": 0.99,
         "enable_pruning": True,
     }
 
@@ -199,6 +204,7 @@ def test_adaptive_search_returns_update_summary(api_client) -> None:
             "updated_documents": 1,
             "strengthened_edges": 1,
             "created_edges": 0,
+            "decayed_edges": 1,
             "pruned_edges": 0,
             "edge_updates": [
                 {

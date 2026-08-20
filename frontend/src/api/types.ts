@@ -9,6 +9,8 @@ export interface SearchRequest {
   seed_k?: number;
   graph_weight?: number;
   update_k?: number;
+  strengthen_amount?: number;
+  decay_rate?: number;
   enable_pruning?: boolean;
 }
 
@@ -26,7 +28,11 @@ export interface SearchResponse {
   results: SearchResult[];
 }
 
-export type GraphEdgeChangeType = "strengthened" | "created" | "pruned";
+export type GraphEdgeChangeType =
+  | "strengthened"
+  | "created"
+  | "decayed"
+  | "pruned";
 
 export interface GraphEdgeUpdate {
   source: string;
@@ -41,6 +47,7 @@ export interface GraphUpdateSummary {
   updated_documents: number;
   strengthened_edges: number;
   created_edges: number;
+  decayed_edges: number;
   pruned_edges: number;
   edge_updates: GraphEdgeUpdate[];
 }

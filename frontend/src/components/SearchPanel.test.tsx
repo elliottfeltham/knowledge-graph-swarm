@@ -97,6 +97,7 @@ describe("SearchPanel", () => {
         updated_documents: 10,
         strengthened_edges: 3,
         created_edges: 1,
+        decayed_edges: 4,
         pruned_edges: 0,
         edge_updates: [],
       },
@@ -111,6 +112,12 @@ describe("SearchPanel", () => {
     fireEvent.change(screen.getByLabelText("Documents updated"), {
       target: { value: "10" },
     });
+    fireEvent.change(screen.getByLabelText("Strengthening"), {
+      target: { value: "0.05" },
+    });
+    fireEvent.change(screen.getByLabelText("Decay rate"), {
+      target: { value: "0.99" },
+    });
     fireEvent.click(screen.getByRole("checkbox", { name: "Enable pruning" }));
     fireEvent.click(screen.getByRole("button", { name: "Search" }));
 
@@ -120,12 +127,16 @@ describe("SearchPanel", () => {
     expect(within(updateSummary).getByText("10")).toBeInTheDocument();
     expect(within(updateSummary).getByText("Created")).toBeInTheDocument();
     expect(within(updateSummary).getByText("1")).toBeInTheDocument();
+    expect(within(updateSummary).getByText("Decayed")).toBeInTheDocument();
+    expect(within(updateSummary).getByText("4")).toBeInTheDocument();
     expect(adaptiveSearchDocuments).toHaveBeenCalledWith({
       query: "adaptive query",
       top_k: 10,
       seed_k: 3,
       graph_weight: 0.05,
       update_k: 10,
+      strengthen_amount: 0.05,
+      decay_rate: 0.99,
       enable_pruning: true,
     });
     expect(searchDocuments).not.toHaveBeenCalled();

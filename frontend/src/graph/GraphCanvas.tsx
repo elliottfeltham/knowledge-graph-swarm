@@ -75,6 +75,10 @@ interface AnimatedGraphEdge extends GraphEdge {
 const GRAPH_ANIMATION_DURATION_MS = 3_000;
 const MAX_PARTICLE_EDGES = 50;
 const FULL_GRAPH_FORCE_EDGE_LIMIT = 10_000;
+const STRENGTHENED_EDGE_COLOR = "#ffd43b";
+const CREATED_EDGE_COLOR = "#00e5ff";
+const DECAYED_EDGE_COLOR = "#b388ff";
+const PRUNED_EDGE_COLOR = "#ff4d6d";
 
 function makeEdgeKey(source: string, target: string): string {
   return [source, target].sort().join("::");
@@ -195,7 +199,11 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
       () =>
         new Set(
           edgeUpdates
-            .filter((update) => update.change_type !== "pruned")
+            .filter(
+              (update) =>
+                update.change_type === "strengthened" ||
+                update.change_type === "created",
+            )
             .sort(
               (first, second) =>
                 Math.abs((second.new_weight ?? 0) - second.previous_weight) -
@@ -453,6 +461,12 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
                   : 0;
               }
 
+              if (edge.animationChangeType === "decayed") {
+                return animationActive
+                  ? normalWidth + 0.8 * (1 - settleProgress)
+                  : normalWidth + 0.2;
+              }
+
               if (animationActive) {
                 return normalWidth + 2.2 * (1 - settleProgress);
               }
@@ -471,15 +485,19 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
                 highlightActive &&
                 edge.animationChangeType === "strengthened"
               ) {
-                return "#f0b56b";
+                return STRENGTHENED_EDGE_COLOR;
               }
 
               if (highlightActive && edge.animationChangeType === "created") {
-                return "#58c4c7";
+                return CREATED_EDGE_COLOR;
+              }
+
+              if (highlightActive && edge.animationChangeType === "decayed") {
+                return DECAYED_EDGE_COLOR;
               }
 
               if (highlightActive && edge.animationChangeType === "pruned") {
-                return "#d97868";
+                return PRUNED_EDGE_COLOR;
               }
 
               if (connectedToHoveredNode) {
@@ -507,7 +525,9 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
             linkDirectionalParticleWidth={1.5}
             linkDirectionalParticleSpeed={0.008}
             linkDirectionalParticleColor={(edge) =>
-              edge.animationChangeType === "created" ? "#58c4c7" : "#f0b56b"
+              edge.animationChangeType === "created"
+                ? CREATED_EDGE_COLOR
+                : STRENGTHENED_EDGE_COLOR
             }
             showNavInfo={false}
             onNodeHover={(node) => setHoveredNodeId(node?.id ?? null)}

@@ -51,6 +51,8 @@ function SearchPanel({
   const [seedK, setSeedK] = useState(3);
   const [graphWeight, setGraphWeight] = useState(0.05);
   const [updateK, setUpdateK] = useState(3);
+  const [strengthenAmount, setStrengthenAmount] = useState(0.01);
+  const [decayRate, setDecayRate] = useState(0.995);
   const [pruningEnabled, setPruningEnabled] = useState(false);
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [lastSearchSettings, setLastSearchSettings] = useState<{
@@ -97,6 +99,8 @@ function SearchPanel({
         ? await adaptiveSearchDocuments({
             ...request,
             update_k: updateK,
+            strengthen_amount: strengthenAmount,
+            decay_rate: decayRate,
             enable_pruning: pruningEnabled,
           })
         : await searchDocuments(request);
@@ -248,21 +252,55 @@ function SearchPanel({
                 />
               </label>
               {adaptive && (
-                <label>
-                  <span title="Use 3 for selective strengthening or 10 for the original setup">
-                    Documents updated
-                  </span>
-                  <input
-                    type="number"
-                    min="2"
-                    max={Math.max(2, topK)}
-                    required
-                    value={updateK}
-                    onChange={(event) =>
-                      setUpdateK(Number(event.target.value))
-                    }
-                  />
-                </label>
+                <>
+                  <label>
+                    <span title="Use 3 for selective strengthening or 10 for the original setup">
+                      Documents updated
+                    </span>
+                    <input
+                      type="number"
+                      min="2"
+                      max={Math.max(2, topK)}
+                      required
+                      value={updateK}
+                      onChange={(event) =>
+                        setUpdateK(Number(event.target.value))
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span title="Amount added to relationships between documents retrieved together">
+                      Strengthening
+                    </span>
+                    <input
+                      type="number"
+                      min="0.001"
+                      max="1"
+                      step="0.001"
+                      required
+                      value={strengthenAmount}
+                      onChange={(event) =>
+                        setStrengthenAmount(Number(event.target.value))
+                      }
+                    />
+                  </label>
+                  <label>
+                    <span title="Multiplier applied to competing local relationships">
+                      Decay rate
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.001"
+                      required
+                      value={decayRate}
+                      onChange={(event) =>
+                        setDecayRate(Number(event.target.value))
+                      }
+                    />
+                  </label>
+                </>
               )}
             </div>
             {adaptive && (
@@ -315,6 +353,10 @@ function SearchPanel({
             <div>
               <dt>Created</dt>
               <dd>{updateSummary.created_edges}</dd>
+            </div>
+            <div>
+              <dt>Decayed</dt>
+              <dd>{updateSummary.decayed_edges}</dd>
             </div>
             <div>
               <dt>Pruned</dt>

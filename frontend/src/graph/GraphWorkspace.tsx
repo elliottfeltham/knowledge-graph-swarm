@@ -367,6 +367,7 @@ function GraphWorkspace({
                 <>
                   <span><i className="legend-strengthened" />Strengthened</span>
                   <span><i className="legend-created" />Created</span>
+                  <span><i className="legend-decayed" />Decayed</span>
                   <span><i className="legend-pruned" />Pruned</span>
                 </>
               )}

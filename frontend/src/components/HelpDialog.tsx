@@ -124,10 +124,12 @@ function HelpDialog({ onClose }: HelpDialogProps) {
 					<div>
 						<dt>Graph updates</dt>
 						<dd>
-							During adaptive search, highlighted colours show
-							strengthened, created and pruned relationships. These
-							changes are saved until the graph is reset using Graph
-							Statistics.
+							Documents retrieved together strengthen their relationships.
+							Their connections to alternatives outside the update set decay
+							slightly, while unrelated graph regions remain unchanged. The
+							highlighted colours show strengthened, created, decayed and
+							pruned relationships. Changes are saved until the graph is reset
+							using Graph Statistics.
 						</dd>
 					</div>
 					<div>

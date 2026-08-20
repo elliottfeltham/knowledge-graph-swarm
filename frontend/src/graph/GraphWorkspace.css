@@ -285,15 +285,23 @@
 }
 
 .legend-strengthened {
-  background: #f0b56b;
+  background: #ffd43b;
+  box-shadow: 0 0 7px rgb(255 212 59 / 70%);
 }
 
 .legend-created {
-  background: #58c4c7;
+  background: #00e5ff;
+  box-shadow: 0 0 7px rgb(0 229 255 / 70%);
+}
+
+.legend-decayed {
+  background: #b388ff;
+  box-shadow: 0 0 7px rgb(179 136 255 / 70%);
 }
 
 .legend-pruned {
-  background: #d97868;
+  background: #ff4d6d;
+  box-shadow: 0 0 7px rgb(255 77 109 / 70%);
 }
 
 .graph-message {

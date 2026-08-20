@@ -72,9 +72,10 @@ def decay_local_edges(
     updated_doc_ids: list[str],
     strengthened_edges: set[tuple[str, str]],
     config: GraphUpdateConfig,
-) -> set[tuple[str, str]]:
+) -> list[dict]:
     updated_doc_id_set = set(updated_doc_ids)
-    decayed_edges = set()
+    decayed_edge_keys = set()
+    decayed_updates = []
 
     for source_id in updated_doc_ids:
         for target_id, edge in list(agents[source_id].edges.items()):
@@ -83,18 +84,31 @@ def decay_local_edges(
             if (
                 target_id in updated_doc_id_set
                 or edge_key in strengthened_edges
-                or edge_key in decayed_edges
+                or edge_key in decayed_edge_keys
             ):
                 continue
 
-            decayed_weight = edge.weight * config.decay_rate
+            previous_weight = edge.weight
+            decayed_weight = previous_weight * config.decay_rate
+
+            if decayed_weight == previous_weight:
+                continue
 
             agents[source_id].add_edge(target_id, decayed_weight)
             agents[target_id].add_edge(source_id, decayed_weight)
 
-            decayed_edges.add(edge_key)
+            decayed_edge_keys.add(edge_key)
+            decayed_updates.append(
+                {
+                    "source": edge_key[0],
+                    "target": edge_key[1],
+                    "previous_weight": previous_weight,
+                    "new_weight": decayed_weight,
+                    "change_type": "decayed",
+                }
+            )
 
-    return decayed_edges
+    return decayed_updates
 
 
 def prune_weak_edges(
@@ -148,12 +162,16 @@ def update_graph_after_retrieval(
         make_edge_key(update["source"], update["target"])
         for update in strengthened_updates
     }
-    decayed_edges = decay_local_edges(
+    decayed_updates = decay_local_edges(
         agents=agents,
         updated_doc_ids=updated_doc_ids,
         strengthened_edges=strengthened_edges,
         config=config,
     )
+    decayed_edges = {
+        make_edge_key(update["source"], update["target"])
+        for update in decayed_updates
+    }
     pruned_updates = []
 
     if config.enable_pruning:
@@ -167,11 +185,21 @@ def update_graph_after_retrieval(
         update["change_type"] == "created"
         for update in strengthened_updates
     )
+    pruned_edges = {
+        make_edge_key(update["source"], update["target"])
+        for update in pruned_updates
+    }
+    visible_decayed_updates = [
+        update
+        for update in decayed_updates
+        if make_edge_key(update["source"], update["target"]) not in pruned_edges
+    ]
     return {
         "retrieved_documents": len(retrieved_doc_ids),
         "updated_documents": len(updated_doc_ids),
         "strengthened_edges": len(strengthened_edges),
         "created_edges": created_edges,
+        "decayed_edges": len(decayed_edges),
         "pruned_edges": len(pruned_updates),
-        "edge_updates": strengthened_updates + pruned_updates,
+        "edge_updates": strengthened_updates + visible_decayed_updates + pruned_updates,
     }
