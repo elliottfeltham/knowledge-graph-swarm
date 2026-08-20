@@ -103,7 +103,7 @@ The complete dissertation experiment can be reproduced with one command:
 PYTHONPATH=src python src/run_full_evaluation.py
 ```
 
-This prepares the system, runs the final retrieval comparison, compares pruning enabled and disabled, and creates the CSV tables and figures. The experiment uses three fixed query splits with seeds `10`, `20` and `30`. Each split contains 100 adaptation queries, 100 validation queries and 300 held-out evaluation queries. Outputs are saved under `results/`.
+This prepares the system, runs the final retrieval comparison, compares pruning enabled and disabled, measures adaptation over time and repeated context, and creates the CSV tables and figures. The experiment uses three fixed query splits with seeds `10`, `20` and `30`. Each split contains 100 adaptation queries, 100 validation queries and 300 held-out evaluation queries. Outputs are saved under `results/`.
 
 If you prepared the system while running the application, reuse those files with:
 
@@ -142,18 +142,41 @@ The final comparison evaluates 900 query runs across the three seeds. Values bel
 | ----------------------- | ---------: | ---------: | ---------: |
 | FAISS                   |     0.7322 |     0.8106 |     0.8943 |
 | Static graph            |     0.7322 |     0.8217 |     0.8421 |
-| Original initial graph  |     0.7322 |     0.8217 |     0.8836 |
-| Original adapted graph  |     0.7322 |     0.8133 |     0.8921 |
-| Optimised initial graph | **0.7483** | **0.8244** |     0.8951 |
+| Original initial graph  |     0.7322 |     0.8217 |     0.8922 |
+| Original adapted graph  |     0.7322 |     0.8156 |     0.8925 |
+| Optimised initial graph | **0.7483** | **0.8244** | **0.8957** |
 | Optimised adapted graph | **0.7483** | **0.8244** | **0.8957** |
 
-The optimised adapted graph achieved the strongest overall result. It improved
-Recall@5 by 0.0161 and Recall@10 by 0.0138 over FAISS, while also producing a
-small MRR improvement. Most of the gain came from the optimised graph and
-retrieval settings. Adaptation preserved those recall scores and slightly
-improved MRR, whereas the original update configuration reduced Recall@10.
-This shows that adaptive graph retrieval can improve on FAISS, but that its
-benefit depends on controlling how strongly and how widely the graph is updated.
+The optimised graph improved Recall@5 by 0.0161 and Recall@10 by 0.0138 over
+FAISS. Most of this improvement came from the initial graph structure and the
+optimised retrieval settings. After adaptation, both recall scores remained
+unchanged and MRR also remained at 0.8957. The original update configuration
+reduced Recall@10, showing that stronger or wider graph updates can reinforce
+retrieval noise.
+
+### Adaptation Over Time
+
+A separate experiment applied 300 adaptation queries and evaluated the graph on
+200 held-out queries at regular checkpoints. Recall@10 remained at 0.8183 and
+MRR remained at 0.8982. Although the aggregate retrieval metrics were stable,
+the graph continued to change: relationships were strengthened and created,
+while competing local relationships received small amounts of decay.
+
+Repeated exposure to the same context changed an average of 17.7 out of 100
+rankings after 500 interactions. Recall@5 increased slightly from 0.7217 to
+0.7233, while Recall@10 and MRR remained unchanged. A stronger adaptation
+condition changed more rankings but reduced Recall@5, suggesting that
+co-retrieval alone is not a reliable enough signal for aggressive updates.
+
+The final evidence therefore shows that the optimised graph improves retrieval
+over FAISS, while unsupervised adaptation is most useful as a conservative form
+of contextual reorganisation. Explicit user relevance feedback is a natural
+extension for making future updates more reliable.
+
+The report figures include the [main retrieval comparison](results/report/retrieval_comparison.png),
+[graph evolution over time](results/report/graph_evolution.png),
+[retrieval parameter heatmap](results/report/parameter_tuning_heatmap.png) and
+[update parameter heatmap](results/report/update_dynamics_heatmap.png).
 
 ## Running The Tests
 

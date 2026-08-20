@@ -57,6 +57,7 @@
             "updates": {
               "strengthened_edges": 0,
               "created_edges": 0,
+              "decayed_edges": 0,
               "pruned_edges": 0
             }
           },
@@ -84,6 +85,7 @@
             "updates": {
               "strengthened_edges": 300,
               "created_edges": 139,
+              "decayed_edges": 1978,
               "pruned_edges": 0
             }
           },
@@ -111,6 +113,7 @@
             "updates": {
               "strengthened_edges": 600,
               "created_edges": 139,
+              "decayed_edges": 3963,
               "pruned_edges": 0
             }
           },
@@ -138,6 +141,7 @@
             "updates": {
               "strengthened_edges": 900,
               "created_edges": 139,
+              "decayed_edges": 5948,
               "pruned_edges": 0
             }
           },
@@ -165,6 +169,7 @@
             "updates": {
               "strengthened_edges": 1200,
               "created_edges": 139,
+              "decayed_edges": 7933,
               "pruned_edges": 0
             }
           },
@@ -192,6 +197,7 @@
             "updates": {
               "strengthened_edges": 1500,
               "created_edges": 139,
+              "decayed_edges": 9918,
               "pruned_edges": 0
             }
           }
@@ -221,6 +227,7 @@
             "updates": {
               "strengthened_edges": 0,
               "created_edges": 0,
+              "decayed_edges": 0,
               "pruned_edges": 0
             }
           },
@@ -248,6 +255,7 @@
             "updates": {
               "strengthened_edges": 300,
               "created_edges": 139,
+              "decayed_edges": 1978,
               "pruned_edges": 0
             }
           },
@@ -275,6 +283,7 @@
             "updates": {
               "strengthened_edges": 600,
               "created_edges": 139,
+              "decayed_edges": 3963,
               "pruned_edges": 0
             }
           },
@@ -302,6 +311,7 @@
             "updates": {
               "strengthened_edges": 900,
               "created_edges": 139,
+              "decayed_edges": 5948,
               "pruned_edges": 0
             }
           },
@@ -329,6 +339,7 @@
             "updates": {
               "strengthened_edges": 1200,
               "created_edges": 139,
+              "decayed_edges": 7933,
               "pruned_edges": 0
             }
           },
@@ -356,6 +367,7 @@
             "updates": {
               "strengthened_edges": 1500,
               "created_edges": 139,
+              "decayed_edges": 9918,
               "pruned_edges": 0
             }
           }
@@ -390,6 +402,7 @@
             "updates": {
               "strengthened_edges": 0,
               "created_edges": 0,
+              "decayed_edges": 0,
               "pruned_edges": 0
             }
           },
@@ -417,6 +430,7 @@
             "updates": {
               "strengthened_edges": 300,
               "created_edges": 132,
+              "decayed_edges": 2024,
               "pruned_edges": 0
             }
           },
@@ -444,6 +458,7 @@
             "updates": {
               "strengthened_edges": 600,
               "created_edges": 132,
+              "decayed_edges": 4053,
               "pruned_edges": 0
             }
           },
@@ -471,6 +486,7 @@
             "updates": {
               "strengthened_edges": 900,
               "created_edges": 132,
+              "decayed_edges": 6082,
               "pruned_edges": 0
             }
           },
@@ -498,6 +514,7 @@
             "updates": {
               "strengthened_edges": 1200,
               "created_edges": 132,
+              "decayed_edges": 8111,
               "pruned_edges": 0
             }
           },
@@ -525,6 +542,7 @@
             "updates": {
               "strengthened_edges": 1500,
               "created_edges": 132,
+              "decayed_edges": 10140,
               "pruned_edges": 0
             }
           }
@@ -554,6 +572,7 @@
             "updates": {
               "strengthened_edges": 0,
               "created_edges": 0,
+              "decayed_edges": 0,
               "pruned_edges": 0
             }
           },
@@ -581,6 +600,7 @@
             "updates": {
               "strengthened_edges": 300,
               "created_edges": 132,
+              "decayed_edges": 2024,
               "pruned_edges": 0
             }
           },
@@ -608,6 +628,7 @@
             "updates": {
               "strengthened_edges": 600,
               "created_edges": 132,
+              "decayed_edges": 4053,
               "pruned_edges": 0
             }
           },
@@ -635,6 +656,7 @@
             "updates": {
               "strengthened_edges": 900,
               "created_edges": 132,
+              "decayed_edges": 6082,
               "pruned_edges": 0
             }
           },
@@ -662,6 +684,7 @@
             "updates": {
               "strengthened_edges": 1200,
               "created_edges": 132,
+              "decayed_edges": 8111,
               "pruned_edges": 0
             }
           },
@@ -689,6 +712,7 @@
             "updates": {
               "strengthened_edges": 1500,
               "created_edges": 132,
+              "decayed_edges": 10140,
               "pruned_edges": 0
             }
           }
@@ -723,6 +747,7 @@
             "updates": {
               "strengthened_edges": 0,
               "created_edges": 0,
+              "decayed_edges": 0,
               "pruned_edges": 0
             }
           },
@@ -750,6 +775,7 @@
             "updates": {
               "strengthened_edges": 300,
               "created_edges": 129,
+              "decayed_edges": 2113,
               "pruned_edges": 0
             }
           },
@@ -777,6 +803,7 @@
             "updates": {
               "strengthened_edges": 600,
               "created_edges": 129,
+              "decayed_edges": 4232,
               "pruned_edges": 0
             }
           },
@@ -804,6 +831,7 @@
             "updates": {
               "strengthened_edges": 900,
               "created_edges": 129,
+              "decayed_edges": 6351,
               "pruned_edges": 0
             }
           },
@@ -831,6 +859,7 @@
             "updates": {
               "strengthened_edges": 1200,
               "created_edges": 129,
+              "decayed_edges": 8470,
               "pruned_edges": 0
             }
           },
@@ -858,6 +887,7 @@
             "updates": {
               "strengthened_edges": 1500,
               "created_edges": 129,
+              "decayed_edges": 10589,
               "pruned_edges": 0
             }
           }
@@ -887,6 +917,7 @@
             "updates": {
               "strengthened_edges": 0,
               "created_edges": 0,
+              "decayed_edges": 0,
               "pruned_edges": 0
             }
           },
@@ -914,6 +945,7 @@
             "updates": {
               "strengthened_edges": 300,
               "created_edges": 129,
+              "decayed_edges": 2113,
               "pruned_edges": 0
             }
           },
@@ -941,6 +973,7 @@
             "updates": {
               "strengthened_edges": 600,
               "created_edges": 129,
+              "decayed_edges": 4232,
               "pruned_edges": 0
             }
           },
@@ -968,6 +1001,7 @@
             "updates": {
               "strengthened_edges": 900,
               "created_edges": 129,
+              "decayed_edges": 6351,
               "pruned_edges": 0
             }
           },
@@ -995,6 +1029,7 @@
             "updates": {
               "strengthened_edges": 1200,
               "created_edges": 129,
+              "decayed_edges": 8470,
               "pruned_edges": 0
             }
           },
@@ -1022,6 +1057,7 @@
             "updates": {
               "strengthened_edges": 1500,
               "created_edges": 129,
+              "decayed_edges": 10589,
               "pruned_edges": 0
             }
           }
@@ -1103,6 +1139,10 @@
             "mean": 0,
             "standard_deviation": 0.0
           },
+          "decayed_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          },
           "pruned_edges": {
             "mean": 0,
             "standard_deviation": 0.0
@@ -1180,6 +1220,10 @@
           "created_edges": {
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
+          },
+          "decayed_edges": {
+            "mean": 2038.3333333333333,
+            "standard_deviation": 68.631868205181
           },
           "pruned_edges": {
             "mean": 0,
@@ -1259,6 +1303,10 @@
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
           },
+          "decayed_edges": {
+            "mean": 4082.6666666666665,
+            "standard_deviation": 136.93185653212086
+          },
           "pruned_edges": {
             "mean": 0,
             "standard_deviation": 0.0
@@ -1336,6 +1384,10 @@
           "created_edges": {
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
+          },
+          "decayed_edges": {
+            "mean": 6127,
+            "standard_deviation": 205.23401277566055
           },
           "pruned_edges": {
             "mean": 0,
@@ -1415,6 +1467,10 @@
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
           },
+          "decayed_edges": {
+            "mean": 8171.333333333333,
+            "standard_deviation": 273.5367129533682
+          },
           "pruned_edges": {
             "mean": 0,
             "standard_deviation": 0.0
@@ -1492,6 +1548,10 @@
           "created_edges": {
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
+          },
+          "decayed_edges": {
+            "mean": 10215.666666666666,
+            "standard_deviation": 341.8396310162608
           },
           "pruned_edges": {
             "mean": 0,
@@ -1573,6 +1633,10 @@
             "mean": 0,
             "standard_deviation": 0.0
           },
+          "decayed_edges": {
+            "mean": 0,
+            "standard_deviation": 0.0
+          },
           "pruned_edges": {
             "mean": 0,
             "standard_deviation": 0.0
@@ -1650,6 +1714,10 @@
           "created_edges": {
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
+          },
+          "decayed_edges": {
+            "mean": 2038.3333333333333,
+            "standard_deviation": 68.631868205181
           },
           "pruned_edges": {
             "mean": 0,
@@ -1729,6 +1797,10 @@
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
           },
+          "decayed_edges": {
+            "mean": 4082.6666666666665,
+            "standard_deviation": 136.93185653212086
+          },
           "pruned_edges": {
             "mean": 0,
             "standard_deviation": 0.0
@@ -1806,6 +1878,10 @@
           "created_edges": {
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
+          },
+          "decayed_edges": {
+            "mean": 6127,
+            "standard_deviation": 205.23401277566055
           },
           "pruned_edges": {
             "mean": 0,
@@ -1885,6 +1961,10 @@
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
           },
+          "decayed_edges": {
+            "mean": 8171.333333333333,
+            "standard_deviation": 273.5367129533682
+          },
           "pruned_edges": {
             "mean": 0,
             "standard_deviation": 0.0
@@ -1962,6 +2042,10 @@
           "created_edges": {
             "mean": 133.33333333333334,
             "standard_deviation": 5.131601439446884
+          },
+          "decayed_edges": {
+            "mean": 10215.666666666666,
+            "standard_deviation": 341.8396310162608
           },
           "pruned_edges": {
             "mean": 0,
