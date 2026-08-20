@@ -37,6 +37,9 @@ results/report/*
 !results/report/adaptation_over_time.png
 !results/report/repeated_adaptation.png
 !results/report/selective_strengthening.png
+!results/report/graph_evolution.png
+!results/report/parameter_tuning_heatmap.png
+!results/report/update_dynamics_heatmap.png
 
 # Large generated files
 *.npy

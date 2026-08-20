@@ -1,3 +1,4 @@
+from evaluation import create_results_report
 from evaluation.create_results_report import (
     build_pruning_rows,
     build_retrieval_rows,
@@ -69,3 +70,50 @@ def test_build_pruning_rows_averages_graph_statistics() -> None:
     assert rows[0]["condition"] == "Pruning Enabled"
     assert rows[0]["edges_after"] == 80
     assert rows[0]["edge_delta"] == -20
+
+
+def test_adaptation_report_creates_graph_evolution_figure(tmp_path, monkeypatch) -> None:
+    csv_path = tmp_path / "adaptation.csv"
+    retrieval_figure = tmp_path / "adaptation.png"
+    graph_figure = tmp_path / "graph_evolution.png"
+    monkeypatch.setattr(create_results_report, "ADAPTATION_OVER_TIME_CSV_PATH", csv_path)
+    monkeypatch.setattr(
+        create_results_report,
+        "ADAPTATION_OVER_TIME_FIGURE_PATH",
+        retrieval_figure,
+    )
+    monkeypatch.setattr(
+        create_results_report,
+        "GRAPH_EVOLUTION_FIGURE_PATH",
+        graph_figure,
+    )
+    results = {
+        "aggregate_checkpoints": [
+            {
+                "adaptation_queries": checkpoint,
+                "metrics": {
+                    "recall_at_5": metric(0.7),
+                    "recall_at_10": metric(0.8),
+                    "mrr": metric(0.9),
+                },
+                "graph": {
+                    "undirected_edges": metric(100 + checkpoint),
+                    "average_edge_weight": metric(0.1),
+                    "max_edge_weight": metric(0.2),
+                },
+                "updates": {
+                    "strengthened_edges": metric(checkpoint),
+                    "created_edges": metric(checkpoint / 2),
+                    "decayed_edges": metric(checkpoint * 2),
+                    "pruned_edges": metric(0),
+                },
+            }
+            for checkpoint in (0, 25)
+        ]
+    }
+
+    create_results_report.save_adaptation_over_time_report(results)
+
+    assert csv_path.exists()
+    assert retrieval_figure.exists()
+    assert graph_figure.exists()

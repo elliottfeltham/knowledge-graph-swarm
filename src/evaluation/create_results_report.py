@@ -16,14 +16,17 @@ PRUNING_RESULTS_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
 REPORT_DIRECTORY = PROJECT_ROOT / "results" / "report"
 PARAMETER_TUNING_CSV_PATH = REPORT_DIRECTORY / "parameter_tuning.csv"
 PARAMETER_TUNING_FIGURE_PATH = REPORT_DIRECTORY / "parameter_tuning.png"
+PARAMETER_TUNING_HEATMAP_PATH = REPORT_DIRECTORY / "parameter_tuning_heatmap.png"
 SELECTIVE_STRENGTHENING_CSV_PATH = REPORT_DIRECTORY / "selective_strengthening.csv"
 SELECTIVE_STRENGTHENING_FIGURE_PATH = REPORT_DIRECTORY / "selective_strengthening.png"
 GRAPH_INITIALISATION_CSV_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.csv"
 GRAPH_INITIALISATION_FIGURE_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.png"
 GRAPH_UPDATE_CSV_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.csv"
 GRAPH_UPDATE_FIGURE_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.png"
+GRAPH_UPDATE_HEATMAP_PATH = REPORT_DIRECTORY / "update_dynamics_heatmap.png"
 ADAPTATION_OVER_TIME_CSV_PATH = REPORT_DIRECTORY / "adaptation_over_time.csv"
 ADAPTATION_OVER_TIME_FIGURE_PATH = REPORT_DIRECTORY / "adaptation_over_time.png"
+GRAPH_EVOLUTION_FIGURE_PATH = REPORT_DIRECTORY / "graph_evolution.png"
 REPEATED_ADAPTATION_CSV_PATH = REPORT_DIRECTORY / "repeated_adaptation.csv"
 REPEATED_ADAPTATION_FIGURE_PATH = REPORT_DIRECTORY / "repeated_adaptation.png"
 
@@ -156,6 +159,71 @@ def configure_plot_style() -> None:
     )
 
 
+def plot_heatmap(
+    axis,
+    rows: list[dict],
+    x_field: str,
+    y_field: str,
+    value_field: str,
+    title: str,
+    x_label: str,
+    y_label: str,
+) -> None:
+    x_values = sorted({row[x_field] for row in rows})
+    y_values = sorted({row[y_field] for row in rows})
+    values = [
+        [
+            next(
+                row[value_field]
+                for row in rows
+                if row[x_field] == x_value and row[y_field] == y_value
+            )
+            for x_value in x_values
+        ]
+        for y_value in y_values
+    ]
+    minimum = min(map(min, values))
+    maximum = max(map(max, values))
+
+    if minimum == maximum:
+        margin = max(abs(minimum) * 0.001, 0.0005)
+        minimum -= margin
+        maximum += margin
+
+    image = axis.imshow(
+        values,
+        aspect="auto",
+        cmap="YlGnBu",
+        vmin=minimum,
+        vmax=maximum,
+    )
+    colour_midpoint = (minimum + maximum) / 2
+    decimal_places = 4 if "weight" in value_field else 3
+
+    for y_position, row_values in enumerate(values):
+        for x_position, value in enumerate(row_values):
+            axis.text(
+                x_position,
+                y_position,
+                f"{value:.{decimal_places}f}",
+                ha="center",
+                va="center",
+                fontsize=8,
+                color="white" if value > colour_midpoint else "black",
+            )
+
+    axis.set(
+        title=title,
+        xlabel=x_label,
+        ylabel=y_label,
+        xticks=range(len(x_values)),
+        yticks=range(len(y_values)),
+    )
+    axis.set_xticklabels(x_values)
+    axis.set_yticklabels(y_values)
+    axis.figure.colorbar(image, ax=axis, fraction=0.046, pad=0.04)
+
+
 def save_parameter_tuning_report(results: dict) -> None:
     configurations = results["configurations"]
     rows = []
@@ -207,6 +275,28 @@ def save_parameter_tuning_report(results: dict) -> None:
     axes[0].legend(frameon=False, loc="lower right")
     figure.tight_layout()
     figure.savefig(PARAMETER_TUNING_FIGURE_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+    adapted_rows = [row for row in rows if row["graph_state"] == "adapted"]
+
+    for axis, metric, label in (
+        (axes[0], "recall_at_10", "Recall@10"),
+        (axes[1], "mrr", "MRR"),
+    ):
+        plot_heatmap(
+            axis,
+            adapted_rows,
+            "graph_weight",
+            "seed_k",
+            metric,
+            f"Adapted graph {label}",
+            "Graph weight",
+            "Seed documents",
+        )
+
+    figure.tight_layout()
+    figure.savefig(PARAMETER_TUNING_HEATMAP_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
 
@@ -331,6 +421,27 @@ def save_graph_update_report(results: dict) -> None:
     figure.savefig(GRAPH_UPDATE_FIGURE_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+
+    for axis, metric, label in (
+        (axes[0], "recall_at_10", "Recall@10"),
+        (axes[1], "final_average_edge_weight", "Mean edge weight"),
+    ):
+        plot_heatmap(
+            axis,
+            rows,
+            "decay_rate",
+            "strengthen_amount",
+            metric,
+            label,
+            "Decay rate",
+            "Strengthening amount",
+        )
+
+    figure.tight_layout()
+    figure.savefig(GRAPH_UPDATE_HEATMAP_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
 
 def save_adaptation_over_time_report(results: dict) -> None:
     rows = []
@@ -384,6 +495,79 @@ def save_adaptation_over_time_report(results: dict) -> None:
     axes[1].grid(alpha=0.2)
     figure.tight_layout()
     figure.savefig(ADAPTATION_OVER_TIME_FIGURE_PATH, dpi=200, bbox_inches="tight")
+    plt.close(figure)
+
+    figure, axes = plt.subplots(1, 3, figsize=(15, 4.8))
+    axes[0].plot(
+        x_values,
+        [row["graph_undirected_edges_mean"] for row in rows],
+        marker="o",
+        color=COLOURS[0],
+    )
+    axes[0].set(
+        title="Graph size",
+        xlabel="Adaptation queries",
+        ylabel="Undirected edges",
+    )
+
+    for field, label, colour in (
+        ("graph_average_edge_weight_mean", "Mean weight", COLOURS[1]),
+        ("graph_max_edge_weight_mean", "Maximum weight", COLOURS[2]),
+    ):
+        axes[1].plot(
+            x_values,
+            [row[field] for row in rows],
+            marker="o",
+            label=label,
+            color=colour,
+        )
+
+    axes[1].set(
+        title="Relationship weights",
+        xlabel="Adaptation queries",
+        ylabel="Edge weight",
+    )
+    axes[1].legend(frameon=False)
+
+    strengthened_values = [
+        row["strengthened_edges_mean"] - row["created_edges_mean"]
+        for row in rows
+    ]
+    axes[2].plot(
+        x_values,
+        strengthened_values,
+        marker="o",
+        label="Strengthened",
+        color=COLOURS[1],
+    )
+    update_series = (
+        ("created_edges_mean", "Created", COLOURS[2]),
+        ("decayed_edges_mean", "Decayed", COLOURS[4]),
+        ("pruned_edges_mean", "Pruned", COLOURS[3]),
+    )
+
+    for field, label, colour in update_series:
+        if field in rows[0] and any(row[field] != 0 for row in rows):
+            axes[2].plot(
+                x_values,
+                [row[field] for row in rows],
+                marker="o",
+                label=label,
+                color=colour,
+            )
+
+    axes[2].set(
+        title="Cumulative relationship updates",
+        xlabel="Adaptation queries",
+        ylabel="Edge updates",
+    )
+    axes[2].legend(frameon=False)
+
+    for axis in axes:
+        axis.grid(alpha=0.2)
+
+    figure.tight_layout()
+    figure.savefig(GRAPH_EVOLUTION_FIGURE_PATH, dpi=200, bbox_inches="tight")
     plt.close(figure)
 
 

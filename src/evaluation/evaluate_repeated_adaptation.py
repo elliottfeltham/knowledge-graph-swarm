@@ -155,6 +155,7 @@ def evaluate_seed(
         update_totals = {
             "strengthened_edges": 0,
             "created_edges": 0,
+            "decayed_edges": 0,
             "pruned_edges": 0,
         }
         initial_metrics, initial_rankings = evaluate_graph(
