@@ -2,7 +2,12 @@ import json
 
 from datasets import load_dataset
 
-from common import PROJECT_ROOT
+from common import (
+    DATASET_CONFIG,
+    DATASET_NAME,
+    DATASET_REVISION,
+    PROJECT_ROOT,
+)
 
 
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
@@ -20,7 +25,12 @@ def write_jsonl(path, rows) -> None:
 
 
 def prepare_dataset(limit: int = 500) -> None:
-    dataset = load_dataset("hotpotqa/hotpot_qa", "distractor", split="train")
+    dataset = load_dataset(
+        DATASET_NAME,
+        DATASET_CONFIG,
+        split="train",
+        revision=DATASET_REVISION,
+    )
     subset = dataset.select(range(limit))
 
     documents = {}

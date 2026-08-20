@@ -4,10 +4,37 @@ This project investigates whether document retrieval can be improved by allowing
 
 The system includes a command-line interface, a FastAPI backend and a React frontend with an interactive 3D graph.
 
+## Repository Structure
+
+```text
+knowledge-graph-swarm/
+├── frontend/                   React interface and 3D graph visualisation
+├── src/
+│   ├── agents/                 Document agents, graph updates and statistics
+│   ├── api/                    FastAPI routes and request models
+│   ├── data/                   HotpotQA loading and processing
+│   ├── embeddings/             Document and query embedding generation
+│   ├── evaluation/             Parameter searches and focused experiments
+│   ├── graph/                  Initial and static graph construction
+│   ├── retrieval/              Agent graph retrieval and shared runtime
+│   ├── prepare_system.py       Prepare data, embeddings and graph files
+│   ├── run_experiments.py      Run the main retrieval comparison
+│   └── run_full_evaluation.py  Run the complete evaluation workflow
+├── tests/                      Python tests
+├── data/                       Generated datasets, embeddings and graph state
+├── results/                    Final evaluation data, tables and figures
+├── requirements.txt            Python dependencies
+└── README.md
+```
+
+The main retrieval logic is in `src/retrieval/`, while the adaptive relationship updates are in `src/agents/graph_update.py`. Start with `src/run_full_evaluation.py` to follow the evaluation workflow from beginning to end.
+
 ## Requirements
 
-- Python 3 and `pip`
-- Node.js and `npm` for the frontend
+- Python 3.10 or later and `pip`
+- Node.js 20.19+, 22.13+ or 24+ and `npm` for the frontend
+
+The project has been verified with Python 3.14 and Node.js 22.13.
 
 ## Setup
 
@@ -65,7 +92,7 @@ In a second terminal, start the frontend:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -103,7 +130,7 @@ The complete dissertation experiment can be reproduced with one command:
 PYTHONPATH=src python src/run_full_evaluation.py
 ```
 
-This prepares the system, runs the final retrieval comparison, compares pruning enabled and disabled, measures adaptation over time and repeated context, and creates the CSV tables and figures. The experiment uses three fixed query splits with seeds `10`, `20` and `30`. Each split contains 100 adaptation queries, 100 validation queries and 300 held-out evaluation queries. Outputs are saved under `results/`.
+This prepares the system, runs the final retrieval comparison, compares pruning enabled and disabled, measures adaptation over time and repeated context, and creates the CSV tables and figures. The main comparison uses three fixed query splits with seeds `10`, `20` and `30`. Each split contains 100 adaptation queries, 100 validation queries and 300 held-out evaluation queries. The adaptation-over-time experiment separately uses 300 adaptation queries and 200 held-out queries. Outputs are saved under `results/`.
 
 If you prepared the system while running the application, reuse those files with:
 
@@ -116,6 +143,8 @@ The main stages can also be run separately:
 ```text
 PYTHONPATH=src python src/run_experiments.py
 PYTHONPATH=src python src/run_experiments.py --pruning-ablation
+PYTHONPATH=src python src/evaluation/evaluate_adaptation_over_time.py
+PYTHONPATH=src python src/evaluation/evaluate_repeated_adaptation.py
 PYTHONPATH=src python src/evaluation/create_results_report.py
 ```
 
@@ -215,6 +244,12 @@ The `AgentGraphRuntime` loads the documents, embeddings, FAISS index, embedding 
 ## Backend API
 
 FastAPI's interactive documentation is available at `http://127.0.0.1:8000/docs` while the backend is running. It lists the search, adaptive search, graph, document, statistics and reset endpoints together with their request and response formats.
+
+## Data And Model Attribution
+
+The processed corpus is derived from the first 500 examples in the distractor training split of [HotpotQA](https://hotpotqa.github.io/), introduced by Yang et al. in [HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering](https://arxiv.org/abs/1809.09600). The dataset is loaded from [Hugging Face](https://huggingface.co/datasets/hotpotqa/hotpot_qa) at revision `1908d6afbbead072334abe2965f91bd2709910ab` and is licensed under CC BY-SA 4.0.
+
+Document and query embeddings use [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) at revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. The model is licensed under Apache 2.0.
 
 ## Current Scope
 

@@ -18,6 +18,10 @@ QUERY_IDS_PATH = PROJECT_ROOT / "data" / "embeddings" / "query_ids.json"
 STATIC_GRAPH_PATH = PROJECT_ROOT / "data" / "processed" / "static_graph_edges.jsonl"
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+DATASET_NAME = "hotpotqa/hotpot_qa"
+DATASET_CONFIG = "distractor"
+DATASET_REVISION = "1908d6afbbead072334abe2965f91bd2709910ab"
 
 
 def read_jsonl(path: Path) -> list[dict]:

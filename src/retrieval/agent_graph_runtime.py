@@ -12,12 +12,12 @@ from common import (
     DOCUMENTS_PATH,
     EMBEDDINGS_PATH,
     IDS_PATH,
-    MODEL_NAME,
     build_faiss_index,
     encode_query,
     load_documents,
     load_embeddings,
 )
+from embeddings.model import load_embedding_model
 from graph.config import INITIAL_WEIGHT_SCALE, NEIGHBOURS_PER_DOCUMENT
 from graph.initialize_agent_graph import build_initial_agent_graph
 from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrieve
@@ -53,7 +53,7 @@ class AgentGraphRuntime:
         documents = load_documents()
         embeddings, document_ids = load_embeddings()
         index = build_faiss_index(embeddings)
-        model = SentenceTransformer(MODEL_NAME)
+        model = load_embedding_model()
         agents = load_agents(agent_graph_path)
 
         return cls(

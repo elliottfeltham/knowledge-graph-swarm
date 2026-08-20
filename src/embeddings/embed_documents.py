@@ -1,9 +1,9 @@
 import json
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
-from common import MODEL_NAME, PROJECT_ROOT, read_jsonl
+from common import PROJECT_ROOT, read_jsonl
+from embeddings.model import load_embedding_model
 
 
 DOCUMENTS_PATH = PROJECT_ROOT / "data" / "processed" / "documents.jsonl"
@@ -30,7 +30,7 @@ def create_embeddings() -> None:
 
     print(f"Loaded {len(texts)} documents")
 
-    model = SentenceTransformer(MODEL_NAME)
+    model = load_embedding_model()
 
     embeddings = model.encode(
         texts,
