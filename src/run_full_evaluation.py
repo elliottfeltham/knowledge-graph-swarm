@@ -21,6 +21,24 @@ def build_evaluation_commands(skip_preparation: bool) -> list[list[str]]:
             ],
             [
                 sys.executable,
+                str(
+                    PROJECT_ROOT
+                    / "src"
+                    / "evaluation"
+                    / "evaluate_adaptation_over_time.py"
+                ),
+            ],
+            [
+                sys.executable,
+                str(
+                    PROJECT_ROOT
+                    / "src"
+                    / "evaluation"
+                    / "evaluate_repeated_adaptation.py"
+                ),
+            ],
+            [
+                sys.executable,
                 str(PROJECT_ROOT / "src" / "evaluation" / "create_results_report.py"),
             ],
         ]
@@ -34,6 +52,8 @@ def run_full_evaluation(skip_preparation: bool = False) -> None:
     stage_names = [
         "Running the main evaluation",
         "Running the pruning ablation",
+        "Evaluating adaptation over time",
+        "Evaluating repeated context",
         "Creating tables and figures",
     ]
 
