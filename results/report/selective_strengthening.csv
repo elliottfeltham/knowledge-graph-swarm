@@ -1,4 +1,4 @@
-update_k,query_group,queries_evaluated,recall_at_5,recall_at_10,mrr,queries_improved,queries_unchanged,queries_worsened
-3,validation,300,0.721667,0.815,0.88338,44,217,39
-5,validation,300,0.721667,0.811667,0.88338,43,217,40
-10,validation,300,0.721667,0.813333,0.883213,44,217,39
+update_k,recall_at_5,recall_at_10,mrr
+3,0.721667,0.815,0.88338
+5,0.721667,0.811667,0.88338
+10,0.721667,0.813333,0.883213

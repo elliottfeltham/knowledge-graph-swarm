@@ -15,14 +15,12 @@ MAIN_RESULTS_PATH = PROJECT_ROOT / "results" / "main_evaluation.json"
 PRUNING_RESULTS_PATH = PROJECT_ROOT / "results" / "pruning_ablation.json"
 REPORT_DIRECTORY = PROJECT_ROOT / "results" / "report"
 PARAMETER_TUNING_CSV_PATH = REPORT_DIRECTORY / "parameter_tuning.csv"
-PARAMETER_TUNING_FIGURE_PATH = REPORT_DIRECTORY / "parameter_tuning.png"
 PARAMETER_TUNING_HEATMAP_PATH = REPORT_DIRECTORY / "parameter_tuning_heatmap.png"
 SELECTIVE_STRENGTHENING_CSV_PATH = REPORT_DIRECTORY / "selective_strengthening.csv"
 SELECTIVE_STRENGTHENING_FIGURE_PATH = REPORT_DIRECTORY / "selective_strengthening.png"
 GRAPH_INITIALISATION_CSV_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.csv"
 GRAPH_INITIALISATION_FIGURE_PATH = REPORT_DIRECTORY / "graph_initialisation_tuning.png"
 GRAPH_UPDATE_CSV_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.csv"
-GRAPH_UPDATE_FIGURE_PATH = REPORT_DIRECTORY / "update_dynamics_tuning.png"
 GRAPH_UPDATE_HEATMAP_PATH = REPORT_DIRECTORY / "update_dynamics_heatmap.png"
 ADAPTATION_OVER_TIME_CSV_PATH = REPORT_DIRECTORY / "adaptation_over_time.csv"
 ADAPTATION_OVER_TIME_FIGURE_PATH = REPORT_DIRECTORY / "adaptation_over_time.png"
@@ -94,11 +92,8 @@ def build_pruning_rows(results: dict) -> list[dict]:
             {
                 "condition": condition_name.replace("_", " ").title(),
                 "recall_at_5_mean": metrics["recall_at_5"]["mean"],
-                "recall_at_5_std": metrics["recall_at_5"]["standard_deviation"],
                 "recall_at_10_mean": metrics["recall_at_10"]["mean"],
-                "recall_at_10_std": metrics["recall_at_10"]["standard_deviation"],
                 "mrr_mean": metrics["mrr"]["mean"],
-                "mrr_std": metrics["mrr"]["standard_deviation"],
                 "edges_before": average_graph_value(
                     seed_results, "graph_before", "undirected_edges"
                 ),
@@ -107,15 +102,6 @@ def build_pruning_rows(results: dict) -> list[dict]:
                 ),
                 "edge_delta": average_graph_value(
                     seed_results, "graph_deltas", "undirected_edges"
-                ),
-                "average_degree_before": average_graph_value(
-                    seed_results, "graph_before", "average_degree"
-                ),
-                "average_degree_after": average_graph_value(
-                    seed_results, "graph_after", "average_degree"
-                ),
-                "average_edge_weight_before": average_graph_value(
-                    seed_results, "graph_before", "average_edge_weight"
                 ),
                 "average_edge_weight_after": average_graph_value(
                     seed_results, "graph_after", "average_edge_weight"
@@ -235,48 +221,14 @@ def save_parameter_tuning_report(results: dict) -> None:
                     "graph_weight": configuration["graph_weight"],
                     "seed_k": configuration["seed_k"],
                     "graph_state": graph_state,
-                    **configuration[graph_state],
+                    "recall_at_5": configuration[graph_state]["recall_at_5"],
+                    "recall_at_10": configuration[graph_state]["recall_at_10"],
+                    "mrr": configuration[graph_state]["mrr"],
                 }
             )
 
     save_csv(PARAMETER_TUNING_CSV_PATH, rows)
     configure_plot_style()
-    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
-
-    for seed_k in sorted({row["seed_k"] for row in configurations}):
-        matching = sorted(
-            (row for row in configurations if row["seed_k"] == seed_k),
-            key=lambda row: row["graph_weight"],
-        )
-        weights = [row["graph_weight"] for row in matching]
-
-        for axis, metric, label in (
-            (axes[0], "recall_at_10", "Recall@10"),
-            (axes[1], "mrr", "MRR"),
-        ):
-            axis.plot(
-                weights,
-                [row["adapted"][metric] for row in matching],
-                marker="o",
-                label=f"seed_k={seed_k}",
-            )
-            axis.set(title=f"Adapted graph {label}", xlabel="Graph weight", ylabel=label)
-            axis.grid(alpha=0.2)
-
-    for axis, metric in zip(axes, ("recall_at_10", "mrr")):
-        axis.axhline(
-            results["validation_faiss"][metric],
-            color="#555555",
-            linestyle="--",
-            linewidth=1.2,
-            label="FAISS",
-        )
-
-    axes[0].legend(frameon=False, loc="lower right")
-    figure.tight_layout()
-    figure.savefig(PARAMETER_TUNING_FIGURE_PATH, dpi=200, bbox_inches="tight")
-    plt.close(figure)
-
     figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
     adapted_rows = [row for row in rows if row["graph_state"] == "adapted"]
 
@@ -306,10 +258,12 @@ def save_graph_initialisation_report(results: dict) -> None:
         {
             "neighbours_per_document": configuration["neighbours_per_document"],
             "initial_weight_scale": configuration["initial_weight_scale"],
-            **configuration["initial_graph_statistics"],
-            "initial_recall_at_5": configuration["initial"]["recall_at_5"],
-            "initial_recall_at_10": configuration["initial"]["recall_at_10"],
-            "initial_mrr": configuration["initial"]["mrr"],
+            "undirected_edges": configuration["initial_graph_statistics"][
+                "undirected_edges"
+            ],
+            "average_edge_weight": configuration["initial_graph_statistics"][
+                "average_edge_weight"
+            ],
             "adapted_recall_at_5": configuration["adapted"]["recall_at_5"],
             "adapted_recall_at_10": configuration["adapted"]["recall_at_10"],
             "adapted_mrr": configuration["adapted"]["mrr"],
@@ -386,43 +340,6 @@ def save_graph_update_report(results: dict) -> None:
     configure_plot_style()
     figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
 
-    for strengthen_amount in sorted(
-        {row["strengthen_amount"] for row in configurations}
-    ):
-        matching = sorted(
-            (
-                row
-                for row in configurations
-                if row["strengthen_amount"] == strengthen_amount
-            ),
-            key=lambda row: row["decay_rate"],
-        )
-        decay_rates = [row["decay_rate"] for row in matching]
-
-        for axis, metric, label in (
-            (axes[0], "recall_at_10", "Recall@10"),
-            (axes[1], "mrr", "MRR"),
-        ):
-            axis.plot(
-                decay_rates,
-                [row["adapted"][metric] for row in matching],
-                marker="o",
-                label=f"strengthen={strengthen_amount}",
-            )
-            axis.set(
-                title=f"Adapted graph {label}",
-                xlabel="Decay rate",
-                ylabel=label,
-            )
-            axis.grid(alpha=0.2)
-
-    axes[0].legend(frameon=False, fontsize=8)
-    figure.tight_layout()
-    figure.savefig(GRAPH_UPDATE_FIGURE_PATH, dpi=200, bbox_inches="tight")
-    plt.close(figure)
-
-    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
-
     for axis, metric, label in (
         (axes[0], "recall_at_10", "Recall@10"),
         (axes[1], "final_average_edge_weight", "Mean edge weight"),
@@ -465,7 +382,26 @@ def save_adaptation_over_time_report(results: dict) -> None:
 
         rows.append(row)
 
-    save_csv(ADAPTATION_OVER_TIME_CSV_PATH, rows)
+    csv_rows = [
+        {
+            "adaptation_queries": row["adaptation_queries"],
+            "recall_at_5": row["recall_at_5_mean"],
+            "recall_at_10": row["recall_at_10_mean"],
+            "mrr": row["mrr_mean"],
+            "top_10_set_change_percentage": row[
+                "top_10_set_change_percentage_mean"
+            ],
+            "top_10_order_change_percentage": row[
+                "top_10_order_change_percentage_mean"
+            ],
+            "undirected_edges": row["graph_undirected_edges_mean"],
+            "average_edge_weight": row["graph_average_edge_weight_mean"],
+            "created_edges": row["created_edges_mean"],
+            "decayed_edges": row["decayed_edges_mean"],
+        }
+        for row in rows
+    ]
+    save_csv(ADAPTATION_OVER_TIME_CSV_PATH, csv_rows)
     configure_plot_style()
     figure, axes = plt.subplots(1, 3, figsize=(15, 4.8))
     x_values = [row["adaptation_queries"] for row in rows]
@@ -603,21 +539,18 @@ def save_repeated_adaptation_report(results: dict) -> None:
         for pass_result in passes:
             row = {
                 "condition": condition_name,
-                "pass": pass_result["pass"],
                 "interactions": pass_result["interactions"],
-                "rankings_changed_mean": pass_result["rankings_changed"]["mean"],
+                "rankings_changed": pass_result["rankings_changed"]["mean"],
+                "recall_at_5": pass_result["metrics"]["recall_at_5"]["mean"],
+                "recall_at_10": pass_result["metrics"]["recall_at_10"]["mean"],
+                "mrr": pass_result["metrics"]["mrr"]["mean"],
+                "average_edge_weight": pass_result["graph"][
+                    "average_edge_weight"
+                ]["mean"],
+                "max_edge_weight": pass_result["graph"]["max_edge_weight"][
+                    "mean"
+                ],
             }
-
-            for field, values in pass_result["metrics"].items():
-                row[f"{field}_mean"] = values["mean"]
-                row[f"{field}_std"] = values["standard_deviation"]
-
-            for field, values in pass_result["graph"].items():
-                row[f"graph_{field}_mean"] = values["mean"]
-
-            for field, values in pass_result["updates"].items():
-                row[f"{field}_mean"] = values["mean"]
-
             rows.append(row)
 
     save_csv(REPEATED_ADAPTATION_CSV_PATH, rows)
@@ -629,20 +562,20 @@ def save_repeated_adaptation_report(results: dict) -> None:
         label = condition_name.replace("_", " ").title()
         axes[0].plot(
             x_values,
-            [row["metrics"]["recall_at_10"]["mean"] for row in passes],
+            [row["metrics"]["recall_at_5"]["mean"] for row in passes],
             marker="o",
             label=label,
         )
         axes[1].plot(
             x_values,
-            [row["metrics"]["mrr"]["mean"] for row in passes],
+            [row["rankings_changed"]["mean"] for row in passes],
             marker="o",
             label=label,
         )
 
     for axis, title, label in (
-        (axes[0], "Recall during repeated adaptation", "Recall@10"),
-        (axes[1], "Ranking during repeated adaptation", "MRR"),
+        (axes[0], "Recall during repeated adaptation", "Recall@5"),
+        (axes[1], "Rankings changed from pass 0", "Evaluation queries"),
     ):
         axis.set(title=title, xlabel="Adaptation interactions", ylabel=label)
         axis.grid(alpha=0.2)
@@ -660,8 +593,9 @@ def save_selective_strengthening_report(results: dict) -> None:
         rows.append(
             {
                 "update_k": condition["update_k"],
-                "query_group": "validation",
-                **condition["validation"]["adapted"],
+                "recall_at_5": condition["validation"]["adapted"]["recall_at_5"],
+                "recall_at_10": condition["validation"]["adapted"]["recall_at_10"],
+                "mrr": condition["validation"]["adapted"]["mrr"],
             }
         )
 
@@ -786,94 +720,36 @@ def save_ranking_impact(results: dict, path: Path) -> None:
     plt.close(figure)
 
 
-def save_adaptation_comparison(results: dict, path: Path) -> None:
-    systems = [
-        "original_initial_agent_graph",
-        "original_adapted_agent_graph",
-        "optimised_initial_agent_graph",
-        "optimised_adapted_agent_graph",
-    ]
-    x_positions = list(range(len(METRICS)))
-    bar_width = 0.18
-    figure, axis = plt.subplots(figsize=(10, 6.2))
-
-    for system_index, system_name in enumerate(systems):
-        values = [
-            results["aggregate"][system_name][metric_name]["mean"]
-            for metric_name, _ in METRICS
-        ]
-        errors = [
-            results["aggregate"][system_name][metric_name]["standard_deviation"]
-            for metric_name, _ in METRICS
-        ]
-        positions = [
-            position + (system_index - 1.5) * bar_width
-            for position in x_positions
-        ]
-        axis.bar(
-            positions,
-            values,
-            width=bar_width,
-            yerr=errors,
-            capsize=3,
-            label=SYSTEM_LABELS[system_name],
-            color=COLOURS[system_index],
-        )
-
-    axis.set_title("Agent graph performance before and after adaptation")
-    axis.set_ylabel("Mean score")
-    axis.set_ylim(0, 1)
-    axis.set_xticks(x_positions, [label for _, label in METRICS])
-    axis.grid(axis="y", alpha=0.2)
-    axis.legend(
-        frameon=False,
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.1),
-        ncol=2,
-    )
-    figure.tight_layout()
-    figure.savefig(path, dpi=200, bbox_inches="tight")
-    plt.close(figure)
-
-
 def save_graph_structure_comparison(pruning_rows: list[dict], path: Path) -> None:
     labels = [row["condition"] for row in pruning_rows]
     x_positions = list(range(len(labels)))
     bar_width = 0.34
-    figure, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+    figure, axis = plt.subplots(figsize=(7, 4.8))
+    before_positions = [position - bar_width / 2 for position in x_positions]
+    after_positions = [position + bar_width / 2 for position in x_positions]
 
-    chart_data = [
-        ("edges_before", "edges_after", "Edge count"),
-        ("average_degree_before", "average_degree_after", "Average degree"),
-    ]
-
-    for axis, (before_key, after_key, title) in zip(axes, chart_data):
-        before_values = [row[before_key] for row in pruning_rows]
-        after_values = [row[after_key] for row in pruning_rows]
-        before_positions = [position - bar_width / 2 for position in x_positions]
-        after_positions = [position + bar_width / 2 for position in x_positions]
-
-        axis.bar(
-            before_positions,
-            before_values,
-            width=bar_width,
-            label="Before adaptation",
-            color=COLOURS[0],
-        )
-        axis.bar(
-            after_positions,
-            after_values,
-            width=bar_width,
-            label="After adaptation",
-            color=COLOURS[2],
-        )
-        axis.set_title(title)
-        axis.set_xticks(x_positions, labels)
-        axis.grid(axis="y", alpha=0.2)
-
-    axes[0].set_ylabel("Mean across three seeds")
-    axes[0].legend(frameon=False)
-    figure.suptitle("Graph structure with and without pruning")
+    axis.bar(
+        before_positions,
+        [row["edges_before"] for row in pruning_rows],
+        width=bar_width,
+        label="Before adaptation",
+        color=COLOURS[0],
+    )
+    axis.bar(
+        after_positions,
+        [row["edges_after"] for row in pruning_rows],
+        width=bar_width,
+        label="After adaptation",
+        color=COLOURS[2],
+    )
+    axis.set(
+        title="Graph size with and without pruning",
+        ylabel="Mean undirected edges",
+        xticks=x_positions,
+    )
+    axis.set_xticklabels(labels)
+    axis.grid(axis="y", alpha=0.2)
+    axis.legend(frameon=False)
     figure.tight_layout()
     figure.savefig(path, dpi=200, bbox_inches="tight")
     plt.close(figure)
@@ -892,17 +768,32 @@ def main() -> None:
         REPORT_DIRECTORY / "retrieval_results.csv",
         REPORT_DIRECTORY / "pruning_ablation.csv",
         REPORT_DIRECTORY / "retrieval_comparison.png",
-        REPORT_DIRECTORY / "adaptation_comparison.png",
         REPORT_DIRECTORY / "graph_structure.png",
         REPORT_DIRECTORY / "ranking_impact.png",
     ]
 
     save_csv(outputs[0], retrieval_rows)
-    save_csv(outputs[1], pruning_rows)
+    save_csv(
+        outputs[1],
+        [
+            {
+                key: row[key]
+                for key in (
+                    "condition",
+                    "recall_at_5_mean",
+                    "recall_at_10_mean",
+                    "mrr_mean",
+                    "edges_after",
+                    "edge_delta",
+                    "average_edge_weight_after",
+                )
+            }
+            for row in pruning_rows
+        ],
+    )
     save_retrieval_comparison(main_results, outputs[2])
-    save_adaptation_comparison(main_results, outputs[3])
-    save_graph_structure_comparison(pruning_rows, outputs[4])
-    save_ranking_impact(main_results, outputs[5])
+    save_graph_structure_comparison(pruning_rows, outputs[3])
+    save_ranking_impact(main_results, outputs[4])
 
     print("Created report outputs:")
     for output in outputs:

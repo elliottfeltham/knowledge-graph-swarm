@@ -1,3 +1,3 @@
-condition,recall_at_5_mean,recall_at_5_std,recall_at_10_mean,recall_at_10_std,mrr_mean,mrr_std,edges_before,edges_after,edge_delta,average_degree_before,average_degree_after,average_edge_weight_before,average_edge_weight_after
-Pruning Enabled,0.747222,0.002546,0.825,0.006667,0.895142,0.006072,17326,15888.333333,-1437.666667,7.037368,6.453425,0.044194,0.04442
-Pruning Disabled,0.748333,0.001667,0.824444,0.007515,0.895698,0.006884,17326,17459.333333,133.333333,7.037368,7.091525,0.044194,0.044003
+condition,recall_at_5_mean,recall_at_10_mean,mrr_mean,edges_after,edge_delta,average_edge_weight_after
+Pruning Enabled,0.747222,0.825,0.895142,15888.333333,-1437.666667,0.04442
+Pruning Disabled,0.748333,0.824444,0.895698,17459.333333,133.333333,0.044003

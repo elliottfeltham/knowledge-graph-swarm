@@ -1,3 +1,5 @@
+import csv
+
 from evaluation import create_results_report
 from evaluation.create_results_report import (
     build_pruning_rows,
@@ -123,6 +125,22 @@ def test_adaptation_report_creates_graph_evolution_figure(tmp_path, monkeypatch)
     assert csv_path.exists()
     assert retrieval_figure.exists()
     assert graph_figure.exists()
+
+    with open(csv_path, newline="", encoding="utf-8") as file:
+        columns = next(csv.reader(file))
+
+    assert columns == [
+        "adaptation_queries",
+        "recall_at_5",
+        "recall_at_10",
+        "mrr",
+        "top_10_set_change_percentage",
+        "top_10_order_change_percentage",
+        "undirected_edges",
+        "average_edge_weight",
+        "created_edges",
+        "decayed_edges",
+    ]
 
 
 def test_ranking_impact_figure_is_created(tmp_path) -> None:
