@@ -56,6 +56,11 @@ interface StrengthForce {
   strength: (strength: number) => StrengthForce;
 }
 
+interface NavigationControls {
+  addEventListener: (event: string, listener: () => void) => void;
+  removeEventListener: (event: string, listener: () => void) => void;
+}
+
 interface SimulationNode {
   x?: number;
   y?: number;
@@ -132,6 +137,9 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
     const appliedSettingsRef = useRef<GraphForceSettings | null>(null);
     const hasAutomaticallyFittedRef = useRef(false);
     const layoutCompleteTimerRef = useRef<number | null>(null);
+    const navigationCleanupRef = useRef<(() => void) | null>(null);
+    const navigationEndTimerRef = useRef<number | null>(null);
+    const cameraMovingRef = useRef(false);
     const [size, setSize] = useState<CanvasSize>({ width: 0, height: 0 });
     const [animationProgress, setAnimationProgress] = useState(1);
     const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -278,13 +286,20 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
         window.clearTimeout(layoutCompleteTimerRef.current);
         layoutCompleteTimerRef.current = null;
       }
+      navigationCleanupRef.current?.();
+      navigationCleanupRef.current = null;
+      cameraMovingRef.current = false;
 
       return () => {
         if (layoutCompleteTimerRef.current !== null) {
           window.clearTimeout(layoutCompleteTimerRef.current);
         }
+        if (navigationEndTimerRef.current !== null) {
+          window.clearTimeout(navigationEndTimerRef.current);
+        }
+        navigationCleanupRef.current?.();
       };
-    }, [graph]);
+    }, [graph, performanceMode]);
 
     useEffect(() => {
       const container = containerRef.current;
@@ -405,7 +420,8 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
                 ? 1 - (result.rank - 1) / searchResults.length
                 : 0;
               const selectionEmphasis = node.id === selectedNodeId ? 2 : 0;
-              const hoverEmphasis = node.id === hoveredNodeId ? 1.5 : 0;
+              const hoverEmphasis =
+                !performanceMode && node.id === hoveredNodeId ? 1.5 : 0;
               const pulse =
                 animationActive && result && !reducedMotion
                   ? (Math.sin(animationProgress * Math.PI * 4) + 1) * 0.75
@@ -435,7 +451,7 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
               return highlightActive ? "#668f92" : "#78c9cc";
             }}
             nodeOpacity={0.9}
-            nodeResolution={12}
+            nodeResolution={performanceMode ? 6 : 12}
             linkWidth={(edge) => {
               const normalWidth = 0.2 + edge.weight * 1.4;
               const connectedToHoveredNode =
@@ -504,7 +520,7 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
                 return "#a5e4e6";
               }
 
-              if (hoveredNodeId) {
+              if (hoveredNodeId && !performanceMode) {
                 return "#354244";
               }
 
@@ -530,7 +546,11 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
                 : STRENGTHENED_EDGE_COLOR
             }
             showNavInfo={false}
-            onNodeHover={(node) => setHoveredNodeId(node?.id ?? null)}
+            onNodeHover={(node) => {
+              if (!performanceMode || !cameraMovingRef.current) {
+                setHoveredNodeId(node?.id ?? null);
+              }
+            }}
             onNodeClick={(node) => {
               if (nodeSelectionEnabled) {
                 onNodeSelect(node.id);
@@ -551,6 +571,30 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
               engineReadyRef.current = true;
               graphRef.current.d3Force("origin", createOriginForce(0.008));
               applyForceSettings(forceSettings, false);
+
+              if (performanceMode) {
+                const controls = graphRef.current.controls() as NavigationControls;
+                const handleNavigationStart = () => {
+                  if (navigationEndTimerRef.current !== null) {
+                    window.clearTimeout(navigationEndTimerRef.current);
+                  }
+                  cameraMovingRef.current = true;
+                  setHoveredNodeId(null);
+                };
+                const handleNavigationEnd = () => {
+                  navigationEndTimerRef.current = window.setTimeout(() => {
+                    cameraMovingRef.current = false;
+                    navigationEndTimerRef.current = null;
+                  }, 200);
+                };
+
+                controls.addEventListener("start", handleNavigationStart);
+                controls.addEventListener("end", handleNavigationEnd);
+                navigationCleanupRef.current = () => {
+                  controls.removeEventListener("start", handleNavigationStart);
+                  controls.removeEventListener("end", handleNavigationEnd);
+                };
+              }
             }}
             onEngineStop={() => {
               if (!hasAutomaticallyFittedRef.current) {

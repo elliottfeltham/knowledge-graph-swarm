@@ -11,6 +11,7 @@ import {
 } from "../api/client";
 import type { GraphResponse } from "../api/types";
 import GraphWorkspace from "./GraphWorkspace";
+import type { GraphForceSettings } from "./graphForceSettings";
 
 vi.mock("../api/client", () => ({
   getDocumentDetail: vi.fn(),
@@ -29,6 +30,7 @@ vi.mock("./GraphCanvas", () => ({
     animationActive,
     highlightActive,
     edgeUpdates,
+    forceSettings,
     onNodeSelect,
   }: {
     graph: GraphResponse;
@@ -39,6 +41,7 @@ vi.mock("./GraphCanvas", () => ({
     animationActive: boolean;
     highlightActive: boolean;
     edgeUpdates: unknown[];
+    forceSettings: GraphForceSettings;
   }) => (
     <div>
       <div
@@ -50,6 +53,7 @@ vi.mock("./GraphCanvas", () => ({
         data-animation-active={animationActive}
         data-highlight-active={highlightActive}
         data-edge-updates={edgeUpdates.length}
+        data-link-distance={forceSettings.linkDistance}
       />
       {nodeSelectionEnabled && graph.nodes[0] && (
         <button type="button" onClick={() => onNodeSelect(graph.nodes[0].id)}>
@@ -218,6 +222,42 @@ describe("GraphWorkspace", () => {
 
     expect(await screen.findByText("2 nodes / 1 edges")).toBeInTheDocument();
     expect(getFullGraph).toHaveBeenCalledOnce();
+  });
+
+  it("uses fixed force defaults in full graph mode", async () => {
+    vi.mocked(getFocusedSubgraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+    vi.mocked(getFullGraph).mockResolvedValue({
+      nodes: [{ id: "document-1", title: "Document 1", degree: 2 }],
+      edges: [],
+      total_nodes: 1,
+      total_edges: 0,
+      truncated: false,
+    });
+
+    renderGraphWorkspace();
+    const focusedCanvas = await screen.findByTestId("graph-canvas");
+    fireEvent.change(screen.getByRole("slider", { name: "Link distance" }), {
+      target: { value: "80" },
+    });
+    expect(focusedCanvas).toHaveAttribute("data-link-distance", "80");
+
+    fireEvent.click(screen.getByRole("button", { name: "Full" }));
+    expect(await screen.findByTestId("graph-canvas")).toHaveAttribute(
+      "data-link-distance",
+      "40",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Focused" }));
+    expect(await screen.findByTestId("graph-canvas")).toHaveAttribute(
+      "data-link-distance",
+      "80",
+    );
   });
 
   it("shows every edge in full mode", async () => {

@@ -18,7 +18,10 @@ import GraphCanvas from "./GraphCanvas";
 import type { GraphCanvasHandle } from "./GraphCanvas";
 import GraphInspector from "./GraphInspector";
 import GraphManagement from "./GraphManagement";
-import { DEFAULT_GRAPH_FORCE_SETTINGS } from "./graphForceSettings";
+import {
+  DEFAULT_GRAPH_FORCE_SETTINGS,
+  FULL_GRAPH_FORCE_SETTINGS,
+} from "./graphForceSettings";
 import "./GraphWorkspace.css";
 
 interface GraphWorkspaceProps {
@@ -199,6 +202,9 @@ function GraphWorkspace({
   }, [loadedAnimationKey, searchContext, searchPending]);
 
   const fullGraphActive = !searchContext && viewMode === "full";
+  const activeForceSettings = fullGraphActive
+    ? FULL_GRAPH_FORCE_SETTINGS
+    : forceSettings;
 
   useEffect(() => {
     if (fullGraphActive) {
@@ -233,7 +239,9 @@ function GraphWorkspace({
   }
 
   function resetGraphView() {
-    setForceSettings({ ...DEFAULT_GRAPH_FORCE_SETTINGS });
+    if (!fullGraphActive) {
+      setForceSettings({ ...DEFAULT_GRAPH_FORCE_SETTINGS });
+    }
     graphCanvasRef.current?.resetView();
   }
 
@@ -349,7 +357,7 @@ function GraphWorkspace({
             performanceMode={fullGraphActive}
             nodeSelectionEnabled
             selectedNodeId={selectedNodeId}
-            forceSettings={forceSettings}
+            forceSettings={activeForceSettings}
             searchResults={searchContext?.results ?? []}
             animationKey={loadedAnimationKey}
             animationActive={animationActive}
@@ -391,7 +399,7 @@ function GraphWorkspace({
                 open={openPanel === "inspector"}
                 observationMode={fullGraphActive}
                 searchNetworkActive={searchContext !== null}
-                forceSettings={forceSettings}
+                forceSettings={activeForceSettings}
                 onOpenChange={(open) => handlePanelChange("inspector", open)}
                 onForceSettingsChange={setForceSettings}
                 onFitView={() => graphCanvasRef.current?.fitView()}
