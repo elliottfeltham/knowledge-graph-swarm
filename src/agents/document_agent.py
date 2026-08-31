@@ -1,3 +1,5 @@
+"""Serializable document agents and their weighted graph edges."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -5,6 +7,8 @@ from dataclasses import dataclass, field
 
 @dataclass
 class AgentEdge:
+    """A weighted relationship from one document agent to another."""
+
     weight: float
 
     def to_dict(self) -> dict:
@@ -17,6 +21,8 @@ class AgentEdge:
 
 @dataclass
 class DocumentAgent:
+    """A corpus document together with its current neighbouring relationships."""
+
     doc_id: str
     title: str
     text: str

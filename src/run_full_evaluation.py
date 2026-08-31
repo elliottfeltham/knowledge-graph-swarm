@@ -1,3 +1,5 @@
+"""Run every final evaluation and regenerate the dissertation result report."""
+
 import argparse
 import subprocess
 import sys
@@ -6,6 +8,7 @@ from common import PROJECT_ROOT
 
 
 def build_evaluation_commands(skip_preparation: bool) -> list[list[str]]:
+    """Build the ordered commands used by the complete evaluation workflow."""
     commands = []
 
     if not skip_preparation:
@@ -48,6 +51,7 @@ def build_evaluation_commands(skip_preparation: bool) -> list[list[str]]:
 
 
 def run_full_evaluation(skip_preparation: bool = False) -> None:
+    """Execute preparation, experiments and report generation in sequence."""
     commands = build_evaluation_commands(skip_preparation)
     stage_names = [
         "Running the main evaluation",

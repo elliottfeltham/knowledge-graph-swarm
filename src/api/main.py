@@ -1,3 +1,5 @@
+"""FastAPI routes exposing the shared retrieval runtime to the frontend."""
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -20,6 +22,7 @@ runtime: AgentGraphRuntime | None = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Load the retrieval runtime once when the API process starts."""
     global runtime
 
     runtime = AgentGraphRuntime.load()

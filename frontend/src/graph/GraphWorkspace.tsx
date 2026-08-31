@@ -67,6 +67,7 @@ function FullGraphLoadingMessage() {
   );
 }
 
+/** Coordinate graph loading, view modes, selection and update animations. */
 function GraphWorkspace({
   backendAvailable,
   searchContext,

@@ -111,6 +111,7 @@ function createOriginForce(strength: number) {
   return originForce;
 }
 
+/** Render and control the interactive 3D force-directed document graph. */
 const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
   function GraphCanvas(
     {
@@ -222,6 +223,8 @@ const GraphCanvas = forwardRef<GraphCanvasHandle, GraphCanvasProps>(
         ),
       [edgeUpdates],
     );
+    // Full-graph mode renders every edge but limits force calculations to the
+    // strongest relationships so that navigation remains responsive.
     const forceEdgeKeys = useMemo(() => {
       if (!performanceMode || graphData.links.length <= FULL_GRAPH_FORCE_EDGE_LIMIT) {
         return null;

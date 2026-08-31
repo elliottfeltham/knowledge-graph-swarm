@@ -1,3 +1,5 @@
+"""Run the reproducible comparison of FAISS, static and adaptive retrieval."""
+
 import argparse
 import json
 import time

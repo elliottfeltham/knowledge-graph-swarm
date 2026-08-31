@@ -1,3 +1,5 @@
+"""Generate concise tables and figures from the saved evaluation outputs."""
+
 import csv
 import json
 from pathlib import Path

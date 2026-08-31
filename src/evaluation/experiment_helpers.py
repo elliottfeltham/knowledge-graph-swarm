@@ -1,3 +1,5 @@
+"""Shared query splitting, retrieval and adaptation helpers for experiments."""
+
 import copy
 import random
 from dataclasses import dataclass
@@ -12,6 +14,8 @@ from retrieval.agent_graph_retrieval import agent_graph_retrieve
 
 @dataclass
 class EvaluationContext:
+    """Resources reused while evaluating multiple retrieval configurations."""
+
     query_embeddings: dict
     qrels: dict[str, set[str]]
     index: object
@@ -27,6 +31,8 @@ def split_query_groups(
     validation_count: int,
     evaluation_count: int,
 ) -> tuple[list[dict], list[dict], list[dict]]:
+    """Create reproducible, disjoint adaptation, validation and evaluation sets."""
+
     required_queries = adaptation_count + validation_count + evaluation_count
 
     if len(queries) < required_queries:
@@ -120,6 +126,8 @@ def evaluate_agent_graph(
     graph_weight: float,
     faiss_metrics: dict[str, dict],
 ) -> list[dict]:
+    """Run frozen graph retrieval and record per-query metrics and rankings."""
+
     rows = []
 
     for query in queries:
@@ -161,6 +169,8 @@ def adapt_graph(
     update_k: int | None = None,
     update_config: GraphUpdateConfig | None = None,
 ) -> dict:
+    """Apply a sequence of adaptation queries without evaluating on them."""
+
     totals = {
         "strengthened_edges": 0,
         "created_edges": 0,
@@ -221,6 +231,8 @@ def evaluate_configuration(
     update_k: int | None = None,
     update_config: GraphUpdateConfig | None = None,
 ) -> dict:
+    """Compare one graph configuration before and after adaptation across seeds."""
+
     seed_results = []
     all_faiss_metrics = []
 

@@ -1,3 +1,5 @@
+"""Low-level activation scoring for document-agent graph retrieval."""
+
 import argparse
 from collections import defaultdict
 from pathlib import Path
@@ -29,6 +31,8 @@ def agent_graph_retrieve(
     seed_k: int,
     graph_weight: float,
 ) -> list[tuple[str, float]]:
+    """Retrieve FAISS seeds and rank their graph neighbours by activation."""
+
     seed_scores, seed_indices = index.search(query_embedding, seed_k)
 
     document_scores = defaultdict(float)

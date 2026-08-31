@@ -1,3 +1,5 @@
+"""Tune nearest-neighbour count and edge scale for initial graph creation."""
+
 import argparse
 import json
 from pathlib import Path

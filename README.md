@@ -31,7 +31,7 @@ The main retrieval logic is in `src/retrieval/`, while the adaptive relationship
 
 ## Requirements
 
-- Python 3.10 or later and `pip`
+- Python 3.14 or later and `pip`
 - Node.js 20.19+, 22.13+ or 24+ and `npm` for the frontend
 
 The project has been verified with Python 3.14 and Node.js 22.13.
@@ -255,6 +255,21 @@ FastAPI's interactive documentation is available at `http://127.0.0.1:8000/docs`
 The processed corpus is derived from the first 500 examples in the distractor training split of [HotpotQA](https://hotpotqa.github.io/), introduced by Yang et al. in [HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering](https://arxiv.org/abs/1809.09600). The dataset is loaded from [Hugging Face](https://huggingface.co/datasets/hotpotqa/hotpot_qa) at revision `1908d6afbbead072334abe2965f91bd2709910ab` and is licensed under CC BY-SA 4.0.
 
 Document and query embeddings use [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) at revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`. The model is licensed under Apache 2.0.
+
+## Third-Party Software
+
+The project uses FastAPI and Uvicorn for the backend, React and Vite for the
+frontend, and Three.js with `react-force-graph-3d` for graph rendering. FAISS,
+Sentence Transformers and Hugging Face Datasets provide vector search, text
+embeddings and dataset loading. Matplotlib creates the evaluation figures, while
+Lucide and the bundled IBM Plex and Space Grotesk packages provide interface
+icons and fonts.
+
+These libraries provide framework, model, retrieval and rendering functionality.
+The document-agent graph, adaptive update logic, evaluation workflow, API
+integration and user interface were implemented specifically for this project.
+Third-party source code is not copied into the repository; dependencies are
+installed through the Python and frontend package manifests.
 
 ## Current Scope
 

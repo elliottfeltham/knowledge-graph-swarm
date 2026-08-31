@@ -1,3 +1,5 @@
+"""Initialise document agents with weak embedding-neighbour relationships."""
+
 import argparse
 from pathlib import Path
 
@@ -13,6 +15,8 @@ OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "document_agents.jsonl"
 
 
 def create_agents(documents: dict[str, dict], document_ids: list[str]) -> dict[str, DocumentAgent]:
+    """Create one document agent for every embedded corpus document."""
+
     agents = {}
 
     for doc_id in document_ids:
@@ -34,6 +38,8 @@ def add_weak_neighbour_edges(
     neighbours_per_doc: int,
     initial_weight_scale: float,
 ) -> None:
+    """Connect embedding neighbours using scaled cosine-similarity weights."""
+
     index = build_faiss_index(embeddings)
 
     scores, indices = index.search(embeddings, neighbours_per_doc + 1)
@@ -81,6 +87,8 @@ def build_initial_agent_graph(
     neighbours_per_doc: int,
     initial_weight_scale: float,
 ) -> dict[str, DocumentAgent]:
+    """Build a fresh weak graph from the prepared documents and embeddings."""
+
     documents = load_documents()
     embeddings, document_ids = load_embeddings()
 

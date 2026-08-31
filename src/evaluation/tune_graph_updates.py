@@ -1,3 +1,5 @@
+"""Tune strengthening and decay rates on the validation query split."""
+
 import argparse
 import json
 from pathlib import Path

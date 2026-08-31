@@ -1,3 +1,5 @@
+"""Compare how many top-ranked documents should strengthen relationships."""
+
 import argparse
 import json
 from pathlib import Path

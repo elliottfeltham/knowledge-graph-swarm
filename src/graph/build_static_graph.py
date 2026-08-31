@@ -14,7 +14,7 @@ OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "static_graph_edges.jsonl"
 def build_static_graph(embeddings: np.ndarray, document_ids: list[str], neighbours_per_doc: int) -> list[dict]:
     index = build_faiss_index(embeddings)
 
-    # Searches for closest match other than itself.
+    # FAISS includes each document in its own nearest-neighbour results.
     scores, indices = index.search(embeddings, neighbours_per_doc + 1)
 
     edges = []

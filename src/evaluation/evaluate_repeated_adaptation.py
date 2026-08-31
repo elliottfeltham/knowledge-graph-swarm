@@ -1,3 +1,5 @@
+"""Evaluate whether repeated related queries benefit from graph adaptation."""
+
 import argparse
 import copy
 import json

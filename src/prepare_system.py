@@ -1,3 +1,5 @@
+"""Prepare the dataset, embeddings and graph files required by the system."""
+
 from agents import save_agents
 from common import (
     DOCUMENTS_PATH,
@@ -25,6 +27,7 @@ def print_stage(number: int, description: str) -> None:
 
 
 def prepare_system() -> None:
+    """Run the complete data preparation workflow in dependency order."""
     print_stage(1, "Preparing the HotpotQA dataset")
     prepare_dataset()
 

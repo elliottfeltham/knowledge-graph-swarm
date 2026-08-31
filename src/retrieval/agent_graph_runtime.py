@@ -1,3 +1,5 @@
+"""Reusable in-memory runtime shared by the CLI and FastAPI backend."""
+
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +27,8 @@ from retrieval.agent_graph_retrieval import AGENT_GRAPH_PATH, agent_graph_retrie
 
 @dataclass
 class AgentGraphRuntime:
+    """Hold loaded retrieval resources and the mutable document-agent graph."""
+
     documents: dict[str, dict]
     document_ids: list[str]
     index: faiss.Index
@@ -34,6 +38,8 @@ class AgentGraphRuntime:
 
     @classmethod
     def load(cls, agent_graph_path: Path = AGENT_GRAPH_PATH) -> "AgentGraphRuntime":
+        """Load prepared documents, embeddings, model, index and graph once."""
+
         required_files = [
             DOCUMENTS_PATH,
             EMBEDDINGS_PATH,
@@ -72,6 +78,8 @@ class AgentGraphRuntime:
         seed_k: int = 3,
         graph_weight: float = 0.05,
     ) -> tuple[list[dict], float]:
+        """Run read-only graph retrieval and return formatted ranked documents."""
+
         start_time = time.perf_counter()
 
         query_embedding = encode_query(self.model, query)
@@ -98,6 +106,8 @@ class AgentGraphRuntime:
         graph_weight: float = 0.05,
         update_config: GraphUpdateConfig | None = None,
     ) -> tuple[list[dict], float, dict]:
+        """Retrieve documents, update the graph and persist its new state."""
+
         results, latency_ms = self.search(
             query=query,
             top_k=top_k,
@@ -142,6 +152,8 @@ class AgentGraphRuntime:
         document_ids: set[str] | None = None,
         truncated: bool = False,
     ) -> dict:
+        """Return graph nodes and unique undirected edges for visualisation."""
+
         selected_ids = set(self.agents) if document_ids is None else document_ids
 
         nodes = [
@@ -189,6 +201,8 @@ class AgentGraphRuntime:
         depth: int = 1,
         max_nodes: int = 250,
     ) -> dict:
+        """Expand a bounded neighbourhood around selected root documents."""
+
         root_ids = list(dict.fromkeys(document_ids))
         unknown_ids = sorted(set(root_ids) - set(self.agents))
 

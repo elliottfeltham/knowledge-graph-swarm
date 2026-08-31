@@ -1,3 +1,5 @@
+"""Apply local strengthening, decay and pruning after adaptive retrieval."""
+
 from dataclasses import dataclass
 
 from agents.document_agent import DocumentAgent
@@ -5,6 +7,8 @@ from agents.document_agent import DocumentAgent
 
 @dataclass
 class GraphUpdateConfig:
+    """Control how strongly one retrieval interaction changes the graph."""
+
     strengthen_amount: float = 0.01
     decay_rate: float = 0.995
     prune_threshold: float = 0.05
@@ -27,6 +31,8 @@ def strengthen_edge(
     target_id: str,
     config: GraphUpdateConfig,
 ) -> dict:
+    """Increase an undirected edge weight, creating the edge when necessary."""
+
     current_edge = agents[source_id].edges.get(target_id)
     current_weight = current_edge.weight if current_edge is not None else 0.0
     strengthened_weight = min(
@@ -51,6 +57,8 @@ def strengthen_retrieved_edges(
     updated_doc_ids: list[str],
     config: GraphUpdateConfig,
 ) -> list[dict]:
+    """Strengthen every document pair within the selected update set."""
+
     edge_updates = []
 
     for source_position, source_id in enumerate(updated_doc_ids):
@@ -73,6 +81,8 @@ def decay_local_edges(
     strengthened_edges: set[tuple[str, str]],
     config: GraphUpdateConfig,
 ) -> list[dict]:
+    """Decay unreinforced edges attached to the documents updated by this query."""
+
     updated_doc_id_set = set(updated_doc_ids)
     decayed_edge_keys = set()
     decayed_updates = []
@@ -116,6 +126,8 @@ def prune_weak_edges(
     candidate_edges: set[tuple[str, str]],
     config: GraphUpdateConfig,
 ) -> list[dict]:
+    """Remove locally decayed edges that fall below the configured threshold."""
+
     edges_to_remove = []
 
     for source_id, target_id in sorted(candidate_edges):
@@ -145,6 +157,13 @@ def update_graph_after_retrieval(
     retrieved_doc_ids: list[str],
     config: GraphUpdateConfig | None = None,
 ) -> dict:
+    """Adapt the local graph around the highest-ranked retrieved documents.
+
+    The selected documents are connected pairwise, their other local edges are
+    decayed, and weak decayed edges may then be pruned. The returned summary is
+    used by the API, evaluation scripts and frontend update visualisation.
+    """
+
     if config is None:
         config = GraphUpdateConfig()
 
