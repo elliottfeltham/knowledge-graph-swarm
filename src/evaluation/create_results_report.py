@@ -245,7 +245,7 @@ def save_parameter_tuning_report(results: dict) -> None:
             "seed_k",
             metric,
             f"Adapted graph {label}",
-            "Graph weight",
+            "Graph influence",
             "Seed documents",
         )
 
