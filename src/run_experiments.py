@@ -435,7 +435,7 @@ def print_results(title: str, aggregate: dict) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Run the final dissertation retrieval evaluation."
+        description="Run the main retrieval benchmark."
     )
     parser.add_argument("--adaptation-queries", type=int, default=100)
     parser.add_argument("--validation-queries", type=int, default=100)

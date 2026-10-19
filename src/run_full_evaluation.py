@@ -1,4 +1,4 @@
-"""Run every final evaluation and regenerate the dissertation result report."""
+"""Run every benchmark and regenerate the result tables and figures."""
 
 import argparse
 import subprocess
@@ -76,7 +76,7 @@ def run_full_evaluation(skip_preparation: bool = False) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Prepare the system and reproduce the full dissertation evaluation."
+        description="Prepare the system and reproduce the complete benchmark suite."
     )
     parser.add_argument(
         "--skip-preparation",
