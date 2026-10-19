@@ -8,8 +8,6 @@ The project includes a FastAPI backend, a React and Three.js interface, an
 interactive 3D graph explorer, and a reproducible evaluation pipeline for
 comparing graph-assisted retrieval with FAISS and a static graph baseline.
 
-![Retrieval comparison](results/report/retrieval_comparison.png)
-
 ## Highlights
 
 - Hybrid retrieval combining semantic similarity with graph-neighbour activation
@@ -61,6 +59,23 @@ searches and evaluation queries never modify the graph.
 The `AgentGraphRuntime` loads the embedding model, FAISS index, documents, and
 agent graph once, then serves the same retrieval implementation to the CLI and
 API.
+
+## Engineering Decisions
+
+- **Single shared runtime:** expensive model, embedding, and index resources are
+  loaded once at API startup instead of on every request.
+- **Separated retrieval and mutation:** low-level ranking remains independent
+  from graph updates, so the same retrieval path supports read-only searches,
+  adaptive searches, benchmarks, and tests.
+- **Explicit state boundaries:** adaptive updates are persisted to JSONL, while
+  benchmarks operate on graph copies to protect application state.
+- **Typed API contract:** Pydantic response models are mirrored by TypeScript
+  interfaces and consumed through a dedicated frontend client.
+- **Scalable visualisation modes:** focused graphs retain full interaction,
+  while the complete graph limits expensive force calculations and disables
+  interactive force controls.
+- **Testable integration layer:** API tests replace the heavyweight runtime with
+  a deterministic fake, keeping endpoint tests fast and isolated.
 
 ## Interface
 
@@ -166,35 +181,14 @@ PYTHONPATH=src python src/retrieval/agent_graph_retrieval.py \
   --adaptive
 ```
 
-## Benchmark Results
+## Validation
 
-The benchmark uses three deterministic query splits and reports the mean across
-900 held-out query runs.
-
-| System | Recall@5 | Recall@10 | MRR |
-| --- | ---: | ---: | ---: |
-| FAISS | 0.7322 | 0.8106 | 0.8943 |
-| Static graph | 0.7322 | 0.8217 | 0.8421 |
-| Original adaptive graph | 0.7322 | 0.8156 | 0.8925 |
-| Optimised graph | **0.7483** | **0.8244** | **0.8957** |
-| Optimised graph after adaptation | **0.7483** | **0.8244** | **0.8957** |
-
-The optimised graph improved Recall@5 by `0.0161` and Recall@10 by `0.0138`
-over FAISS. Graph activation primarily acts as a small reranking signal for
-documents with similar semantic scores.
-
-Conservative adaptation changed graph structure and rankings without reducing
-aggregate retrieval quality. After 300 interactions, 7.17% of held-out top-10
-result sets contained different documents and 14.83% had a different ordering,
-while Recall@10 and MRR remained stable. More aggressive updates changed more
-rankings but reduced retrieval quality, highlighting the need for stronger user
-feedback signals before applying large unsupervised updates.
-
-Supporting outputs are available in [`results/`](results/), including the
-[ranking impact](results/report/ranking_impact.png),
-[graph evolution](results/report/graph_evolution.png),
-[retrieval parameter search](results/report/parameter_tuning_heatmap.png), and
-[update dynamics](results/report/update_dynamics_heatmap.png).
+The retrieval pipeline was evaluated across 900 held-out query runs. The
+optimised graph improved Recall@5 from `0.7322` to `0.7483` and Recall@10 from
+`0.8106` to `0.8244` compared with FAISS alone. Conservative adaptation changed
+graph structure and result ordering while preserving aggregate retrieval
+quality. Full benchmark data, ablations, and generated figures are versioned in
+[`results/`](results/).
 
 ## Reproducing The Benchmarks
 
