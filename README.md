@@ -292,3 +292,9 @@ and the bundled font packages provide interface icons and typography.
 
 The document-agent graph, adaptive update logic, evaluation workflow, API
 integration, and interface were implemented specifically for this project.
+
+## License
+
+The project source code is available under the [MIT License](LICENSE).
+HotpotQA-derived data and benchmark outputs remain subject to HotpotQA's
+CC BY-SA 4.0 terms; see [Data And Model Attribution](#data-and-model-attribution).
